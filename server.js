@@ -38,7 +38,7 @@ app.use((req, res, next) => {
   // Listen to POST requests to /users.
 app.post('/login', function(req, res) {
   // Get sent data.
-  console.log(req);
+  //console.log(req);
   var user = req.body.user;
   var pass = hash(req.body.pass);
   // Do a MySQL query.
@@ -46,19 +46,20 @@ app.post('/login', function(req, res) {
   con.query(sql, [user,pass], function (err, result) {
     if (err) throw err;
     if (result.length == 0) {
-      res.send({
+      res.status(500).send({
         message: "user not found"
       })
     }else{
       const token = jwt.sign(
         {
-          userId: user._id,
-          userEmail: user.email,
+          userID: result[0].userID,
+          user: result[0].user,
+          user_type: result[0].user_type,
         },
         "RANDOM-TOKEN",
         { expiresIn: "24h" }
       );
-      res.send({
+      res.status(201).send({
         message:"user logged in successfully",
         result: result,
         token
@@ -82,26 +83,56 @@ app.post('/signup', function(req, res) {
         var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?'
         con.query(sql, [user, pass], function (err, result) {
           if (err) throw err;
-          res.send({
+          const token = jwt.sign(
+            {
+              userID: result[0].userID,
+              user: result[0].user,
+              user_type: result[0].user_type,
+            },
+            "RANDOM-TOKEN",
+            { expiresIn: "24h" }
+          );
+          res.status(201).send({
             message:"user created successfully",
-            result:JSON.stringify(result)
-          });
+            result: result,
+            token
+          })
           res.end();
         });
       })
     }else{
-      res.send({message:"username already taken"});
+      res.status(500).send({message:"username already taken"});
       res.end();
     }
 
   });
   
 });
-app.post('/data', auth, function(req, res) {
-  
-  res.send("your a nonce");
+app.post('/comp_data', auth, function(req, res) {
+  var sql = 'SELECT * FROM competitions';
+  con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(result);
+    res.end();
+  });
+});
+app.post('/user',auth, function(req, res) {
+  console.log(req.user);
+  res.send(req.user);
   res.end();
-  
+});
+app.post('/event_grade_name',auth, function(req, res) {
+  var sql = 'SELECT grade_name FROM grades';
+  con.query(sql, function (err, grades) {
+    if (err) throw err;
+    var sql = 'SELECT event_name FROM events';
+    con.query(sql, function (err, events) {
+      if (err) throw err;
+      var multires = {grades,events}
+      res.send(multires);
+      res.end();
+    });
+  });
 });
 app.get('/*', function(req, res) {
   res.sendFile(path.resolve(__dirname, 'C:\\xampp\\htdocs\\Bandwebapp\\public\\index.html'), function(err) {

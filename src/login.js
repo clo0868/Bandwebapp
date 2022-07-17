@@ -5,11 +5,11 @@ import axios from "axios";
 
 
 
-const Login = (setToken) => {
+const Login = () => {
   let navigate = useNavigate();
   useEffect(() => {
-    if(sessionStorage.TOKEN){
-      console.log("Se");
+    //console.log(sessionStorage.getItem("TOKEN"));
+    if(sessionStorage.getItem("TOKEN")){
       navigate("/")
     }
   },[])
@@ -18,7 +18,6 @@ const Login = (setToken) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   async function loginUser(user) {
-    console.log(user);
     return axios({
         method: 'POST',
         url: './login',
@@ -45,7 +44,7 @@ const Login = (setToken) => {
   return (
     <div className="container-fluid">
       <div className="d-flex justify-content-center">
-        <div className="card justify-content-center mt-3 p-5">
+        <div className="card justify-content-center mt-5 p-5">
           <h1 className="text-center">Login</h1>
           <form onSubmit={handleSubmit}>
             <div className="my-3">

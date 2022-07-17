@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 
 import axios from 'axios';
 
@@ -10,7 +10,6 @@ const Signup = () => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   useEffect(() => {
     if(sessionStorage.TOKEN){
-      console.log("Se");
       navigate("/")
     }
   },[])
@@ -26,6 +25,8 @@ const Signup = () => {
         url: './signup',
         data: { user: username, pass: password },
       }).then(res => {
+          sessionStorage.setItem("TOKEN", res.data.token);
+          navigate("/")
       }).catch(e => {
         e = new Error();
       })
@@ -36,7 +37,7 @@ const Signup = () => {
   return(
     <div className="container-fluid">
       <div className="d-flex justify-content-center">
-        <div className="card p-5 mt-5 text-center">
+        <div className="card p-5 py-4 mt-5 text-center">
           <h1 className="pb-3">Sign Up</h1>
          <form className="login" onSubmit={handleSubmitSignup}>
            <div className="mb-3">
@@ -50,6 +51,7 @@ const Signup = () => {
            </div>
            <button className="btn btn-primary px-3"type="submit" name="submit">Sign Up</button>
          </form>
+         <Link to="/login" className=" mt-3 link-dark text-center">Already have an account? Login here.</Link>
        </div>
       </div>
     </div>
