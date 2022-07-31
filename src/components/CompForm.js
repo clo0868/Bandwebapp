@@ -54,6 +54,23 @@ const CompForm = () => {
   const handleReset = () => {
     setActiveStep(0);
   };
+  const handleSubmit = () => {
+    const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields]
+    axios({
+      method: 'POST',
+      url: './create_comp',
+      headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      data: { 
+        form_data
+      },
+    }).then(res => {
+      console.log(res.data);
+    }).catch(e => {
+      e = new Error();
+    })
+  };
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep}>
@@ -106,6 +123,8 @@ const CompForm = () => {
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
             <Button onClick={handleReset}>Reset</Button>
+            <Button onClick={handleSubmit}>Create</Button>
+
           </Box>
         </React.Fragment>
       ) : (
@@ -205,7 +224,7 @@ const CompForm = () => {
                           onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, grade:event.target.value}:value}));}}
                         >
                           {eventGrade.grades.map((grade,index) => {
-                            return <MenuItem key={index} value={index}>{grade.grade_name}</MenuItem>
+                            return <MenuItem key={index} value={index+1}>{grade.grade_name}</MenuItem>
                           })}
                         </Select>
                       </FormControl>
@@ -220,7 +239,7 @@ const CompForm = () => {
                           onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, event:event.target.value}:value}));}}
                         >
                           {eventGrade.events.map((event,index) => {
-                            return <MenuItem key={index} value={index}>{event.event_name}</MenuItem>
+                            return <MenuItem key={index} value={index+1}>{event.event_name}</MenuItem>
                           })}
                         </Select>
                       </FormControl>

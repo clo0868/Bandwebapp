@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from "react";
+import React, { useEffect, useState,useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -14,10 +14,15 @@ const Login = () => {
     }
   },[])
   
+  const user_ref = useRef(null);
+  const pass_ref = useRef(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   async function loginUser(user) {
+    const user_input = user_ref.current; 
+    const pass_input = pass_ref.current; 
+
     return axios({
         method: 'POST',
         url: './login',
@@ -26,10 +31,15 @@ const Login = () => {
           pass:user.password,
         },
       }).then(res => {
+        user_input.className = " form-control"; 
+        pass_input.className = " form-control";
         sessionStorage.setItem("TOKEN", res.data.token);
         navigate("/")
       }).catch(e => {
-        e = new Error();
+        console.log(e);
+        user_input.className = " form-control is-invalid";
+        pass_input.className = " form-control is-invalid";
+        setPassword("")
       })
    }
 
@@ -41,17 +51,33 @@ const Login = () => {
     });
   }
 
+  function unerror(){
+    const user_input = user_ref.current; 
+    const pass_input = pass_ref.current; 
+    user_input.className = " form-control"; 
+    pass_input.className = " form-control";
+  }
+
   return (
     <div className="container-fluid">
       <div className="d-flex justify-content-center">
-        <div className="card justify-content-center mt-5 p-5">
+        <div className="card login-card justify-content-center mt-5 p-5">
           <h1 className="text-center">Login</h1>
-          <form onSubmit={handleSubmit}>
+          <form className="" onSubmit={handleSubmit}>
             <div className="my-3">
-              <input type="text" className="form-control" value={username} onChange={({ target }) => setUsername(target.value)} placeholder="Username" />
+              <div className="input-group login-input">
+                <input type="text" ref={user_ref} onSelect={unerror} className="form-control " value={username} onChange={({ target }) => setUsername(target.value)} placeholder="Username"  required/>
+              </div>
             </div>
             <div className="mb-4">
-              <input type="password" className="form-control" value={password} onChange={({ target }) => setPassword(target.value)} placeholder="Password" />
+              <div className="input-group login-input">
+                <input type="password" ref={pass_ref} onSelect={unerror}  className="form-control" value={password} onChange={({ target }) => setPassword(target.value)} placeholder="Password"  required/>
+                <div className="invalid-feedback text-center">
+                  <p>Incorrect Username or Password</p>
+
+                  
+                </div>
+              </div> 
             </div>
             <div className="text-center mb-3">
               <button type="submit" className="btn btn-primary" name="submit">Login</button>

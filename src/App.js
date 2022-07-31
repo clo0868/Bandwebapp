@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Home from "./home";
 import Login from "./login";
 import Signup from "./signup";
+import Competition from './competition';
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import axios from 'axios';
 function App() {
@@ -50,6 +51,11 @@ function App() {
         <Route index path="/" element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        } />
+        <Route index path="/competition" element={
+          <ProtectedRoute>
+            <Competition />
           </ProtectedRoute>
         } />
           <Route path="login" element={<Login />} />

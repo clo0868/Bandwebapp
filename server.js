@@ -42,14 +42,48 @@ app.post('/login', function(req, res) {
   var user = req.body.user;
   var pass = hash(req.body.pass);
   // Do a MySQL query.
-  var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?';
-  con.query(sql, [user,pass], function (err, result) {
+  var sql = 'SELECT * FROM users WHERE user = ?';
+  con.query(sql, [user], function (err, result) {
     if (err) throw err;
     if (result.length == 0) {
       res.status(500).send({
-        message: "user not found"
+        message: "Incorrect username"
       })
     }else{
+      if (result[0].user_pass == pass){
+        const token = jwt.sign(
+          {
+            userID: result[0].userID,
+            user: result[0].user,
+            user_type: result[0].user_type,
+          },
+          "RANDOM-TOKEN",
+          { expiresIn: "24h" }
+        );
+        res.status(201).send({
+          message:"user logged in successfully",
+          result: result,
+          token
+        })
+      }else{
+        res.status(500).send({
+          message: "Incorrect password"
+        })
+      }
+    }    
+  });
+});
+app.post('/signup', function(req, res) {
+  // Get sent data.
+  var user = req.body.user;
+  var pass = hash(req.body.pass);
+  var type = req.body.type;
+  var sql = 'INSERT INTO users (user,user_pass,user_type) VALUES (?,?,?)';
+  con.query(sql, [user,pass,type], function (err, result) {
+    if (err) throw err;
+    var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?'
+    con.query(sql, [user, pass], function (err, result) {
+      if (err) throw err;
       const token = jwt.sign(
         {
           userID: result[0].userID,
@@ -60,53 +94,13 @@ app.post('/login', function(req, res) {
         { expiresIn: "24h" }
       );
       res.status(201).send({
-        message:"user logged in successfully",
+        message:"user created successfully",
         result: result,
         token
       })
-    }
-    res.end();
-  });
-});
-app.post('/signup', function(req, res) {
-  // Get sent data.
-  var user = req.body.user;
-  var pass = hash(req.body.pass);
-  // Do a MySQL query.
-  var sql = 'SELECT * FROM users WHERE user = ?'
-  con.query(sql, [user], function (err, result) {
-    if (err) throw err;
-    if(result.length === 0){
-      var sql = 'INSERT INTO users (user,user_pass,user_type) VALUES (?,?,0)';
-      con.query(sql, [user, pass], function (err, result) {
-        if (err) throw err;
-        var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?'
-        con.query(sql, [user, pass], function (err, result) {
-          if (err) throw err;
-          const token = jwt.sign(
-            {
-              userID: result[0].userID,
-              user: result[0].user,
-              user_type: result[0].user_type,
-            },
-            "RANDOM-TOKEN",
-            { expiresIn: "24h" }
-          );
-          res.status(201).send({
-            message:"user created successfully",
-            result: result,
-            token
-          })
-          res.end();
-        });
-      })
-    }else{
-      res.status(500).send({message:"username already taken"});
       res.end();
-    }
-
-  });
-  
+    });
+  })
 });
 app.post('/comp_data', auth, function(req, res) {
   var sql = 'SELECT * FROM competitions';
@@ -116,8 +110,16 @@ app.post('/comp_data', auth, function(req, res) {
     res.end();
   });
 });
+app.post('/check_existing_user', function(req, res) {
+  var user = req.body.user;
+  var sql = 'SELECT * FROM users WHERE user = ?';
+  con.query(sql,[user], function (err, result) {
+    if (err) throw err;
+    res.send(result);
+    res.end();
+  });
+});
 app.post('/user',auth, function(req, res) {
-  console.log(req.user);
   res.send(req.user);
   res.end();
 });
@@ -133,6 +135,40 @@ app.post('/event_grade_name',auth, function(req, res) {
       res.end();
     });
   });
+});
+app.post('/create_comp',auth, function(req, res) {
+  data=req.body.form_data
+  console.log(data[5][0]);
+  var sql = 'INSERT INTO competitions (`comp_name`, `comp_location`, `comp_start_time`,`ent_open_time`,`ent_close_time`,`comp_events`,`comp_rooms`,`comp_schedule`) VALUES (?,?,?,?,?,?,?,?)';
+  con.query(sql,[data[0],data[2],data[1],data[3],data[4],JSON.stringify(data[5]),0,0], function (err, grades) {
+    if (err) throw err;
+  });
+});
+app.post('/comp_entries',auth, function(req, res) {
+  var comp_data = req.body.comp;
+  var sql = 'SELECT * FROM entries INNER JOIN users ON entries.userID = users.userID WHERE entries.compID = ?';
+  con.query(sql,[comp_data.compID], function (err, result) {
+    if (err) throw err;
+    res.send(result);
+    res.end();
+  });
+});
+app.post('/create_entries',auth, function(req, res) {
+  var entry_input = []
+  const user = req.user.userID
+  const compID = req.body.compID
+  var entries=req.body.entries
+  
+  var comp_events=req.body.comp_events
+  var entry_indicies = [...entries.keys()].filter(i => entries[i])
+  for (let i = 0; i < entry_indicies.length; i++) {
+    entry_input.push(comp_events[entry_indicies[i]])
+    console.log(entry_input);
+    var sql = 'INSERT INTO `entries`(`userID`, `compID`, `gradeID`, `eventID`, `placing`) VALUES (?,?,?,?,0)';
+    con.query(sql,[user,compID,comp_events[entry_indicies[i]].grade,comp_events[entry_indicies[i]].event], function (err, result) {
+      if (err) throw err;
+    });
+  }
 });
 app.get('/*', function(req, res) {
   res.sendFile(path.resolve(__dirname, 'C:\\xampp\\htdocs\\Bandwebapp\\public\\index.html'), function(err) {
