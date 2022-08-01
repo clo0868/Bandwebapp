@@ -4,21 +4,39 @@ import { useNavigate,Link } from "react-router-dom";
 import axios from 'axios';
 
 const Signup = () => {
+  const first_ref = useRef(null);
+  const last_ref = useRef(null);
   const user_ref = useRef(null);
+  const email_ref = useRef(null);
   const pass_ref = useRef(null);
   const pass_confirm_ref = useRef(null);
+  const student_ref = useRef(null)
 
 
   const navigate = useNavigate();
+  const [firstname, setFirstName] = useState("");
+  const [email, setEmail] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [accountType, setAccountType] = useState(0);
+  const [accountType, setAccountType] = useState('2');
+  const [names, setNames] = useState([]);
+  const [student, setStudent] = useState('');
   useEffect(() => {
     if(sessionStorage.TOKEN){
       navigate("/")
     }
+    axios({
+      method: 'POST',
+      url: './get_existing_names',
+    }).then(res => {  
+      setNames(res.data)
+    }).catch(e => {
+      e = new Error();
+    })
   },[])
+
 
   useEffect(() => {
     axios({
@@ -32,33 +50,40 @@ const Signup = () => {
       }else{
         user_input.className = " form-control";        
       }
+
     }).catch(e => {
       e = new Error();
     })
 
   },[username])
 
+
   const handleSubmitSignup = async e => {
     e.preventDefault();
     const pass_input = pass_ref.current; 
-    const pass_confirm_input = pass_confirm_ref.current; 
+    const pass_confirm_input = pass_confirm_ref.current;
 
-
+    const merged_names = names.map(name => Object.values(name).join(" "))
     if (password !== passwordConfirm) {
       pass_input.className = " form-control is-invalid";
       pass_confirm_input.className = " form-control is-invalid";
       setPasswordConfirm("")
       setPassword("")
-    }else {
+    }if ((merged_names.every(name => name !== student) && accountType === "2") || (student !== '' && (accountType === '1' || accountType === '3'))) {
+      const student_input = student_ref.current;
+      student_input.className = " form-control is-invalid";
+    }else{
       pass_input.className = " form-control";        
       pass_confirm_input.className = " form-control ";
-
-
+      if(accountType === '2'){
+        const student_input = student_ref.current;
+        student_input.className = " form-control";
+      }
       // send the username and password to the server
       axios({
         method: 'POST',
         url: './signup',
-        data: { user: username, pass: password,type: accountType},
+        data: { username:username,student:names[merged_names.indexOf(student)],email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
       }).then(res => {
           sessionStorage.setItem("TOKEN", res.data.token);
           navigate("/")
@@ -69,10 +94,15 @@ const Signup = () => {
 
   };
   function unerror(){
+    if(accountType === '2'){
+      const student_input = student_ref.current;
+      student_input.className = " form-control";
+    }
     const pass_confirm_input = pass_confirm_ref.current; 
     const pass_input = pass_ref.current; 
     pass_confirm_input.className = " form-control"; 
     pass_input.className = " form-control";
+
   }
 
   return(
@@ -81,12 +111,18 @@ const Signup = () => {
         <div className="card login-card p-5 py-4 mt-5 text-center">
           <h1 className="pb-3">Sign Up</h1>
          <form className="login" onSubmit={handleSubmitSignup} >
-           <div className="mb-3">
+          
+            <div className="mb-3">
               <div className="input-group login-input">
-                <input type="text" ref={user_ref} className="form-control " value={username} onChange={({ target }) => setUsername(target.value)} placeholder="Username"  required/>
-                <div className="invalid-feedback">
+              <input type="text" ref={user_ref} className="form-control me-2 " value={username} onChange={({ target }) => setUsername(target.value)} placeholder="Username"  required/>
+              <div className="invalid-feedback">
                   Username Already Taken
                 </div>
+              </div>           
+            </div>
+            <div className="mb-3">
+              <div className="input-group login-input">
+                <input type="email" ref={email_ref} className="form-control" value={email} onChange={({ target }) => setEmail(target.value)} placeholder="Email"  required/>
               </div>           
             </div>
            <div className="mb-3">
@@ -109,7 +145,41 @@ const Signup = () => {
             <option value="3">Teacher</option>
           </select>
            </div>
-           <button className="btn btn-primary px-3"type="submit" name="submit">Sign Up</button>
+           {(accountType === '0'||accountType === '3') ? (
+          <div className="mb-3">
+          <div className="input-group login-input">
+            <input type="text" ref={first_ref} className="form-control me-2 " value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
+            <input type="text" ref={last_ref} className="form-control " value={lastName} onChange={({ target }) => setLastName(target.value)} placeholder="Last Name"  required/>
+          </div>           
+        </div>          
+          ):(null)}
+           {accountType === '2'&&
+           <div className="mb-3">
+            <div className="dropdown">
+              <div id="studentDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <input type="text" ref={student_ref} onSelect={unerror} className='form-control' value={student} onChange={({ target }) => setStudent(target.value)} placeholder="Students Name"  required/>
+              <div className="invalid-feedback">
+                  This Student Does Not Exist. Please Select An Existing Student.
+              </div>
+              </div>
+              <ul className="dropdown-menu student-dropdown" aria-labelledby="studentDropdown">
+                {names.map((name,index) => {
+                  
+                  return (
+                    <div key={index}>
+                    {(name.first_name.startsWith(student)||name.last_name.startsWith(student)) ? (
+                      <li onClick={() => {setStudent(name.first_name+' '+name.last_name)}} className='student-dropdown-item'>{name.first_name+' '+name.last_name}</li>
+                    ):(null)}
+                    </div>
+                  )
+                })}
+              </ul>
+              
+            </div>
+           </div>
+           }
+          <button className="btn btn-primary px-3"type="submit" name="submit">Sign Up</button>
+
          </form>
          <Link to="/login" className=" mt-3 link-dark text-center">Already have an account? Login here.</Link>
        </div>

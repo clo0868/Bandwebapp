@@ -17,7 +17,7 @@ const Home = () => {
     const [compopen, setCompopen] = useState(false);
     const [entviewopen, setEntviewopen] = useState(false);
     const [enteropen, setEnteropen] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const compmodalstyle = {
         position: 'absolute',
         top: '50%',
@@ -30,7 +30,6 @@ const Home = () => {
       };
 
     useEffect(() => {
-        setLoading(true)
         axios({
             method: 'POST',
             url: './user',
@@ -88,6 +87,9 @@ const Home = () => {
                                     <div>
                                     {data.map((comp,index) => {
                                     const comp_start_time = new Date(comp.comp_start_time)
+                                    const ent_open = new Date(comp.ent_open_time).getTime()
+                                    const ent_close = new Date(comp.ent_close_time).getTime()
+                                    const current_date = new Date().getTime()
                                     return(
                                         <div key={index} className='row m-2 mt-3'>
                                             <div className='card p-2 shadow-sm '>
@@ -104,7 +106,7 @@ const Home = () => {
                                                     </div> 
                                                     <div className='row'>
                                                         <div className='col text-start'>
-                                                        {user && user.user_type === 0 &&
+                                                        {user && user.user_type === 0 && current_date > ent_open &&
                                                         <>
                                                         <Button onClick={() => setEntviewopen(true)} variant='contained'>View Entries</Button>
                                                         <Modal
@@ -123,11 +125,11 @@ const Home = () => {
                                                             
                                                         </div>
                                                         <div className='col text-center'>
-                                                        <Link className='text-decoration-none text-white' to="/competition" state={{comp:comp}} ><Button variant='contained'>More Info</Button></Link>
+                                                            <Link className='text-decoration-none text-white' to="/competition" state={{comp:comp}} ><Button variant='contained'>More Info</Button></Link>
                                                         
                                                         </div>
                                                         <div className='col text-end'>
-                                                            {user && user.user_type === 0 &&
+                                                            {user && user.user_type === 0 && ent_open < current_date && ent_close > current_date &&
                                                             <>
                                                             <Button onClick={() => setEnteropen(true)} variant='contained'>Enter Competition</Button>
                                                             <Modal

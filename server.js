@@ -56,6 +56,9 @@ app.post('/login', function(req, res) {
             userID: result[0].userID,
             user: result[0].user,
             user_type: result[0].user_type,
+            first_name: result[0].first_name,
+            last_name: result[0].last_name,
+            email:result[0].email,
           },
           "RANDOM-TOKEN",
           { expiresIn: "24h" }
@@ -75,11 +78,22 @@ app.post('/login', function(req, res) {
 });
 app.post('/signup', function(req, res) {
   // Get sent data.
-  var user = req.body.user;
-  var pass = hash(req.body.pass);
-  var type = req.body.type;
-  var sql = 'INSERT INTO users (user,user_pass,user_type) VALUES (?,?,?)';
-  con.query(sql, [user,pass,type], function (err, result) {
+  const user = req.body.username;
+  const pass = hash(req.body.pass);
+  const type = req.body.type;
+  const email = req.body.email;
+  if(type == '2'){
+    const student = req.body.student
+    console.log(student);
+    var firstname = student.first_name
+    var lastname = student.last_name
+  }else{
+    var firstname = req.body.firstname;
+    var lastname = req.body.lastname;
+    console.log(firstname);
+  }
+  var sql = 'INSERT INTO users (user,user_pass,user_type,email,first_name,last_name) VALUES (?,?,?,?,?,?)';
+  con.query(sql, [user,pass,type,email,firstname,lastname], function (err, result) {
     if (err) throw err;
     var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?'
     con.query(sql, [user, pass], function (err, result) {
@@ -89,6 +103,9 @@ app.post('/signup', function(req, res) {
           userID: result[0].userID,
           user: result[0].user,
           user_type: result[0].user_type,
+          first_name: result[0].first_name,
+          last_name: result[0].last_name,
+          email:result[0].email,
         },
         "RANDOM-TOKEN",
         { expiresIn: "24h" }
@@ -158,17 +175,43 @@ app.post('/create_entries',auth, function(req, res) {
   const user = req.user.userID
   const compID = req.body.compID
   var entries=req.body.entries
-  
+  var sql = 'DELETE FROM entries WHERE userID = ? AND compID = ?';
+  con.query(sql,[user,compID], function (err, result) {
+    if (err) throw err;
+    });
   var comp_events=req.body.comp_events
   var entry_indicies = [...entries.keys()].filter(i => entries[i])
   for (let i = 0; i < entry_indicies.length; i++) {
     entry_input.push(comp_events[entry_indicies[i]])
-    console.log(entry_input);
     var sql = 'INSERT INTO `entries`(`userID`, `compID`, `gradeID`, `eventID`, `placing`) VALUES (?,?,?,?,0)';
     con.query(sql,[user,compID,comp_events[entry_indicies[i]].grade,comp_events[entry_indicies[i]].event], function (err, result) {
       if (err) throw err;
+      if(i===entry_indicies.length-1){
+        res.status(201).send({
+          message:"entered successfully",
+          result: result,
+        })
+      }
     });
   }
+});
+app.post('/get_existing_names', function(req, res) {
+  var sql = 'SELECT first_name,last_name FROM users';
+  con.query(sql, function (err, result) {
+    if (err) throw err;    
+    res.send(result);
+    res.end();    
+  });
+});
+app.post('/check_existing_entry',auth, function(req, res) {
+  const user = req.user;
+  const compID = req.body.compID
+  var sql = 'SELECT * FROM entries WHERE userID = ? AND compID = ?';
+  con.query(sql,[user.userID,compID], function (err, result) {
+    if (err) throw err;
+    res.send(result);
+    res.end();
+  });
 });
 app.get('/*', function(req, res) {
   res.sendFile(path.resolve(__dirname, 'C:\\xampp\\htdocs\\Bandwebapp\\public\\index.html'), function(err) {
