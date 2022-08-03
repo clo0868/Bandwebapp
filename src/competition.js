@@ -1,7 +1,6 @@
 import React, {useState,useEffect} from 'react';
 import {useLocation} from "react-router-dom";
 import Modal from '@mui/material/Modal';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import axios from'axios';
 import EntryForm from './components/EntryForm.js'
@@ -11,14 +10,16 @@ import EntriesDisplay from './components/EntriesDisplay.js';
 
 
 const Competition = () => {
+    var data = useLocation();
     const token = sessionStorage.TOKEN
+    const compID = data.state.comp.compID
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState();
     const [enteropen, setEnteropen] = useState(false);
     const [configopen, setConfigopen] = useState(false);
     const [entviewopen, setEntviewopen] = useState(false);
-
-
+    const [child, setChild] = useState({});
+    const [comp, setComp] = useState({});
     const compmodalstyle = {
         position: 'absolute',
         top: '50%',
@@ -32,6 +33,21 @@ const Competition = () => {
 
     useEffect(() => {
         setLoading(true)
+        console.log(compID);
+        axios({
+            method: 'POST',
+            url: './comp_data',
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              data: { 
+                compID,
+              },
+          }).then(res => {
+            setComp(res.data[0])
+          }).catch(e => {
+            e = new Error();
+          })
         axios({
             method: 'POST',
             url: './user',
@@ -39,13 +55,22 @@ const Competition = () => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            setUser(res.data)
+            setUser(res.data.user)
+            if (res.data.result) {
+                setChild(res.data.result[0])
+            }
             setLoading(false)
           }).catch(e => {
+            if(e.response.data.error === 'User not approved!'){
+                setUser({user:e.response.data.error})
+                console.log('Your Account has not been approved yet');
+            }else{
+                e = new Error();
+            }
           })
     },[])
-    var data = useLocation();
-    const comp = data.state.comp
+    
+    
     const comp_start = new Date(comp.comp_start_time)
     const comp_start_time = comp_start.getTime()
     const ent_open = new Date(comp.ent_open_time).getTime()
@@ -59,13 +84,20 @@ const Competition = () => {
 
                     </div>
                     <div className='col-8 text-center'>
+                        {user && user.user === "User not approved!" &&
+                            <div className='shadow-sm m-2'>
+                                <h5>{user.user}</h5>
+                                <p className='m-0'>Please wait for your account to be approved</p>
+                                <p>Contact an admin if this was a mistake</p>                             
+                            </div>
+                            }
                         {loading ? (
                             <div>
                                 <CompInfoSkeleton/>
                             </div>
 
                         ) : (
-                            <div className='grid m-3 '>
+                            <div className='grid m-3'>
                                 <div className='row border-bottom border-3'>
                                     <div className='col text-start'>
                                         <h5>{comp.comp_name}</h5>
@@ -77,13 +109,13 @@ const Competition = () => {
                                     </div>
                                 </div> 
                             {current_time > ent_close && current_time < comp_start_time && comp.comp_schedule !== '0' &&
-                                <div className='row'>
+                                <div className=' row m-2'>
                                     <p> you have a schedule</p>
                                 </div>                              
                             }
-                            {user && user.user_type === 0 && ent_close > current_time &&
-                                <div className='row'>
-                                    <Button onClick={() => setConfigopen(true)} variant='contained'>Configure Competition</Button>
+                            {user && user.user_type === 4 && ent_close > current_time &&
+                                <div className=' row m-2'>
+                                    <button onClick={() => setConfigopen(true)} className='btn btn-primary'>Configure Competition</button>
                                     <Modal
                                         open={configopen}
                                         onClose={() => setConfigopen(false)}
@@ -92,16 +124,16 @@ const Competition = () => {
                                     >
                                         <Box sx={compmodalstyle}>
                                             <button onClick={() => setConfigopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                            <ConfigCompForm />
+                                            <ConfigCompForm token={token} comp={comp} />
                                         </Box>
                                     </Modal> 
                                     
                                 </div>
                             
                             }
-                            {ent_open < current_time && 
-                                <div className='row'>
-                                <Button onClick={() => setEntviewopen(true)} variant='contained'>View Entries</Button>
+                            {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
+                                <div className=' row m-2'>
+                                <button onClick={() => setEntviewopen(true)} className='btn btn-primary'>View Entries</button>
                                 <Modal
                                     open={entviewopen}
                                     onClose={() => setEntviewopen(false)}
@@ -114,11 +146,11 @@ const Competition = () => {
                                     </Box>
                                 </Modal>     
                                 </div> 
-                            }
+                            ):null}
                             {user && user.user_type === 0 && ent_open < current_time && ent_close > current_time &&
                             <>
-                            <div className='row'>
-                                <Button onClick={() => setEnteropen(true)} variant='contained'>Enter Competition</Button>
+                            <div className=' row m-2'>
+                                <button onClick={() => setEnteropen(true)} className='btn btn-primary'>Enter Competition</button>
                                 <Modal
                                     open={enteropen}
                                     onClose={() => setEnteropen(false)}
@@ -133,6 +165,23 @@ const Competition = () => {
                             </div>  
                             </>                                             
                             } 
+                            {user && user.user_type === 2 &&
+                            <div className=' row m-2'>
+                                <button onClick={() => setEnteropen(true)} className='btn btn-primary'>Enter For {child.first_name.charAt(0).toUpperCase() + child.first_name.slice(1)} {child.last_name.charAt(0).toUpperCase() + child.last_name.slice(1)}</button>
+                                <Modal
+                                    open={enteropen}
+                                    onClose={() => setEnteropen(false)}
+                                    aria-labelledby="modal-modal-title"
+                                    aria-describedby="modal-modal-description"
+                                >
+                                    <Box sx={compmodalstyle}>
+                                        <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+                                        <EntryForm user={user.user_type === 2 ? child:user} token={token} comp={comp}/>
+                                    </Box>
+                                </Modal> 
+                            
+                            </div>
+                            }
                         </div>
                             
                         )}

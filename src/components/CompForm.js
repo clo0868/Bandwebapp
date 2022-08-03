@@ -243,7 +243,7 @@ const CompForm = () => {
                           })}
                         </Select>
                       </FormControl>
-                      <Button onClick={() => {setEventfields((values) => values.filter((_, index) => index !== 0))}} className='ms-auto mt-1 me-2' size='small'variant="contained">X</Button>
+                      <Button onClick={() => {setEventfields((values) => values.filter((_, i) => i !== index))}} className='ms-auto me-2' size='small'variant="contained">X</Button>
 
                     </div>
                   );

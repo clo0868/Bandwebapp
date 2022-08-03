@@ -9,16 +9,25 @@ module.exports = async (request, response, next) => {
   
       // retrieve the user details of the logged in user
       const user = await decodedToken;
-  
-      // pass the user down to the endpoints here
+      if(user.user_approve === 0){
+        // user isnt approved
+        response.status(401).send({
+          error: "User not approved!",
+        });
+      }else{
+        // pass the user down to the endpoints here
       request.user = user;
   
       // pass down functionality to the endpoint
       next();
+
+      }
+      
       
     } catch (error) {
-      response.status(401).json({
-        error: new Error("Invalid request!"),
+      response.status(401).send({
+        error:"Invalid request!",
       });
+      
     }
   };

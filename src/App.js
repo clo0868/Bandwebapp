@@ -20,6 +20,12 @@ function App() {
     }).then(res => {
       setUser(res.data)
     }).catch(e => {
+      if(e.response.data.error === 'User not approved!'){
+        setUser({user:e.response.data.error})
+      }else{
+        e = new Error();
+      }
+      
     })
   },[location])
   return (
@@ -27,7 +33,6 @@ function App() {
     <div className='navbar-sticky shadow-sm'>
         <ul className="list-unstyled d-flex justify-content-around align-items-center m-0 p-2 px-4">
           <li className='nav-item'><Link className='link-dark' to="/">Home</Link></li>
-          <li></li>
           {user ? 
           <li className="nav-item">
             <Link className='link-dark '  onClick={() => { setUser();sessionStorage.clear();}} to="/login">

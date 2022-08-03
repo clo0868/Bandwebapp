@@ -4,7 +4,10 @@
     margin: 0;   
     padding: 0;
 }
-.body{
+html,body {
+    height:100%;
+}
+body{
     margin: 0;   
     padding: 0;
 }
@@ -57,4 +60,11 @@
   .student-dropdown {
     -ms-overflow-style: none;  
     scrollbar-width: none;  
+  }
+  .modal-size{
+    min-width: 35vw;
+    min-height: 35vw;
+  }
+  .max-height{
+    height: 100%;
   }

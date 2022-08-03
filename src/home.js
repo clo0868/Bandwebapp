@@ -18,6 +18,7 @@ const Home = () => {
     const [entviewopen, setEntviewopen] = useState(false);
     const [enteropen, setEnteropen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [child, setChild] = useState([]);
     const compmodalstyle = {
         position: 'absolute',
         top: '50%',
@@ -37,12 +38,21 @@ const Home = () => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            setUser(res.data)
+            setUser(res.data.user)
+            if (res.data.result) {
+                setChild(res.data.result[0])
+            }
           }).catch(e => {
+            if(e.response.data.error === 'User not approved!'){
+                setUser({user:e.response.data.error})
+                console.log('Your Account has not been approved yet');
+            }else{
+                e = new Error();
+            }
           })
         axios({
             method: 'POST',
-            url: './comp_data',
+            url: './all_comp_data',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -61,7 +71,14 @@ const Home = () => {
                         <div className='col-2 shadow-sm min-vh-100'> 
                         </div>
                         <div className='col-8 text-center '> 
-                            {user && user.user_type === 1 && 
+                            {user && user.user === "User not approved!" &&
+                            <div className='shadow-sm m-2'>
+                                <h5>{user.user}</h5>
+                                <p className='m-0'>Please wait for your account to be approved</p>
+                                <p>Contact an admin if this was a mistake</p>                             
+                            </div>
+                            }
+                            {user && user.user !== "User not approved!" && user.user_type === 1 && 
                             <div className='shadow-sm p-3 mt-1'>
                                 <Button onClick={() => setCompopen(true)} variant='contained'>Create New Competition</Button>
                                 <Modal
@@ -106,7 +123,7 @@ const Home = () => {
                                                     </div> 
                                                     <div className='row'>
                                                         <div className='col text-start'>
-                                                        {user && user.user_type === 0 && current_date > ent_open &&
+                                                        {user && user.user_type === 4 && current_date > ent_open &&
                                                         <>
                                                         <Button onClick={() => setEntviewopen(true)} variant='contained'>View Entries</Button>
                                                         <Modal
@@ -140,7 +157,7 @@ const Home = () => {
                                                             >
                                                                 <Box sx={compmodalstyle}>
                                                                     <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                                                    <EntryForm user={user} token={token} comp={comp}/>
+                                                                    <EntryForm user={user} token={token} compID={comp.compID}/>
                                                                 </Box>
                                                             </Modal>     
                                                             </>                                             

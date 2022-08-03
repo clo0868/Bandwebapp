@@ -20,7 +20,7 @@ const Signup = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [accountType, setAccountType] = useState('2');
+  const [accountType, setAccountType] = useState('0');
   const [names, setNames] = useState([]);
   const [student, setStudent] = useState('');
   useEffect(() => {
@@ -62,8 +62,8 @@ const Signup = () => {
     e.preventDefault();
     const pass_input = pass_ref.current; 
     const pass_confirm_input = pass_confirm_ref.current;
-
-    const merged_names = names.map(name => Object.values(name).join(" "))
+    console.log(names.map(name => Object.values(name)));
+    const merged_names = names.map(name => Object.values(name).slice(1).join(" "))
     if (password !== passwordConfirm) {
       pass_input.className = " form-control is-invalid";
       pass_confirm_input.className = " form-control is-invalid";
@@ -71,6 +71,8 @@ const Signup = () => {
       setPassword("")
     }if ((merged_names.every(name => name !== student) && accountType === "2") || (student !== '' && (accountType === '1' || accountType === '3'))) {
       const student_input = student_ref.current;
+      console.log(student);
+      console.log(merged_names);
       student_input.className = " form-control is-invalid";
     }else{
       pass_input.className = " form-control";        
@@ -83,7 +85,7 @@ const Signup = () => {
       axios({
         method: 'POST',
         url: './signup',
-        data: { username:username,student:names[merged_names.indexOf(student)],email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
+        data: { username:username,student:names[merged_names.indexOf(student)].userID,email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
       }).then(res => {
           sessionStorage.setItem("TOKEN", res.data.token);
           navigate("/")
@@ -142,10 +144,12 @@ const Signup = () => {
            <select className="form-select login-input"  value={accountType} onChange={({ target }) => setAccountType(target.value)} aria-label="Default select example" required>
             <option value="0">Student</option>
             <option value="2">Parent</option>
-            <option value="3">Teacher</option>
+            <option value="3">Tutor</option>
+            <option value="4">Steward</option>
+            <option value="5">Judge</option>
           </select>
            </div>
-           {(accountType === '0'||accountType === '3') ? (
+           {(accountType === '0'||accountType === '3'||accountType === '4'||accountType === '5') ? (
           <div className="mb-3">
           <div className="input-group login-input">
             <input type="text" ref={first_ref} className="form-control me-2 " value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
@@ -168,7 +172,7 @@ const Signup = () => {
                   return (
                     <div key={index}>
                     {(name.first_name.startsWith(student)||name.last_name.startsWith(student)) ? (
-                      <li onClick={() => {setStudent(name.first_name+' '+name.last_name)}} className='student-dropdown-item'>{name.first_name+' '+name.last_name}</li>
+                      <li onClick={() => {setStudent(name.first_name+' '+name.last_name)}} className='student-dropdown-item ps-1'>{name.first_name+' '+name.last_name}</li>
                     ):(null)}
                     </div>
                   )

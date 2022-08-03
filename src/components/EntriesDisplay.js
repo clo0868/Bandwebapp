@@ -62,7 +62,7 @@ const EntriesDisplay = (props) => {
                         <div className="accordion-item mb-2">
                             <h2 className="accordion-header" id={"heading"+index}>
                             <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={"#collapse"+index} aria-expanded="false" aria-controls={"collapse"+index}>
-                                {eventGrade.grades[field.grade-1].grade_name} Grade {eventGrade.events[field.event-1].event_name}
+                                {eventGrade.grades[field.grade-1].grade_name} {eventGrade.events[field.event-1].event_name}
                             </button>
                             </h2>
                             <div id={"collapse"+index} className="accordion-collapse collapse" aria-labelledby={"heading"+index} data-bs-parent="#entriesAccordion">

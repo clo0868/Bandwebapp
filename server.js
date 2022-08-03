@@ -59,6 +59,7 @@ app.post('/login', function(req, res) {
             first_name: result[0].first_name,
             last_name: result[0].last_name,
             email:result[0].email,
+            user_approve:result[0].user_approve,
           },
           "RANDOM-TOKEN",
           { expiresIn: "24h" }
@@ -82,22 +83,36 @@ app.post('/signup', function(req, res) {
   const pass = hash(req.body.pass);
   const type = req.body.type;
   const email = req.body.email;
+  const student = req.body.student
+  console.log(student);
   if(type == '2'){
-    const student = req.body.student
-    console.log(student);
-    var firstname = student.first_name
-    var lastname = student.last_name
+    var firstname = ''
+    var lastname = ''
   }else{
     var firstname = req.body.firstname;
     var lastname = req.body.lastname;
     console.log(firstname);
   }
-  var sql = 'INSERT INTO users (user,user_pass,user_type,email,first_name,last_name) VALUES (?,?,?,?,?,?)';
-  con.query(sql, [user,pass,type,email,firstname,lastname], function (err, result) {
+  if(type === '3'|| type === '4'|| type === '5'){
+    var approve = 0
+  }else{
+    var approve = 1
+  }
+  var sql = 'INSERT INTO users (user,user_pass,user_type,email,first_name,last_name,user_approve) VALUES (?,?,?,?,?,?,?)';
+  con.query(sql, [user,pass,type,email,firstname,lastname,approve], function (err, result) {
     if (err) throw err;
     var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?'
     con.query(sql, [user, pass], function (err, result) {
       if (err) throw err;
+      console.log(result);
+      if(result[0].user_type === 2){
+        var sql = 'UPDATE users SET parent = ? WHERE userID = ? ';
+        con.query(sql,[result[0].userID,student], function (err, r) {
+          console.log(r);
+          if (err) throw err;
+        });
+
+      }
       const token = jwt.sign(
         {
           userID: result[0].userID,
@@ -106,6 +121,7 @@ app.post('/signup', function(req, res) {
           first_name: result[0].first_name,
           last_name: result[0].last_name,
           email:result[0].email,
+          user_approve:result[0].user_approve,
         },
         "RANDOM-TOKEN",
         { expiresIn: "24h" }
@@ -119,9 +135,18 @@ app.post('/signup', function(req, res) {
     });
   })
 });
-app.post('/comp_data', auth, function(req, res) {
+app.post('/all_comp_data', auth, function(req, res) {
   var sql = 'SELECT * FROM competitions';
   con.query(sql, function (err, result) {
+    if (err) throw err;
+    res.send(result);
+    res.end();
+  });
+});
+app.post('/comp_data', auth, function(req, res) {
+  const compID = req.body.compID
+  var sql = 'SELECT * FROM competitions WHERE compID = ?';
+  con.query(sql,[compID], function (err, result) {
     if (err) throw err;
     res.send(result);
     res.end();
@@ -137,8 +162,20 @@ app.post('/check_existing_user', function(req, res) {
   });
 });
 app.post('/user',auth, function(req, res) {
-  res.send(req.user);
-  res.end();
+  var user = req.user;
+  if (user.user_type === 2) {
+  var sql = 'SELECT * FROM users WHERE parent = ?';
+  con.query(sql,[user.userID], function (err, result) {
+    if (err) throw err;
+    const spon = {user,result}
+    res.send(spon);
+    res.end();
+  });
+  }else{
+    res.send({user});
+    res.end();
+  }
+  
 });
 app.post('/event_grade_name',auth, function(req, res) {
   var sql = 'SELECT grade_name FROM grades';
@@ -172,31 +209,39 @@ app.post('/comp_entries',auth, function(req, res) {
 });
 app.post('/create_entries',auth, function(req, res) {
   var entry_input = []
-  const user = req.user.userID
+  const user = req.body.user
   const compID = req.body.compID
   var entries=req.body.entries
   var sql = 'DELETE FROM entries WHERE userID = ? AND compID = ?';
   con.query(sql,[user,compID], function (err, result) {
+    console.log(result);
     if (err) throw err;
-    });
-  var comp_events=req.body.comp_events
-  var entry_indicies = [...entries.keys()].filter(i => entries[i])
-  for (let i = 0; i < entry_indicies.length; i++) {
-    entry_input.push(comp_events[entry_indicies[i]])
-    var sql = 'INSERT INTO `entries`(`userID`, `compID`, `gradeID`, `eventID`, `placing`) VALUES (?,?,?,?,0)';
-    con.query(sql,[user,compID,comp_events[entry_indicies[i]].grade,comp_events[entry_indicies[i]].event], function (err, result) {
-      if (err) throw err;
-      if(i===entry_indicies.length-1){
-        res.status(201).send({
-          message:"entered successfully",
-          result: result,
-        })
-      }
-    });
+  });
+  if (entries){
+    var comp_events=req.body.comp_events
+    var entry_indicies = [...entries.keys()].filter(i => entries[i])
+    for (let i = 0; i < entry_indicies.length; i++) {
+      entry_input.push(comp_events[entry_indicies[i]])
+      var sql = 'INSERT INTO `entries`(`userID`, `compID`, `gradeID`, `eventID`, `placing`) VALUES (?,?,?,?,0)';
+      con.query(sql,[user,compID,comp_events[entry_indicies[i]].grade,comp_events[entry_indicies[i]].event], function (err, result) {
+        if (err) throw err;
+        if(i===entry_indicies.length-1){
+          res.status(201).send({
+            message:"entered successfully",
+            result: result,
+          })
+        }
+      });
+    }
+  }else{
+    res.status(201).send({
+      message:"entries deleted successfully",
+    })
   }
+  
 });
 app.post('/get_existing_names', function(req, res) {
-  var sql = 'SELECT first_name,last_name FROM users';
+  var sql = 'SELECT userID,first_name,last_name FROM users WHERE user_type = 0';
   con.query(sql, function (err, result) {
     if (err) throw err;    
     res.send(result);
@@ -204,13 +249,44 @@ app.post('/get_existing_names', function(req, res) {
   });
 });
 app.post('/check_existing_entry',auth, function(req, res) {
-  const user = req.user;
+  const user = req.body.user;
   const compID = req.body.compID
   var sql = 'SELECT * FROM entries WHERE userID = ? AND compID = ?';
-  con.query(sql,[user.userID,compID], function (err, result) {
+  con.query(sql,[user,compID], function (err, result) {
     if (err) throw err;
     res.send(result);
     res.end();
+  });
+});
+app.post('/config_rooms',auth, function(req, res) {
+  const rooms = JSON.stringify(req.body.rooms)
+  const compID = req.body.compID
+  var sql = 'UPDATE competitions SET comp_rooms = ? WHERE compID = ? ';
+  con.query(sql,[rooms,compID], function (err, r) {
+    res.send(r);
+    if (err) throw err;
+  });
+});
+app.post('/reset_rooms',auth, function(req, res) {
+  const comp = req.body.comp
+  var sql = 'UPDATE competitions SET comp_rooms = 0 WHERE compID = ? ';
+  con.query(sql,[comp.compID], function (err, r) {
+    if (err) throw err;
+    res.send(r);
+    console.log(r);
+  });
+});
+app.post('/offical_names',auth, function(req, res) {
+  var sql = 'SELECT first_name,last_name,userID FROM users WHERE user_type = 4';
+  con.query(sql, function (err, steward) {
+    if (err) throw err;
+    var sql = 'SELECT first_name,last_name,userID FROM users WHERE user_type = 5';
+    con.query(sql, function (err, judge) {
+      if (err) throw err;
+      var multires = {steward,judge}
+      res.send(multires);
+      res.end();
+    });
   });
 });
 app.get('/*', function(req, res) {
