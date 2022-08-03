@@ -23,6 +23,9 @@ const ConfigCompForm = (props) => {
               },
           }).then(res => {
             setComp(res.data[0])
+            if (res.data[0].comp_rooms !== '0') {
+                setRooms(JSON.parse(res.data[0].comp_rooms))
+            }
             setLoading(false)
           }).catch(e => {
             e = new Error();
@@ -34,7 +37,6 @@ const ConfigCompForm = (props) => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            console.log(res.data);
             setOfficialNames(res.data)
           }).catch(e => {
             e = new Error();
@@ -59,7 +61,15 @@ const ConfigCompForm = (props) => {
     }
 
     function handleEditRooms(){
+        //const comp_rooms = comp.comp_rooms
         console.log(rooms);
+        console.log(comp);
+        setComp((prevComp) => {
+            return{
+                ...prevComp,
+                comp_rooms:'0',
+            }
+        })
     }
     function handleResetRooms(){
         axios({
@@ -111,7 +121,7 @@ const ConfigCompForm = (props) => {
                 <Skeleton className='ms-auto mt-2' width={64} height={30} />
                 </div>
                 <div className=' p-1 d-flex'>
-                    <Skeleton className='mt-3' width={64} height={36}/>
+                    <Skeleton className='mt-3' width={122} height={36}/>
                     <div className='mt-3 ms-auto'><Skeleton  width={180} height={36}/></div>
                     
                 </div>
@@ -121,7 +131,7 @@ const ConfigCompForm = (props) => {
 
             ):(
                 <>
-                {activeStep === 0 && comp.comp_rooms === '0' &&
+                {activeStep === 0 && comp.comp_rooms === '0' && rooms.length !== 0 &&
                     <>
                         <div>
                             <h5>Entries have closed</h5>
@@ -129,22 +139,34 @@ const ConfigCompForm = (props) => {
                         </div>
                         <div className='mt-3 p-2 compevent'>
                             <form>
-                            {rooms.map((room,index) => {
-                            return(
-                                <div key={"nonce"+index} className=' d-flex align-items-center'>
-                                    <input className='m-1 form-control' placeholder='  Room Name' value={room.room_name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_name:event.target.value}:value}));}} type='text'></input>
-                                    <input className='m-1 form-control' placeholder='  Judge' value={room.room_judge} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_judge:event.target.value}:value}));}} type='text'></input>
-                                    <input className='m-1 form-control' placeholder='  Steward' value={room.room_steward} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_steward:event.target.value}:value}));}} type='text'></input>
-                                
-                                <Button onClick={() => {setRooms((values) => values.filter((_, i) => i !== index));}} className='ms-auto' size='small'variant="contained">X</Button>
+                                {rooms.map((room,index) => {
+                                return(
+                                    <div key={"nonce"+index} className='d-flex align-items-center'>
+                                        <div className='form-floating'>
+                                        <input id='RoomNameInput' className='m-1 form-control config-input' placeholder='  Room Name' value={room.room_name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_name:event.target.value}:value}));}} type='text'></input>
+                                        <label for="RoomNameInput">Room Name:</label>
+                                        </div>
+                                        <div className='form-floating'>
+                                        <input id='JudgeNameInput' className='m-1 form-control config-input ' placeholder='  Judge' value={room.room_judge} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_judge:event.target.value}:value}));}} type='text'></input>
+                                        <label for="JudgeNameInput">Judge:</label>
+                                        </div>
+                                        <div className='form-floating'>
+                                        <input id='StewardNameInput' className='m-1 form-control config-input' placeholder='  Steward' value={room.room_steward} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_steward:event.target.value}:value}));}} type='text'></input>
+                                        <label for="StewardNameInput">Steward:</label>
+                                            
+                                        </div>
+                                        
+                                        
+                                        
+                                    <Button onClick={() => {setRooms((values) => values.filter((_, i) => i !== index));}} className='ms-2' size='small'variant="contained">X</Button>
 
-                                </div>
-                            );
-                            })}
+                                    </div>
+                                );
+                                })}
                             </form>
                         </div> 
                         <div className='d-flex p-2'>
-                            <Button className='mt-3 m-1' variant="contained" onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:'',room_steward:''}])}}>+</Button>
+                            <Button className='mt-3 m-1' variant="contained" onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:'',room_steward:''}])}}>Add Room</Button>
                             <Button className=' ms-auto mt-3 ' variant="contained" onClick={() => {setActiveStep(1)}} >Configure Rooms</Button>                            
                         </div> 
                     </>

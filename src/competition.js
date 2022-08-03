@@ -7,6 +7,7 @@ import EntryForm from './components/EntryForm.js'
 import CompInfoSkeleton from './components/CompInfoSkeleton.js';
 import ConfigCompForm from './components/ConfigCompForm.js';
 import EntriesDisplay from './components/EntriesDisplay.js';
+import {Link} from "react-router-dom";
 
 
 const Competition = () => {
@@ -181,6 +182,11 @@ const Competition = () => {
                                 </Modal> 
                             
                             </div>
+                            }
+                            {user && user.user_type === 4 && 
+                                <div className='row m-2'>
+                                    <button className='btn btn-primary'><Link className='text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
+                                </div>
                             }
                         </div>
                             

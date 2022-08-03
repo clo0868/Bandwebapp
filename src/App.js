@@ -6,6 +6,7 @@ import Signup from "./signup";
 import Competition from './competition';
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import axios from 'axios';
+import Scheduler from './components/Scheduler';
 function App() {
   let location = useLocation();
   const token = sessionStorage.TOKEN
@@ -61,6 +62,11 @@ function App() {
         <Route index path="/competition" element={
           <ProtectedRoute>
             <Competition />
+          </ProtectedRoute>
+        } />
+        <Route index path="/scheduler" element={
+          <ProtectedRoute>
+            <Scheduler />
           </ProtectedRoute>
         } />
           <Route path="login" element={<Login />} />
