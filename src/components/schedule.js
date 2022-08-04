@@ -88,37 +88,38 @@ async function create_schedule(){
     const comp_events = JSON.parse(comp.comp_events)
 
     function find_critical_order(events){
-        var sch_rooms = Array.apply(null, Array(comp_rooms.length)).map(i => i=[])
-        const user_list = [...new Set(entries.map((v) => (v.userID)))].map((v)=> ({userID:v,start_times:[]}));
-        //const avg_time = (events.reduce((t, v) => {return t + v.time},0))/events.length
-        //const events_per_room = parseInt(events.length.toString(sch_rooms.length))
-        //console.log(avg_time,events_per_room);
-        events.sort(function(a, b){return a.time - b.time});
-        //events.map((v) => {console.log(v.event,v.event_entries,v.time);})
-        events.map((event,i_events) => {
-            console.log(event.event);
-            const start_time = sch_rooms[i_events.toString(4).slice(-1)].reduce((t, v) => {return t + v.time},0)
-            sch_rooms[i_events.toString(4).slice(-1)].push(event)
-            sch_rooms[i_events.toString(4).slice(-1)][sch_rooms[i_events.toString(4).slice(-1)].length-1].event_entries.map((v_entry,i_entry) =>{
-                user_list.forEach((v_user,i_user) => {v_user.userID === v_entry.userID && v_user.start_times.push(start_time)})
-                
+       
+        function findMinTime(ordered_events,n){
+            var sch_rooms = Array.apply(null, Array(comp_rooms.length)).map(i => i=[])
+            console.log(sch_rooms);
+            ordered_events.map((event,i_events) => {
+                sch_rooms.forEach((value,index) => {value.length === 0 ? console.log("0") : console.log(value.reduce((t,v) => {return t+v.time},0));})
+                sch_rooms.sort(function(a, b){return a.reduce((t,v) => {return t+v.time},0) - b.reduce((t,v) => {return t+v.time},0)});
+                sch_rooms[0].push(event)
+                console.log(sch_rooms)
             })
-            console.log(user_list);
-            
-        })
-        
-        //sch_rooms.map((v,i) => {console.log(comp_rooms[i].room_name); v.map((x) => {console.log(x ,x.event.grade)})})
 
+        }
+        events.sort(function(a, b){return b.time - a.time});
+        const room_order = findMinTime(events,comp_rooms.length)
+
+
+        var sch_rooms = Array.apply(null, Array(comp_rooms.length)).map(i => i=[])
+        const user_list = [...new Set(entries.map((v) => (v.userID)))].map((v)=> ({userID:v,play_times:[]}));
+    
     }
 
     
     
-    const all_events = comp_events.map((event) => {        
+    const all_events = comp_events.map((event) => {   
+
         var event_entries = entries.filter((v) => {return v.gradeID === event.grade && v.eventID === event.event });
+
         const event_time = (event_entries.length*5)+5
-        return{event,event_entries,time:event_time}
+
+        return({event,event_entries,time:event_time})
     })
-    
+    //console.log(all_events);
     find_critical_order(all_events)
 }
 
