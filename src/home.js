@@ -58,6 +58,7 @@ const Home = () => {
               },
           }).then(res => {
             setData(res.data)
+            console.log(JSON.stringify(res.data[0]));
             setLoading(false)
           }).catch(e => {
             e = new Error();

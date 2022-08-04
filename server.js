@@ -289,6 +289,24 @@ app.post('/offical_names',auth, function(req, res) {
     });
   });
 });
+
+
+//app.post('/get_entries', function(req, res) {
+  //const compID = req.body.compID;
+  const compID = 2
+  var sql = 'SELECT * FROM entries WHERE compID = ?';
+  con.query(sql,[compID], function (err, entries) {
+    if (err) throw err;    
+    var sql = 'SELECT * FROM competitions WHERE compID = ?';
+  con.query(sql,[compID], function (err, comp) {
+    if (err) throw err;    
+    var comp_data = comp[0]
+    create_schedule(comp_data);
+    //res.send({entries,comp_data});
+    //res.end();    
+  });  
+  });
+//});
 app.get('/*', function(req, res) {
   res.sendFile(path.resolve(__dirname, 'C:\\xampp\\htdocs\\Bandwebapp\\public\\index.html'), function(err) {
     if (err) {
