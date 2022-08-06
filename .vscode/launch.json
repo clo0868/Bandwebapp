@@ -6,13 +6,13 @@
     "configurations": [
         {
             "console": "integratedTerminal",
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\src\\components\\schedule.js"
+            "program": "${workspaceFolder}\\src\\components\\test.js"
         }
     ]
 }

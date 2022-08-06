@@ -1,4 +1,4 @@
-
+console.log('launch');
 const comp = {"compID":2,"comp_name":"HPSC Sunday Morning Solos","comp_location":"St Andrews College","comp_start_time":"2022-06-25T21:00:00.000Z","ent_open_time":"2022-06-17T21:00:00.000Z","ent_close_time":"2023-06-24T21:00:00.000Z","comp_rooms":"[{\"room_name\":\"1\",\"room_judge\":\"1\",\"room_steward\":\"1\"},{\"room_name\":\"2\",\"room_judge\":\"2\",\"room_steward\":\"2\"},{\"room_name\":\"3\",\"room_judge\":\"3\",\"room_steward\":\"3\"},{\"room_name\":\"4\",\"room_judge\":\"4\",\"room_steward\":\"4\"}]","comp_events":"[{\"event\":1,\"grade\":1},{\"event\":2,\"grade\":1},{\"event\":4,\"grade\":1},{\"event\":1,\"grade\":2},{\"event\":2,\"grade\":2},{\"event\":4,\"grade\":2},{\"event\":1,\"grade\":3},{\"event\":2,\"grade\":3},{\"event\":4,\"grade\":3},{\"event\":1,\"grade\":4},{\"event\":2,\"grade\":4},{\"event\":4,\"grade\":4},{\"event\":5,\"grade\":5},{\"event\":3,\"grade\":6}]","comp_schedule":"0"}
 
 const entries = [
@@ -87,26 +87,84 @@ async function create_schedule(){
     const comp_rooms = JSON.parse(comp.comp_rooms)
     const comp_events = JSON.parse(comp.comp_events)
 
-    function find_critical_order(events){
-       
-        function findMinTime(ordered_events,n){
-            var sch_rooms = Array.apply(null, Array(comp_rooms.length)).map(i => i=[])
-            console.log(sch_rooms);
-            ordered_events.map((event,i_events) => {
-                sch_rooms.forEach((value,index) => {value.length === 0 ? console.log("0") : console.log(value.reduce((t,v) => {return t+v.time},0));})
-                sch_rooms.sort(function(a, b){return a.reduce((t,v) => {return t+v.time},0) - b.reduce((t,v) => {return t+v.time},0)});
-                sch_rooms[0].push(event)
-                console.log(sch_rooms)
-            })
+    function find_critical_order(events,n){
+        events.sort(function(a, b){return b.time - a.time});
+        
+        var sch_rooms = Array.apply(null, Array(n)).map(i => i=[])
+        //console.log(sch_rooms);
+        events.map((event,i_events) => {
+            //sch_rooms.forEach((value,index) => {value.length === 0 ? console.log("0") : console.log(value.reduce((t,v) => {return t+v.time},0));})
+            sch_rooms.sort(function(a, b){return a.reduce((t,v) => {return t+v.time},0) - b.reduce((t,v) => {return t+v.time},0)});
+            sch_rooms[0].push(event)
+            //console.log(sch_rooms)
+        })
+
+        //sch_rooms.sort(function(a, b){return b.reduce((t,v) => {return t+v.time},0) - a.reduce((t,v) => {return t+v.time},0)});
+        //console.log("minimum time:"+sch_rooms[0].reduce((t,v) => {return t+v.time},0)+" minutes");
+        
+        return sch_rooms
+        
+    }
+
+    function sort_users(entries,rooms){
+        const user_list = [...new Set(entries.map((v) => (v.userID)))].map((v)=> ({userID:v,play_times:[]}));
+        //console.log(user_list);
+
+        function isPossiblePlayTime(user,play_time){
+            if (user.play_times.length === 0) {
+                return true 
+            }
+            //console.log(user_play_times);
+            return user.play_times.map((user_play_time) =>{
+                //console.log(play_time);
+                return (user_play_time.start_time - 10  < (play_time) < user_play_time.start_time +10)
+            }).some((value) => (value === true))
+        }
+        function orderEvent(entries,start_time){
+            var return_event = []
+            var temp_entries = entries
+            var temp_user_list = user_list
+            var impossible = false
+            //return_event.length < entries.length || impossible === false
+            var i = 0 
+            while (i<100) {
+                i++
+                temp_entries.map((entry,entry_index) => {
+
+                    temp_user_list.map((user,user_index) => {
+                        if (user.userID === entry.userID) {
+
+                            if (isPossiblePlayTime(user,(start_time+(5*entry_index)))) {
+                                temp_entries.filter(v => v.entryID !== entry.entryID)
+                                return_event.push(entry)
+                                temp_user_list[user_index].play_times.push({time:start_time+(5*entry_index)})
+                                
+                            }else{
+
+                            }
+                            console.log(temp_entries.length);
+                        }
+                    })
+
+                })
+
+            }
 
         }
-        events.sort(function(a, b){return b.time - a.time});
-        const room_order = findMinTime(events,comp_rooms.length)
+        var room_result = rooms
+        //rooms.map((room,room_index) => {
+            //var room_complete = Array.apply(null, Array(room.length)).map(i => i=false)
+            //while(room_complete.some((value) => (value === false))){
+                rooms[0].map((event,event_index) => {
+                    //room_result[room_index][event_index].event_entries = []
+                    const event_start_time = rooms[0].slice(0,event_index).reduce((t,v) => {return t+v.time},0)
+                    //console.log(event_start_time);
+                    const result = orderEvent(event.event_entries,event_start_time)
+                })
 
-
-        var sch_rooms = Array.apply(null, Array(comp_rooms.length)).map(i => i=[])
-        const user_list = [...new Set(entries.map((v) => (v.userID)))].map((v)=> ({userID:v,play_times:[]}));
-    
+            //}
+        //})
+        console.log(user_list);  
     }
 
     
@@ -119,8 +177,10 @@ async function create_schedule(){
 
         return({event,event_entries,time:event_time})
     })
-    //console.log(all_events);
-    find_critical_order(all_events)
+    
+    const critical_order = find_critical_order(all_events,comp_rooms.length)
+    console.log(JSON.stringify(critical_order));
+    //const user_sorted_rooms = sort_users(entries,critical_order)
 }
 
 
