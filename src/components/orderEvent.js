@@ -14,12 +14,12 @@ const entries = [
 
 function sort_users(entries){
     const user_list = [
-        { userID: 4, play_times: [ 0,10,20 ] },
-        { userID: 5, play_times: [ 5,15,25 ] },
-        { userID: 6, play_times: [ 10,20,30 ] },
-        { userID: 7, play_times: [ 15,25,35 ] },
-        { userID: 8, play_times: [ 20,30 ] },
-        { userID: 9, play_times: [ 25,35 ] },
+        { userID: 4, play_times: [ 0 ] },
+        { userID: 5, play_times: [ 5 ] },
+        { userID: 6, play_times: [ 10 ] },
+        { userID: 7, play_times: [ 15 ] },
+        { userID: 8, play_times: [ 20 ] },
+        { userID: 9, play_times: [ 25 ] },
         { userID: 10, play_times: [ 30 ] },
         { userID: 11, play_times: [ 35] },
       ]
