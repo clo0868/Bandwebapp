@@ -85,7 +85,7 @@ const entries = [
     {"entryID":91,"userID":32,"compID":2,"gradeID":6,"eventID":3,"placing":0},
     ]
 
-async function create_schedule(){
+async function create_schedule(comp,entries){
     const comp_rooms = JSON.parse(comp.comp_rooms)
     const comp_events = JSON.parse(comp.comp_events)
 
@@ -146,7 +146,7 @@ async function create_schedule(){
     
             return user.play_times.map((user_play_time) =>{ 
                 //check if given play time is within 5 minutes of another playing time of theirs
-                return (play_time <= (user_play_time - 10)|| play_time >= (user_play_time + 10))
+                return (play_time <= (user_play_time - 15)|| play_time >= (user_play_time + 15))
     
                 //if any values return false user cannot play at that time 
             }).every((value) => (value === true))
@@ -155,7 +155,7 @@ async function create_schedule(){
     
     
         function orderEvent(entries,start_time,user_list){
-    
+            //console.log(user_list);
             //const entries_userID = entries.map((v) => {return {userID:v.userID}})
             //gives array of all permutations of entrants 
             const all_perm_entries = permutator(entries).reverse()
@@ -173,7 +173,6 @@ async function create_schedule(){
                     //set inital return value 
                     const return_event = []
     
-                    //create temporary userlist 
                     //console.log(entries.map((v) => {return v.userID})); 
     
                     //loop through each entry in the permutation 
@@ -201,18 +200,10 @@ async function create_schedule(){
                         })
                     }
                 }
+                //console.log(cannot_play);
             }catch(err){
-                console.log(err.length);
-                err.forEach((entry) => {
-                    //console.log(entry.play_time);
-                    //const userIndex = user_list.findIndex(user => user.userID === entry.userID);
-
-                    user_list.forEach((user,useri) => {
-                        if (user.userID === entry.entry.userID) {
-                            user.play_times.push(entry.play_time)
-                        }
-                    })
-                })
+                //console.log(err.length);
+                
                 //console.log(user_list);
                 //console.log(err.map((v)=>{console.log(v);}))
                 return err
@@ -220,39 +211,77 @@ async function create_schedule(){
             
         }
     
-        function orderRoom(room,user_list){
-            return_room = []
-            room.map((v)=>{console.log(v.event);})
-            for (const [event_index,event] of room.entries()) {
-                //console.log(event);
-                const start_time = room.slice(0,event_index).reduce((t,v) => {return t+v.time},0)
-                const ordered_event = orderEvent(event.event_entries,start_time,user_list)
-                if (ordered_event) {                    
-                    return_room.push(ordered_event)
-                    console.log(return_room.length+'return');
-                    if (return_room.length === room.length) {return return_room}                   
-                }else{
-                    room.push(room.shift());
-                    return orderRoom(room,user_list)
+        function orderRoom(room,user_list,max_time){
+            all_perm_room = permutator(room).reverse()
+            var return_room = []
+            
+            //room.map((v)=>{console.log(v.event);})
+            const finish_time = room.reduce((t,v) => {return t+v.time},0)
+            const float_time = max_time-finish_time
+            console.log(float_time+' float time');
+            const delay_arr = [...''.padEnd((float_time+5)/5)].map((_,i)=>i*5)
+            if (delay_arr.length === 0) {delay_arr.push(0)}
+            console.log(delay_arr);
+            try{
+                for (const [delay_index,delay] of delay_arr.entries()) {
+                    console.log(delay);
+                    if (delay>float_time) {
+                        console.log('big delay');
+                    }
+                    for (const [perm_index,perm] of all_perm_room.entries()) {
+                        //console.log(delay);
+                        //perm.map((v)=>{console.log(v.event);})
+                        
+                        return_room = []
+                        for (const [event_index,event] of perm.entries()) {
+                            //console.log(event);
+                            const start_time = (perm.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+delay
+                            //console.log(start_time);
+                            const ordered_event = orderEvent(event.event_entries,start_time,user_list)
+                            //console.log(ordered_event ? ordered_event.length+'   event':undefined);
+                            if (ordered_event) {                    
+                                return_room.push(ordered_event)
+                                //console.log(return_room.length+'return');
+                                if (return_room.length === room.length) {throw {return_room,delay}}                   
+                            }
+                            
+                        }                
+                    }
                 }
-            }
+                console.log('delay too much big L');
+                
+                  
+            }catch(err){
+                for (const [eventi,event] of err.return_room.entries()) {
+                    event.forEach((entry) => {    
+                        user_list.forEach((user,useri) => {
+                            if (user.userID === entry.entry.userID) {
+                                user.play_times.push(entry.play_time)
+                            }
+                        })
+                    })
+                }
+                //console.log(err);
+                return err
+                
+            }         
         }
     
-        rooms.map((room,room_index) => {
-            console.log(room_index);
-            const ordered_room = orderRoom(room,user_list)
-            console.log(ordered_room);
+        const result = rooms.map((room,room_index) => {
+            //console.log(room_index);
+            const max_time = rooms[0].reduce((t,v) => {return t+v.time},0)
+            const ordered_room = orderRoom(room,user_list,max_time)
+            console.log(user_list);
+            return ordered_room
+            
         })
-    //const result = orderEvent(entries,0,user_list)
-    //console.log(result);
+        console.log(result);
     
     
 
 
     }
 
-    
-    
     const all_events = comp_events.map((event) => {   
 
         var event_entries = entries.filter((v) => {return v.gradeID === event.grade && v.eventID === event.event });
@@ -263,14 +292,14 @@ async function create_schedule(){
     })
     
     const critical_order = find_critical_order(all_events,comp_rooms.length)
-    console.log(critical_order);
-    //const user_sorted_rooms = sort_users(entries,critical_order)
-    sort_users(entries,critical_order)
+
+    const schedule = sort_users(entries,critical_order)
+    return schedule
 }
 
 
 
-create_schedule();
+console.log(create_schedule(comp,entries));
 var over_end_time = process.hrtime(over_start_time);
 
 console.log(over_end_time);
