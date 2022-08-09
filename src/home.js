@@ -58,7 +58,7 @@ const Home = () => {
               },
           }).then(res => {
             setData(res.data)
-            console.log(JSON.stringify(res.data[0]));
+            console.log(res.data[0]);
             setLoading(false)
           }).catch(e => {
             e = new Error();
@@ -158,7 +158,7 @@ const Home = () => {
                                                             >
                                                                 <Box sx={compmodalstyle}>
                                                                     <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                                                    <EntryForm user={user} token={token} compID={comp.compID}/>
+                                                                    <EntryForm user={user} token={token} comp={comp}/>
                                                                 </Box>
                                                             </Modal>     
                                                             </>                                             

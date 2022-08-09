@@ -5,14 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "console": "integratedTerminal",
+            //"console": "integratedTerminal",
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\src\\components\\schedule.js"
+            "program": "${workspaceFolder}\\server.js"
         }
     ]
 }

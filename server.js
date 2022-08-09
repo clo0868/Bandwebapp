@@ -6,6 +6,7 @@ var path = require('path');
 const { createHash } = require('crypto');
 const jwt = require("jsonwebtoken");
 const auth = require("./auth");
+const create_schedule = require('./create_schedule');
 function hash(string) {
   return createHash('sha256').update(string).digest('hex');
 }
@@ -289,24 +290,48 @@ app.post('/offical_names',auth, function(req, res) {
     });
   });
 });
-
-
-//app.post('/get_entries', function(req, res) {
-  //const compID = req.body.compID;
-  const compID = 2
+app.post('/create_schedule', function(req, res) {
+  const compID = req.body.compID;
   var sql = 'SELECT * FROM entries WHERE compID = ?';
   con.query(sql,[compID], function (err, entries) {
     if (err) throw err;    
     var sql = 'SELECT * FROM competitions WHERE compID = ?';
-  con.query(sql,[compID], function (err, comp) {
-    if (err) throw err;    
-    var comp_data = comp[0]
-    create_schedule(comp_data);
-    //res.send({entries,comp_data});
-    //res.end();    
-  });  
+    con.query(sql,[compID], function (err, comp) {
+      if (err) throw err;    
+      var comp_data = comp[0]
+      const sch_res = create_schedule(comp_data,entries)
+      var sql = 'UPDATE competitions SET comp_schedule = ? WHERE compID = ? ';
+      con.query(sql,[JSON.stringify(sch_res),compID], function (err, r) {
+        if (err) throw err;
+      });
+      const userID_arr = entries.map((v)=>{return v.userID})
+      var sql = 'SELECT * FROM users WHERE userID IN (?)';
+      con.query(sql,[userID_arr], function (err, user_data) {
+        if (err) throw err;    
+        const send_data = {sch_res,comp_data,user_data}
+        res.send(send_data);
+        res.end();    
+         
+      });
+    
+    });  
   });
-//});
+});
+app.post('/comp_users',function(req,res) {
+  const compID = req.body.compID
+  var sql = 'SELECT * FROM entries WHERE compID = ? ';
+  con.query(sql,[compID], function (err, result) {
+    if (err) throw err; 
+    const user_list = result.map((v) => { return v.userID})
+    var sql = 'SELECT * FROM users WHERE userID IN (?)';
+    con.query(sql,[user_list], function (err, result) {
+      if (err) throw err;    
+      res.send(result);
+      res.end();    
+    });       
+  });
+  
+});
 app.get('/*', function(req, res) {
   res.sendFile(path.resolve(__dirname, 'C:\\xampp\\htdocs\\Bandwebapp\\public\\index.html'), function(err) {
     if (err) {

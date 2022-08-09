@@ -85,7 +85,7 @@ const Signup = () => {
       axios({
         method: 'POST',
         url: './signup',
-        data: { username:username,student:names[merged_names.indexOf(student)].userID,email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
+        data: { username:username,student:(accountType === 2 ? names[merged_names.indexOf(student)].userID:null),email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
       }).then(res => {
           sessionStorage.setItem("TOKEN", res.data.token);
           navigate("/")
