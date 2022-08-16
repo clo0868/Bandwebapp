@@ -14,7 +14,7 @@ function hash(string) {
 }
 console.log("i am listening");
 var server = http.createServer(app)
-server.listen(process.env.PORT || 3001)
+server.listen(process.env.PORT || 3000)
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
