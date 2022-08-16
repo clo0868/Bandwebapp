@@ -7,6 +7,8 @@ const { createHash } = require('crypto');
 const jwt = require("jsonwebtoken");
 const auth = require("./auth");
 const create_schedule = require('./create_schedule');
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
 function hash(string) {
   return createHash('sha256').update(string).digest('hex');
 }
