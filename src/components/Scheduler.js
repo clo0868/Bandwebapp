@@ -111,7 +111,7 @@ const Scheduler = () => {
                                                 <div className='row mx-2'>
                                                     
                                                     {JSON.parse(comp.comp_schedule).map((room,room_index) => {
-                                                        const schedule = JSON.parse(comp.comp_schedule)
+                                                        //const schedule = JSON.parse(comp.comp_schedule)
                                                         //console.log(schedule);
                                                         const room_data = JSON.parse(comp.comp_rooms)[room_index]    
                                                         return(
@@ -129,7 +129,7 @@ const Scheduler = () => {
                                                                     //console.log(event);
                                                                     //console.log(new Date(schedule.comp_data.comp_start_time));
                                                                     //console.log(room);
-                                                                    const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
+                                                                    //const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
                                                                     //console.log(start_time);
 
                                                                     return(
