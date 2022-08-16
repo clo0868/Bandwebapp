@@ -101,7 +101,7 @@ const Scheduler = () => {
                                     
                                 ):(            
                                     <>
-                                    {userList.length > 0 && eventGrade && comp && comp.comp_schedule != '0' &&
+                                    {Reflect.ownKeys(schedule).length === 0 && userList.length > 0 && eventGrade && comp && comp.comp_schedule !== '0' &&
                                     
                                         <>       
 
@@ -144,12 +144,13 @@ const Scheduler = () => {
                                                                             <tbody>
                                                                                 {event.return_event.map((entry,entry_index) => {
                                                                                     var entry_user = {}
-                                                                                    console.log(userList);
-                                                                                    userList.map((user) => {
+                                                                                    //console.log(userList);
+                                                                                    userList.forEach((user) => {
                                                                                         if (user.userID === entry.entry.userID) {
                                                                                             entry_user = user
-                                                                                            console.log(user);
+                                                                                            //console.log(user);
                                                                                         }
+                                                                                        return null
                                                                                     })
                                                                                     return(
                                                                                         <tr key={entry_index}>
@@ -220,10 +221,11 @@ const Scheduler = () => {
                                                                             <tbody>
                                                                                 {event.return_event.map((entry,entry_index) => {
                                                                                     var entry_user = {}
-                                                                                    schedule.user_data.map((user) => {
+                                                                                    schedule.user_data.forEach((user) => {
                                                                                         if (user.userID === entry.entry.userID) {
                                                                                             entry_user = user
                                                                                         }
+                                                                                        return null
                                                                                     })
                                                                                     return(
                                                                                         <tr key={entry_index}>

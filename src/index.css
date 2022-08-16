@@ -103,3 +103,6 @@ time, mark, audio, video {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+.search-bar{
+  max-width: 20vw;
+}

@@ -171,7 +171,7 @@ const Signup = () => {
                   
                   return (
                     <div key={index}>
-                    {(name.first_name.startsWith(student)||name.last_name.startsWith(student)) ? (
+                    {(name.first_name.toLowerCase().startsWith(student.toLowerCase())||name.last_name.toLowerCase().startsWith(student.toLowerCase())) ? (
                       <li onClick={() => {setStudent(name.first_name+' '+name.last_name)}} className='student-dropdown-item ps-1'>{name.first_name+' '+name.last_name}</li>
                     ):(null)}
                     </div>

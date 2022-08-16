@@ -77,6 +77,12 @@ const Competition = () => {
     const ent_open = new Date(comp.ent_open_time).getTime()
     const ent_close = new Date(comp.ent_close_time).getTime()
     const current_time = new Date().getTime()
+    function shortenTime(time){
+        if (time.length === 10) {return time.slice(0,4)+time.slice(7)}
+        if (time.length === 11) {return time.slice(0,5)+time.slice(8)}        
+        //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(0,4)} 
+        //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(8)}
+    }
     return (
         <div className='container-fluid comp-container'>
             <div className='grid'>
@@ -99,15 +105,18 @@ const Competition = () => {
 
                         ) : (
                             <div className='grid m-3'>
-                                <div className='row border-bottom border-3'>
+                                <div className='row pb-3 border-bottom border-3'>
                                     <div className='col text-start'>
                                         <h5>{comp.comp_name}</h5>
                                         <p>{comp.comp_location}</p>
+                                        <p className='mt-1'>Entries Open: {shortenTime(new Date(comp.ent_open_time).toLocaleTimeString())} {new Date(comp.ent_open_time).toDateString()} </p>
                                     </div>
                                     <div className='col text-end'>
                                         <h5>{comp_start.toDateString()}</h5>
                                         <p>{comp_start.toLocaleTimeString()}</p>
+                                        <p className='mt-1'>Entries Close: {shortenTime(new Date(comp.ent_close_time).toLocaleTimeString())} {new Date(comp.ent_close_time).toDateString()} </p>
                                     </div>
+                                    
                                 </div> 
                             {current_time > ent_close && current_time < comp_start_time && comp.comp_schedule !== '0' &&
                                 <div className=' row m-2'>
