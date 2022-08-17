@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
-import Button from '@mui/material/Button';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -66,7 +65,6 @@ const CompForm = () => {
         form_data
       },
     }).then(res => {
-      console.log(res.data);
     }).catch(e => {
       e = new Error();
     })
@@ -83,6 +81,7 @@ const CompForm = () => {
         })}
       </Stepper>
       {activeStep === steps.length ? (
+        
         <React.Fragment>
           <div className='mt-3'>
             <div className='d-flex'>
@@ -106,6 +105,9 @@ const CompForm = () => {
             <div className='compevent'>
               <h5>Events:</h5>
               {eventfields.map((event,index) => {
+                if(event.grade === ''||event.event === ''){
+                  return <p>Empty field please go back</p>
+                }
                 return <p key={index}>Event {index+1}: {eventGrade.grades[event.grade].grade_name} grade {eventGrade.events[event.event].event_name}</p>
               })}
 
@@ -113,17 +115,17 @@ const CompForm = () => {
           </div>
           
           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-          <Button
-              color="inherit"
+          <button
+              className='btn-border-none'
               disabled={activeStep === 0}
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
               Back
-            </Button>
+            </button>
             <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Reset</Button>
-            <Button onClick={handleSubmit}>Create</Button>
+            <button className='btn-border-none' onClick={handleReset}>Reset</button>
+            <button className='btn-border-none' onClick={handleSubmit}>Create</button>
 
           </Box>
         </React.Fragment>
@@ -243,30 +245,31 @@ const CompForm = () => {
                           })}
                         </Select>
                       </FormControl>
-                      <Button onClick={() => {setEventfields((values) => values.filter((_, i) => i !== index))}} className='ms-auto me-2' size='small'variant="contained">X</Button>
+                      <button onClick={() => {setEventfields((values) => values.filter((_, i) => i !== index))}} className=' btn-border-none ms-auto me-2' size='small'>X</button>
 
                     </div>
                   );
                 })}
               </div>  
-              <Button className='mt-3' variant="contained" onClick={() => {setEventfields(prevEventfields => [...prevEventfields, {event:'',grade:''}])}}>+</Button>
+              <button className='mt-3 btn-border-none' onClick={() => {setEventfields(prevEventfields => [...prevEventfields, {event:'',grade:''}])}}>+</button>
             </div>
             }
 
           </div>
           <Box className='mt-2' sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button
+            <button
+              className='btn-border-none'
               color="inherit"
               disabled={activeStep === 0}
               onClick={handleBack}
               sx={{ mr: 1 }}
             >
               Back
-            </Button>
+            </button>
             <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleNext}>
+            <button className='btn-border-none' onClick={handleNext}>
               Next
-            </Button>
+            </button>
           </Box>
         </React.Fragment>
       )}

@@ -8,7 +8,6 @@ import axios from "axios";
 const Login = () => {
   let navigate = useNavigate();
   useEffect(() => {
-    //console.log(sessionStorage.getItem("TOKEN"));
     if(sessionStorage.getItem("TOKEN")){
       navigate("/")
     }
@@ -36,7 +35,6 @@ const Login = () => {
         sessionStorage.setItem("TOKEN", res.data.token);
         navigate("/")
       }).catch(e => {
-        console.log(e);
         user_input.className = " form-control is-invalid";
         pass_input.className = " form-control is-invalid";
         setPassword("")

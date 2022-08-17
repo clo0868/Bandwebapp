@@ -39,8 +39,14 @@ time, mark, audio, video {
 }
 .close-button{
     position: absolute;
-    top: 10px;
+    top: 18px;
     right: 10px;
+}
+.select-child{
+  max-width: 14vw;
+  position: absolute;
+  top: 10px;
+  right: 50px;
 }
 .comp-container{
     overflow-y: hidden;
@@ -105,4 +111,23 @@ time, mark, audio, video {
   }
 .search-bar{
   max-width: 20vw;
+}
+.btn-border-none{
+  color: #3787ff;
+  border: none;
+  background-color: inherit;
+  padding: 10px;
+}
+.btn-border-none:hover{
+  border: #3787ff;
+  background-color: #3787ff;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+}
+.btn-border-none:disabled{
+  color: #969696;
+  border: none;
+  background-color: inherit;
+  padding: 10px;
 }

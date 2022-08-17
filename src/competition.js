@@ -34,7 +34,6 @@ const Competition = () => {
 
     useEffect(() => {
         setLoading(true)
-        console.log(compID);
         axios({
             method: 'POST',
             url: './comp_data',

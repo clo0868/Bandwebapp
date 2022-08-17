@@ -21,7 +21,6 @@ const EntriesDisplay = (props) => {
               comp
             },
           }).then(res => {
-            console.log(res.data);
             setEntries(res.data)
           }).catch(e => {
             e = new Error();
@@ -33,7 +32,6 @@ const EntriesDisplay = (props) => {
                 Authorization: `Bearer ${token}`,
             },
         }).then(res => {
-            console.log(res.data);
             setEventGrade(res.data)
             setLoading(false)
         }).catch(e => {
@@ -43,7 +41,7 @@ const EntriesDisplay = (props) => {
     return (
         <div className='text-center'>
             <h5>Current entries for {comp.comp_name}</h5>
-            <div className='grid entry-form'>
+            <div className=' mt-2 grid entry-form'>
         {loading ? (
             <div>
                 

@@ -7,14 +7,14 @@ const { createHash } = require('crypto');
 const jwt = require("jsonwebtoken");
 const auth = require("./auth");
 const create_schedule = require('./create_schedule');
-const publicPath = path.join(__dirname, '..', 'public');
-app.use(express.static(publicPath));
+//const publicPath = path.join(__dirname, '..', 'public');
+//app.use(express.static(publicPath));
 function hash(string) {
   return createHash('sha256').update(string).digest('hex');
 }
 console.log("i am listening");
 var server = http.createServer(app)
-server.listen(process.env.PORT || 3000)
+server.listen(process.env.PORT || 3001)
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -41,7 +41,6 @@ app.use((req, res, next) => {
   // Listen to POST requests to /users.
 app.post('/login', function(req, res) {
   // Get sent data.
-  //console.log(req);
   var user = req.body.user;
   var pass = hash(req.body.pass);
   // Do a MySQL query.
@@ -87,14 +86,12 @@ app.post('/signup', function(req, res) {
   const type = req.body.type;
   const email = req.body.email;
   const student = req.body.student
-  console.log(student);
   if(type == '2'){
     var firstname = ''
     var lastname = ''
   }else{
     var firstname = req.body.firstname;
     var lastname = req.body.lastname;
-    console.log(firstname);
   }
   if(type === '3'|| type === '4'|| type === '5'){
     var approve = 0
@@ -107,13 +104,19 @@ app.post('/signup', function(req, res) {
     var sql = 'SELECT * FROM users WHERE user = ? AND user_pass = ?'
     con.query(sql, [user, pass], function (err, result) {
       if (err) throw err;
-      console.log(result);
       if(result[0].user_type === 2){
-        var sql = 'UPDATE users SET parent = ? WHERE userID = ? ';
-        con.query(sql,[result[0].userID,student], function (err, r) {
-          console.log(r);
-          if (err) throw err;
-        });
+        console.log(student);
+        for (let i = 0; i < student.length; i++) {
+          console.log(i);
+          console.log(student);
+          console.log(result);
+          var sql = 'UPDATE users SET parent = ? WHERE userID = ? ';
+          con.query(sql,[result[0].userID,student[i]], function (err, r) {
+            if (err) throw err;
+          });
+          
+        }
+        
 
       }
       const token = jwt.sign(
@@ -168,9 +171,9 @@ app.post('/user',auth, function(req, res) {
   var user = req.user;
   if (user.user_type === 2) {
   var sql = 'SELECT * FROM users WHERE parent = ?';
-  con.query(sql,[user.userID], function (err, result) {
+  con.query(sql,[user.userID], function (err, children) {
     if (err) throw err;
-    const spon = {user,result}
+    const spon = {user,children}
     res.send(spon);
     res.end();
   });
@@ -195,7 +198,6 @@ app.post('/event_grade_name',auth, function(req, res) {
 });
 app.post('/create_comp',auth, function(req, res) {
   data=req.body.form_data
-  console.log(data[5][0]);
   var sql = 'INSERT INTO competitions (`comp_name`, `comp_location`, `comp_start_time`,`ent_open_time`,`ent_close_time`,`comp_events`,`comp_rooms`,`comp_schedule`) VALUES (?,?,?,?,?,?,?,?)';
   con.query(sql,[data[0],data[2],data[1],data[3],data[4],JSON.stringify(data[5]),0,0], function (err, grades) {
     if (err) throw err;
@@ -217,7 +219,6 @@ app.post('/create_entries',auth, function(req, res) {
   var entries=req.body.entries
   var sql = 'DELETE FROM entries WHERE userID = ? AND compID = ?';
   con.query(sql,[user,compID], function (err, result) {
-    console.log(result);
     if (err) throw err;
   });
   if (entries){
@@ -276,7 +277,6 @@ app.post('/reset_rooms',auth, function(req, res) {
   con.query(sql,[comp.compID], function (err, r) {
     if (err) throw err;
     res.send(r);
-    console.log(r);
   });
 });
 app.post('/offical_names',auth, function(req, res) {

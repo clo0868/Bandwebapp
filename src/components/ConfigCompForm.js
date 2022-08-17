@@ -1,5 +1,4 @@
 import React,{useState,useEffect} from 'react';
-import Button from '@mui/material/Button';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -37,7 +36,6 @@ const ConfigCompForm = (props) => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            console.log(res.data);
             setOfficialNames(res.data)
           }).catch(e => {
             e = new Error();
@@ -63,8 +61,6 @@ const ConfigCompForm = (props) => {
 
     function handleEditRooms(){
         //const comp_rooms = comp.comp_rooms
-        //console.log(rooms);
-        //console.log(comp);
         setComp((prevComp) => {
             return{
                 ...prevComp,
@@ -203,7 +199,7 @@ const ConfigCompForm = (props) => {
                                         </div>                                        
                                         
                                         
-                                    <Button onClick={() => {setRooms((values) => values.filter((_, i) => i !== index));}} className='ms-2' size='small'variant="contained">X</Button>
+                                    <button onClick={() => {setRooms((values) => values.filter((_, i) => i !== index));}} className='btn-border-none ms-2' size='small'>X</button>
 
                                     </div>
                                 );
@@ -211,8 +207,8 @@ const ConfigCompForm = (props) => {
                             </form>
                         </div> 
                         <div className='d-flex p-2'>
-                            <Button className='mt-3 m-1' variant="contained" onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:'',room_steward:''}])}}>Add Room</Button>
-                            <Button className=' ms-auto mt-3 ' variant="contained" onClick={() => {setActiveStep(1)}} >Configure Rooms</Button>                            
+                            <button className='btn-border-none mt-3 m-1' onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:'',room_steward:''}])}}>Add Room</button>
+                            <button className='btn-border-none ms-auto mt-3 ' onClick={() => {setActiveStep(1)}} >Configure Rooms</button>                            
                         </div> 
                     </>
                 
@@ -240,9 +236,9 @@ const ConfigCompForm = (props) => {
                         )
                     })}
                     <div>
-                    <Button className='mt-3' variant="contained" onClick={() => {handleEditRooms()}} >Edit Rooms</Button>
+                    <button className=' btn-border-none mt-3'  onClick={() => {handleEditRooms()}} >Edit Rooms</button>
                     {comp.comp_rooms !== 0 &&
-                        <Button className=' ms-3 mt-3' variant="contained" onClick={() => {setActiveStep(3)}} >Reset Rooms</Button>
+                        <button className='btn-border-none ms-3 mt-3'  onClick={() => {setActiveStep(3)}} >Reset Rooms</button>
                     }
 
                     </div>
@@ -269,8 +265,8 @@ const ConfigCompForm = (props) => {
                         )
                     })}
                     <div>
-                    <Button className='mt-3' variant="contained" onClick={() => {setActiveStep(0)}} >Back</Button>
-                    <Button className=' ms-3 mt-3' variant="contained" onClick={() => {handleConfigCompForm()}} >Confirm</Button>
+                    <button className=' btn-border-none mt-3' onClick={() => {setActiveStep(0)}} >Back</button>
+                    <button className=' btn-border-none ms-3 mt-3'  onClick={() => {handleConfigCompForm()}} >Confirm</button>
 
                     </div>                  
                     
@@ -324,9 +320,9 @@ const ConfigCompForm = (props) => {
                             </div>
                         )
                     })}
-                <Button className='mt-3' variant="contained" onClick={() => {setActiveStep(0); }} >Back</Button>
+                <button className=' btn-border-none mt-3'  onClick={() => {setActiveStep(0); }} >Back</button>
                 {comp.comp_rooms !== '0' &&
-                    <Button className=' ms-3 mt-3' variant="contained" onClick={() => {handleResetRooms()}} >Confirm</Button>
+                    <button className='btn-border-none ms-3 mt-3' onClick={() => {handleResetRooms()}} >Confirm</button>
                 }
             </div>
             }

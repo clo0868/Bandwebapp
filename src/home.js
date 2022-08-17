@@ -20,7 +20,7 @@ const Home = (props) => {
     const [entviewopen, setEntviewopen] = useState(false);
     const [enteropen, setEnteropen] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [child, setChild] = useState();
+    const [children, setChildren] = useState();
     const compmodalstyle = {
         position: 'absolute',
         top: '50%',
@@ -42,8 +42,8 @@ const Home = (props) => {
               },
           }).then(res => {
             setUser(res.data.user)
-            if (res.data.result) {
-                setChild(res.data.result[0])
+            if (res.data.children) {
+                setChildren(res.data.children)
             }
           }).catch(e => {
             if(e.response.data.error === 'User not approved!'){
@@ -62,7 +62,6 @@ const Home = (props) => {
                 },
             }).then(res => {
             setData(res.data)
-            //console.log(res.data[0]);
             setLoading(false)
             }).catch(e => {
             e = new Error();
@@ -74,11 +73,9 @@ const Home = (props) => {
     function DisplayComps(props){
         var data = props.data
         const query = props.query
-        //console.log(query);
         if (query) {
              data = data.filter((comp) =>  { return comp.comp_name.toLowerCase().match(query.toLowerCase()) !== null || comp.comp_location.toLowerCase().match(query.toLowerCase()) !== null } )            
         }
-        //console.log(data);
         return(
             <>
             {loading ? (
@@ -145,7 +142,7 @@ const Home = (props) => {
                                         </Modal>     
                                         </>                                             
                                         } 
-                                        {user && user.user_type === 2 && child && ent_open < current_date && ent_close > current_date &&
+                                        {user && user.user_type === 2 && children && ent_open < current_date && ent_close > current_date &&
                                         <>
                                         <Button onClick={() => setEnteropen(true)} variant='contained'>Enter Competition</Button>
                                         <Modal
@@ -156,7 +153,7 @@ const Home = (props) => {
                                         >
                                             <Box sx={compmodalstyle}>
                                                 <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                                <EntryForm user={child ? child:user}  token={token} comp={comp}/>
+                                                <EntryForm user={children ? children:user}  token={token} comp={comp}/>
                                             </Box>
                                         </Modal>     
                                         </>                                             

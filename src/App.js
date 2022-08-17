@@ -21,7 +21,6 @@ function App() {
         },
     }).then(res => {
       setUser(res.data)
-      //console.log(location);
     }).catch(e => {
       if(e.response.data.error === 'User not approved!'){
         setUser({user:e.response.data.error})
@@ -44,9 +43,8 @@ function App() {
           <li className='col-4'><Link className='link-dark' to="/">Home</Link></li>
           {location.pathname === '/' ? (
           <li className='col-4 d-flex justify-content-center'>            
-            <form className="search-bar input-group border rounded-pill " >
-              <input className="form-control ps-3 border-0 rounded-pill" placeholder='Search:' type="text" onChange={handleChange} value={new URLSearchParams(searchParams).get('query')} />         
-            </form>
+              <input className=" search-bar form-control ps-3 border rounded-pill" placeholder='Search:' type="text" onChange={handleChange} value={new URLSearchParams(searchParams).get('query')} />         
+            
           </li>
           ):(
             <li className='col-4'></li>

@@ -1,15 +1,14 @@
 import React,{useState,useEffect} from 'react';
-import Button from '@mui/material/Button';
 import axios from 'axios';
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
 const EntryForm = (props) => {
     var comp = props.comp
-    const user = props.user
-    console.log(user);
     const token = props.token
+    const users = props.user
     const compEventGrade = JSON.parse(comp.comp_events);
+    const [user, setUser] = useState(users[0]);
     const [eventGrade, setEventGrade] = useState();
     const [entryChecked, setEntryChecked] = useState(Array.apply(null, Array(compEventGrade.length)).map(i => i=false));
     const [activeStep, setActiveStep] = useState(0);
@@ -39,12 +38,11 @@ const EntryForm = (props) => {
             },
         }).then(res => {
             setExistingEntry(res.data)
-            console.log(res.data);
             setLoading(false)
         }).catch(e => {
             e = new Error();
         })
-    },[])
+    },[user,])
     function handleSubmitEntryForm(){
         axios({
             method: 'POST',
@@ -59,7 +57,6 @@ const EntryForm = (props) => {
                 compID:comp.compID 
             },
           }).then(res => {
-            console.log(res.data);
             setActiveStep(2)
           }).catch(e => {
             e = new Error();
@@ -93,17 +90,12 @@ const EntryForm = (props) => {
             e = new Error();
           })
     }
-    return ( 
-        <div className='modal-size d-flex justify-content-center max-height '>
-            {loading ? (
-            <div className='text-center p-3'>
-                <Skeleton className='mb-2' width={590} height={56} count={8}/>
-            </div>
 
-        ):(
-            <div className='text-center d-flex flex-column justify-content-center p-4 '>
-            {activeStep === 0 && existingEntry.length === 0 &&
-                <div className=' text-center m-3 pt-2'>
+
+    function EntryInput(){
+        return(
+            <>
+            <div className=' text-center m-3 pt-2'>
                     <h5 className='mb-4'>Enter Events for {user.user}</h5>
                     <div className='grid entry-form'>
                     {compEventGrade.map((field,index) => {
@@ -123,36 +115,42 @@ const EntryForm = (props) => {
                         );
                     })}
                 </div>  
-                <Button className='mt-3' variant="contained" onClick={() => {setActiveStep(1); console.log(entryChecked);}} >Enter</Button>
+                <button className='btn-border-none mt-3'  onClick={() => {setActiveStep(1)}} >Enter</button>
             </div>
-            }
-            {activeStep === 0 && existingEntry.length !== 0 &&
-            <>
-                <h5 className='mb-4'>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has already entered these events:</h5>
-                <ul className=''>
-                {existingEntry.map((entry,index) => { 
-                    return(
-                        <div key={index}>
-                            {eventGrade &&
-                            <li key={index} className='text-start'>
-                                <p>{eventGrade.grades[entry.gradeID-1].grade_name} {eventGrade.events[entry.eventID-1].event_name}</p>
-                            </li>
-                            }
-                        </div>
-                    )
-                })}
-                </ul>
-                <div className=''>
-                    <Button className='mt-3' variant="contained" onClick={() => {handleEditEntry()}} >Edit Entries</Button>
-                    {existingEntry.length > 0 &&
-                        <Button className=' ms-3 mt-3' variant="contained" onClick={() => {setActiveStep(3)}} >Delete Entries</Button>
-                    }
-                </div>
             </>
-            
-            }
-            {activeStep === 1 &&
-            <div className='text-center'>
+        )
+    }
+    function AlreadyEntered(){
+        return(
+        <>
+            <h5 className='mb-4'>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has already entered these events:</h5>
+            <ul className=''>
+            {existingEntry.map((entry,index) => { 
+                return(
+                    <div key={index}>
+                        {eventGrade &&
+                        <li key={index} className='text-start'>
+                            <p>{eventGrade.grades[entry.gradeID-1].grade_name} {eventGrade.events[entry.eventID-1].event_name}</p>
+                        </li>
+                        }
+                    </div>
+                )
+            })}
+            </ul>
+            <div className=''>
+                <button className='btn-border-none mt-3'  onClick={() => {handleEditEntry()}} >Edit Entries</button>
+                {existingEntry.length > 0 &&
+                    <button className='btn-border-none ms-3 mt-3'  onClick={() => {setActiveStep(3)}} >Delete Entries</button>
+                }
+            </div>
+        </>
+        )
+
+    }
+    function ConfirmEntries(){
+        return(
+        <>
+        <div className='text-center'>
                 <h5 className='mb-4'>Confirm Your Entries for {user.user}</h5>
                 {entryChecked.every((v) => (v === false)) && 
                     <div>                        
@@ -173,13 +171,18 @@ const EntryForm = (props) => {
                         </div>
                     )
                 })}
-                <Button className='mt-3' variant="contained" onClick={() => {setActiveStep(0); console.log(entryChecked);}} >Back</Button>
+                <button className='btn-border-none mt-3' onClick={() => {setActiveStep(0)}} >Back</button>
                 {entryChecked.some((v) => (v === true)) &&
-                    <Button className=' ms-3 mt-3' variant="contained" onClick={() => {handleSubmitEntryForm()}} >Confirm</Button>
+                    <button className='btn-border-none ms-3 mt-3' onClick={() => {handleSubmitEntryForm()}} >Confirm</button>
                 }
             </div>
-            }
-            {activeStep === 2 &&
+        
+        </>
+        )
+    }
+    function EntriesSuccess(){
+        return(
+        <>
             <div className='m-2'>
                 <h5>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has succesfully entered these events</h5>
                 {entryChecked.map((entry,index) => { 
@@ -196,9 +199,13 @@ const EntryForm = (props) => {
                     )
                 })}
             </div>
-            }
-            {activeStep === 3 && 
-                <div className='text-center'>
+        </>
+        )
+    }
+    function DeleteEntries(){
+        return(
+        <>
+        <div className='text-center'>
                 <h5 className='mb-4'>Remove Entries for {user.user}</h5>
                 {existingEntry.length === 0 && 
                     <div>                        
@@ -219,29 +226,76 @@ const EntryForm = (props) => {
                         </div>
                     )
                 })}
-                <Button className='mt-3' variant="contained" onClick={() => {setActiveStep(0); console.log(entryChecked);}} >Back</Button>
+                <button className=' btn-border-none mt-3' onClick={() => {setActiveStep(0)}} >Back</button>
                 {existingEntry.length > 0 &&
-                    <Button className=' ms-3 mt-3' variant="contained" onClick={() => {handleDeleteEntry()}} >Confirm</Button>
+                    <button className='btn-border-none ms-3 mt-3'onClick={() => {handleDeleteEntry()}} >Confirm</button>
                 }
             </div>
+        
+        </>
+        )
+    }
+    function DeleteEntriesSuccess(){
+        return(
+        <>
+        <div className='m-2'>
+            <h5 className='mb-4'> Deleted all events for {user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)}</h5>
+            {existingEntry.map((entry,index) => { 
+                return(
+                    <div key={index}>
+                        <ul>
+                        {entry &&
+                        <li className='text-start'>
+                            <p>{eventGrade.grades[compEventGrade[index].grade-1].grade_name} {eventGrade.events[compEventGrade[index].event-1].event_name}</p>
+                        </li>
+                        }
+                        </ul>
+                    </div>
+                )
+            })}
+        </div>
+        
+        </>
+        )
+    }
+    return ( 
+        <div className='modal-size d-flex justify-content-center max-height '>
+        {loading ? (
+            <div className='text-center p-3'>
+                <Skeleton className='mb-2' width={590} height={56} count={8}/>
+            </div>
+
+        ):(
+            <div className='text-center d-flex flex-column justify-content-center p-4 '>
+                {users.length > 1 && activeStep === 0 &&
+                    <select  onChange={({ target }) => {console.log(users[target.value],user); setUser(users[target.value])}} className="select-child form-select" aria-label="Default select example">
+                    { users.map((child,index) => {
+                        return(
+                            <option  key={index} value={index}>{child.first_name} {child.last_name}</option>
+                        )
+                    })}
+                    
+                    </select>
+
+                }
+                
+            {activeStep === 0 && existingEntry.length === 0 &&
+                <EntryInput/>
+            }
+            {activeStep === 0 && existingEntry.length !== 0 &&
+                <AlreadyEntered/>            
+            }
+            {activeStep === 1 &&
+                <ConfirmEntries/>
+            }
+            {activeStep === 2 &&
+                <EntriesSuccess/>
+            }
+            {activeStep === 3 && 
+                <DeleteEntries/>
             }
             {activeStep === 4 && 
-                <div className='m-2'>
-                <h5 className='mb-4'> Deleted all events for {user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)}</h5>
-                {existingEntry.map((entry,index) => { 
-                    return(
-                        <div key={index}>
-                            <ul>
-                            {entry &&
-                            <li className='text-start'>
-                                <p>{eventGrade.grades[compEventGrade[index].grade-1].grade_name} {eventGrade.events[compEventGrade[index].event-1].event_name}</p>
-                            </li>
-                            }
-                            </ul>
-                        </div>
-                    )
-                })}
-            </div>
+                <DeleteEntriesSuccess/>
             }
             </div>
         )}

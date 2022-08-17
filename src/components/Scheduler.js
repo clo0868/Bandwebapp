@@ -24,7 +24,6 @@ const Scheduler = () => {
         }).then(res => {
             setSchedule(res.data)
             setLoading(false)
-            //console.log(res.data);
         }).catch(e => {
             e = new Error();
         })
@@ -112,7 +111,6 @@ const Scheduler = () => {
                                                     
                                                     {JSON.parse(comp.comp_schedule).map((room,room_index) => {
                                                         //const schedule = JSON.parse(comp.comp_schedule)
-                                                        //console.log(schedule);
                                                         const room_data = JSON.parse(comp.comp_rooms)[room_index]    
                                                         return(
                                                             <div key={room_index} className='col-3 p-0 mb-5'>
@@ -126,11 +124,7 @@ const Scheduler = () => {
                                                             
                                                                     
                                                                 {room.return_room.map((event,event_index) => {
-                                                                    //console.log(event);
-                                                                    //console.log(new Date(schedule.comp_data.comp_start_time));
-                                                                    //console.log(room);
                                                                     //const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
-                                                                    //console.log(start_time);
 
                                                                     return(
                                                                         <>
@@ -144,11 +138,9 @@ const Scheduler = () => {
                                                                             <tbody>
                                                                                 {event.return_event.map((entry,entry_index) => {
                                                                                     var entry_user = {}
-                                                                                    //console.log(userList);
                                                                                     userList.forEach((user) => {
                                                                                         if (user.userID === entry.entry.userID) {
                                                                                             entry_user = user
-                                                                                            //console.log(user);
                                                                                         }
                                                                                         return null
                                                                                     })
@@ -188,9 +180,7 @@ const Scheduler = () => {
                                                 <div className='row'>
                                                     
                                                     {schedule.sch_res.map((room,room_index) => {
-                                                        //console.log(schedule);
                                                         const room_data = JSON.parse(schedule.comp_data.comp_rooms)[room_index]    
-                                                        console.log(room);                         
                                                         return(
                                                             <div key={room_index} className='col-3 p-0'>
                                                                 <div>
@@ -203,11 +193,7 @@ const Scheduler = () => {
                                                             
                                                                     
                                                                 {room.return_room.map((event,event_index) => {
-                                                                    //console.log(event);
-                                                                    //console.log(new Date(schedule.comp_data.comp_start_time));
-                                                                    //console.log(room);
                                                                     const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
-                                                                    //console.log(start_time);
 
                                                                     return(
                                                                         <>
