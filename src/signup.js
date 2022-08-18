@@ -29,7 +29,7 @@ const Signup = () => {
     }
     axios({
       method: 'POST',
-      url: './get_existing_names',
+      url: 'https://pipe-band-server.herokuapp.com/get_existing_names',
     }).then(res => {  
       setNames(res.data)
     }).catch(e => {
@@ -41,7 +41,7 @@ const Signup = () => {
   useEffect(() => {
     axios({
       method: 'POST',
-      url: './check_existing_user',
+      url: 'https://pipe-band-server.herokuapp.com/check_existing_user',
       data: { user: username},
     }).then(res => {
       const user_input = user_ref.current; 
@@ -101,7 +101,7 @@ const Signup = () => {
         // send the username and password to the server
         axios({
           method: 'POST',
-          url: './signup',
+          url: 'https://pipe-band-server.herokuapp.com/signup',
           data: { username:username,student:(accountType === '2' ? send_children:null),email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
         }).then(res => {
             sessionStorage.setItem("TOKEN", res.data.token);

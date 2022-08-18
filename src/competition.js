@@ -37,7 +37,7 @@ const Competition = () => {
         setLoading(true)
         axios({
             method: 'POST',
-            url: './comp_data',
+            url: 'https://pipe-band-server.herokuapp.com/comp_data',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -51,7 +51,7 @@ const Competition = () => {
           })
         axios({
             method: 'POST',
-            url: './user',
+            url: 'https://pipe-band-server.herokuapp.com/user',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -87,7 +87,7 @@ const Competition = () => {
     function deleteComp(compID){
         axios({
             method: 'POST',
-            url: './delete_comp',
+            url: 'https://pipe-band-server.herokuapp.com/delete_comp',
             headers: {
                 Authorization: `Bearer ${token}`,
               },

@@ -15,7 +15,7 @@ function App() {
   useEffect(() => {
     axios({
       method: 'POST',
-      url: './user',
+      url: 'https://pipe-band-server.herokuapp.com/user',
       headers: {
           Authorization: `Bearer ${token}`,
         },

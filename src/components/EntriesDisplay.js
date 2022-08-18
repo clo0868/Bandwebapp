@@ -13,7 +13,7 @@ const EntriesDisplay = (props) => {
         setLoading(true)
         axios({
             method: 'POST',
-            url: './comp_entries',
+            url: 'https://pipe-band-server.herokuapp.com/comp_entries',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -27,7 +27,7 @@ const EntriesDisplay = (props) => {
           })
           axios({
             method: 'POST',
-            url: './event_grade_name',
+            url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
             headers: {
                 Authorization: `Bearer ${token}`,
             },

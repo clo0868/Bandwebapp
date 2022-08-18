@@ -17,7 +17,7 @@ const EntryForm = (props) => {
     useEffect(() => {
         axios({
             method: 'POST',
-            url: './event_grade_name',
+            url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -28,7 +28,7 @@ const EntryForm = (props) => {
         })
         axios({
             method: 'POST',
-            url: './check_existing_entry',
+            url: 'https://pipe-band-server.herokuapp.com/check_existing_entry',
             headers: {
                 Authorization: `Bearer ${token}`,
             },

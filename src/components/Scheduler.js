@@ -14,7 +14,7 @@ const Scheduler = () => {
         setLoading(true)
         axios({
             method: 'POST',
-            url: './create_schedule',
+            url: 'https://pipe-band-server.herokuapp.com/create_schedule',
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -32,7 +32,7 @@ const Scheduler = () => {
         setLoading(true)
         axios({
             method: 'POST',
-            url: './comp_users',
+            url: 'https://pipe-band-server.herokuapp.com/comp_users',
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -46,7 +46,7 @@ const Scheduler = () => {
         })
         axios({
             method: 'POST',
-            url: './event_grade_name',
+            url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -57,7 +57,7 @@ const Scheduler = () => {
         })
         axios({
             method: 'POST',
-            url: './comp_data',
+            url: 'https://pipe-band-server.herokuapp.com/comp_data',
             headers: {
                 Authorization: `Bearer ${token}`,
               },

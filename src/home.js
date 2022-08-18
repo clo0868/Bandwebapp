@@ -36,7 +36,7 @@ const Home = (props) => {
     useEffect(() => {
         axios({
             method: 'POST',
-            url: './user',
+            url: 'https://pipe-band-server.herokuapp.com/user',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -56,7 +56,7 @@ const Home = (props) => {
           
         axios({
             method: 'POST',
-            url: './all_comp_data',
+            url: 'https://pipe-band-server.herokuapp.com/all_comp_data',
             headers: {
                 Authorization: `Bearer ${token}`,
                 },

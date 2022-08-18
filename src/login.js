@@ -24,7 +24,7 @@ const Login = () => {
 
     return axios({
         method: 'POST',
-        url: './login',
+        url: 'https://pipe-band-server.herokuapp.com/login',
         data: { 
           user:user.username,
           pass:user.password,

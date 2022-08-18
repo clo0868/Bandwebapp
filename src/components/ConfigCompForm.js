@@ -13,7 +13,7 @@ const ConfigCompForm = (props) => {
     useEffect(() => {
         axios({
             method: 'POST',
-            url: './comp_data',
+            url: 'https://pipe-band-server.herokuapp.com/comp_data',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -31,7 +31,7 @@ const ConfigCompForm = (props) => {
           })
           axios({
             method: 'POST',
-            url: './offical_names',
+            url: 'https://pipe-band-server.herokuapp.com/offical_names',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -44,7 +44,7 @@ const ConfigCompForm = (props) => {
     function handleConfigCompForm(){        
         axios({
             method: 'POST',
-            url: './config_rooms',
+            url: 'https://pipe-band-server.herokuapp.com/config_rooms',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -71,7 +71,7 @@ const ConfigCompForm = (props) => {
     function handleResetRooms(){
         axios({
             method: 'POST',
-            url: './reset_rooms',
+            url: 'https://pipe-band-server.herokuapp.com/reset_rooms',
             headers: {
                 Authorization: `Bearer ${token}`,
               },

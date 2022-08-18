@@ -22,7 +22,7 @@ const CompForm = () => {
   useEffect(() => {
     axios({
         method: 'POST',
-        url: './event_grade_name',
+        url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
         headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -57,7 +57,7 @@ const CompForm = () => {
     const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields]
     axios({
       method: 'POST',
-      url: './create_comp',
+      url: 'https://pipe-band-server.herokuapp.com/create_comp',
       headers: {
           Authorization: `Bearer ${token}`,
         },
