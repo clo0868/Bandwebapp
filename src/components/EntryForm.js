@@ -8,7 +8,7 @@ const EntryForm = (props) => {
     const token = props.token
     const users = props.user
     const compEventGrade = JSON.parse(comp.comp_events);
-    const [user, setUser] = useState(users[0]);
+    const [user, setUser] = useState(users.length > 1 ? users[0]:users);
     const [eventGrade, setEventGrade] = useState();
     const [entryChecked, setEntryChecked] = useState(Array.apply(null, Array(compEventGrade.length)).map(i => i=false));
     const [activeStep, setActiveStep] = useState(0);
@@ -93,29 +93,38 @@ const EntryForm = (props) => {
 
 
     function EntryInput(){
+        function Checkbox(props){
+            const field = props.field
+            const index = props.index
+            return(
+                <div key={index} className="form-check row m-1 border">
+                    <div className=' d-flex align-items-center p-2'>
+                        <input onChange={() => {
+                        setEntryChecked(values => values.map((value,i) => {return i === index ? !value:value }));
+                        }} checked={entryChecked[index]} className="form-check-input" type="checkbox" value={entryChecked[index]}
+                        />
+
+                        {eventGrade &&
+                        <p className='ps-3 p-0 m-0'>{eventGrade.grades[field.grade-1].grade_name} {eventGrade.events[field.event-1].event_name}</p>
+                        }                            
+                    </div>         
+                </div>
+
+            )
+
+        }
         return(
             <>
             <div className=' text-center m-3 pt-2'>
-                    <h5 className='mb-4'>Enter Events for {user.user}</h5>
+                <h5 className='mb-4'>Enter Events for {user.first_name} {user.last_name}</h5>
                     <div className='grid entry-form'>
                     {compEventGrade.map((field,index) => {
                         return(
-                        <div key={index} className="form-check row m-1 border">
-                            <div className=' d-flex align-items-center p-3'>
-                                <input onChange={() => {
-                                setEntryChecked(values => values.map((value,i) => {return i === index ? !value:value }));
-                                }} checked={entryChecked[index]} className="form-check-input" type="checkbox" value={entryChecked[index]}
-                                />
-
-                                {eventGrade &&
-                                <p className='ps-3 p-0 m-0'>{eventGrade.grades[field.grade-1].grade_name} {eventGrade.events[field.event-1].event_name}</p>
-                                }                            
-                            </div>         
-                        </div>
+                            <Checkbox key={index} field={field} index={index} />
                         );
                     })}
                 </div>  
-                <button className='btn-border-none mt-3'  onClick={() => {setActiveStep(1)}} >Enter</button>
+                <button className='btn-border-none mt-3' disabled={entryChecked.every((v) => {return v === false})}  onClick={() => {setActiveStep(1)}} >Enter</button>
             </div>
             </>
         )
@@ -184,7 +193,7 @@ const EntryForm = (props) => {
         return(
         <>
             <div className='m-2'>
-                <h5>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has succesfully entered these events</h5>
+                <h5 className='mb-2'>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has succesfully entered these events</h5>
                 {entryChecked.map((entry,index) => { 
                     return(
                         <div key={index}>

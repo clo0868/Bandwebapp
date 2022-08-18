@@ -7,8 +7,9 @@ const { createHash } = require('crypto');
 const jwt = require("jsonwebtoken");
 const auth = require("./auth");
 const create_schedule = require('./create_schedule');
-//const publicPath = path.join(__dirname, '..', 'public');
-//app.use(express.static(publicPath));
+
+app.use(express.static(path.join(__dirname, 'build')));
+
 function hash(string) {
   return createHash('sha256').update(string).digest('hex');
 }
@@ -199,14 +200,25 @@ app.post('/event_grade_name',auth, function(req, res) {
 app.post('/create_comp',auth, function(req, res) {
   data=req.body.form_data
   var sql = 'INSERT INTO competitions (`comp_name`, `comp_location`, `comp_start_time`,`ent_open_time`,`ent_close_time`,`comp_events`,`comp_rooms`,`comp_schedule`) VALUES (?,?,?,?,?,?,?,?)';
-  con.query(sql,[data[0],data[2],data[1],data[3],data[4],JSON.stringify(data[5]),0,0], function (err, grades) {
+  con.query(sql,[data[0],data[2],data[1],data[3],data[4],JSON.stringify(data[5]),0,0], function (err, result) {
     if (err) throw err;
+    res.send(result);
+    res.end
   });
 });
 app.post('/comp_entries',auth, function(req, res) {
   var comp_data = req.body.comp;
   var sql = 'SELECT * FROM entries INNER JOIN users ON entries.userID = users.userID WHERE entries.compID = ?';
   con.query(sql,[comp_data.compID], function (err, result) {
+    if (err) throw err;
+    res.send(result);
+    res.end();
+  });
+});
+app.post('/delete_comp',auth, function(req, res) {
+  var compID = req.body.compID;
+  var sql = 'DELETE FROM competitions WHERE compID = ?';
+  con.query(sql,[compID], function (err, result) {
     if (err) throw err;
     res.send(result);
     res.end();
@@ -334,10 +346,6 @@ app.post('/comp_users',function(req,res) {
   });
   
 });
-app.get('/*', function(req, res) {
-  res.sendFile(path.resolve(__dirname, 'C:\\xampp\\htdocs\\Bandwebapp\\public\\index.html'), function(err) {
-    if (err) {
-      res.status(500).send(err)
-    }
-  })
+app.get('/*', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });

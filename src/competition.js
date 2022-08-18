@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react';
-import {useLocation} from "react-router-dom";
+import {useLocation,useNavigate} from "react-router-dom";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import axios from'axios';
@@ -11,6 +11,7 @@ import {Link} from "react-router-dom";
 
 
 const Competition = () => {
+    let navigate = useNavigate();
     var data = useLocation();
     const token = sessionStorage.TOKEN
     const compID = data.state.comp.compID
@@ -19,7 +20,7 @@ const Competition = () => {
     const [enteropen, setEnteropen] = useState(false);
     const [configopen, setConfigopen] = useState(false);
     const [entviewopen, setEntviewopen] = useState(false);
-    const [child, setChild] = useState({});
+    const [children, setChildren] = useState({});
     const [comp, setComp] = useState({});
     const compmodalstyle = {
         position: 'absolute',
@@ -56,8 +57,8 @@ const Competition = () => {
               },
           }).then(res => {
             setUser(res.data.user)
-            if (res.data.result) {
-                setChild(res.data.result[0])
+            if (res.data.children) {
+                setChildren(res.data.children)
             }
             setLoading(false)
           }).catch(e => {
@@ -81,6 +82,23 @@ const Competition = () => {
         if (time.length === 11) {return time.slice(0,5)+time.slice(8)}        
         //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(0,4)} 
         //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(8)}
+    }
+    function deleteComp(compID){
+        axios({
+            method: 'POST',
+            url: './delete_comp',
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              data: { 
+                compID,
+              },
+          }).then(res => {
+            console.log(res);
+            navigate('/')
+          }).catch(e => {
+            e = new Error();
+          })
     }
     return (
         <div className='container-fluid comp-container'>
@@ -176,7 +194,7 @@ const Competition = () => {
                             } 
                             {user && user.user_type === 2 &&
                             <div className=' row m-2'>
-                                <button onClick={() => setEnteropen(true)} className='btn btn-primary'>Enter For {child.first_name.charAt(0).toUpperCase() + child.first_name.slice(1)} {child.last_name.charAt(0).toUpperCase() + child.last_name.slice(1)}</button>
+                                <button onClick={() => setEnteropen(true)} className='btn btn-primary'>Enter Competition</button>
                                 <Modal
                                     open={enteropen}
                                     onClose={() => setEnteropen(false)}
@@ -185,7 +203,7 @@ const Competition = () => {
                                 >
                                     <Box sx={compmodalstyle}>
                                         <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                        <EntryForm user={user.user_type === 2 ? child:user} token={token} comp={comp}/>
+                                        <EntryForm user={user.user_type === 2 ? children:[user]} token={token} comp={comp}/>
                                     </Box>
                                 </Modal> 
                             
@@ -194,6 +212,11 @@ const Competition = () => {
                             {user && user.user_type === 4 && 
                                 <div className='row m-2'>
                                     <button className='btn btn-primary'><Link className='text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
+                                </div>
+                            }
+                            {user && (user.user_type === 1 || user.user_type === 4) &&
+                                <div className='row m-2'>
+                                    <button className='btn btn-primary' onClick={() => {deleteComp(comp.compID)}}>Delete Competiton</button>
                                 </div>
                             }
                         </div>

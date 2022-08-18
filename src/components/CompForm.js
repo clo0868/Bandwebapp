@@ -35,8 +35,8 @@ const CompForm = () => {
 
 
     const [compDateValue, setCompDateValue] = useState(new Date());
-    const [compname,setCompname] = useState("");
-    const [complocation, setComplocation] = useState("");
+    const [compname,setCompname] = useState('');
+    const [complocation, setComplocation] = useState('');
     const [activeStep, setActiveStep] = useState(0);
     const [entStartDateValue, setEntStartDateValue] = useState(new Date());
     const [entEndDateValue, setEntEndDateValue] = useState(new Date());
@@ -65,6 +65,7 @@ const CompForm = () => {
         form_data
       },
     }).then(res => {
+      setActiveStep(4)
     }).catch(e => {
       e = new Error();
     })
@@ -80,11 +81,16 @@ const CompForm = () => {
           );
         })}
       </Stepper>
-      {activeStep === steps.length ? (
+      
+      {activeStep === steps.length||activeStep === 4 ? (
         
         <React.Fragment>
-          <div className='mt-3'>
+          <div className='mt-3 text-center'>
+          {activeStep === 4 &&
+                <h5 className='mb-2'> Competition Created Succesfully</h5>
+              }
             <div className='d-flex'>
+              
               <div className=' text-start'>
                 <h5>{compname}</h5>
                 <p>{complocation}</p>              
@@ -125,7 +131,7 @@ const CompForm = () => {
             </button>
             <Box sx={{ flex: '1 1 auto' }} />
             <button className='btn-border-none' onClick={handleReset}>Reset</button>
-            <button className='btn-border-none' onClick={handleSubmit}>Create</button>
+            <button className='btn-border-none' disabled={activeStep === 4} onClick={handleSubmit}>Create</button>
 
           </Box>
         </React.Fragment>
@@ -267,7 +273,7 @@ const CompForm = () => {
               Back
             </button>
             <Box sx={{ flex: '1 1 auto' }} />
-            <button className='btn-border-none' onClick={handleNext}>
+            <button className='btn-border-none' disabled={(activeStep === 0 && (compname === '' || complocation === ''))||(activeStep === 2 && eventfields.some((v) => {return(v.event === '' || v.grade === '')}))||(activeStep === 1 && entStartDateValue >= entEndDateValue)} onClick={handleNext}>
               Next
             </button>
           </Box>
