@@ -29,7 +29,7 @@ function App() {
       }
       
     })
-  },[location])
+  },[token])
   function handleChange(event) {
     event.preventDefault();
     let params = {query:event.target.value}
