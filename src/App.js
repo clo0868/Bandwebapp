@@ -22,12 +22,11 @@ function App() {
     }).then(res => {
       setUser(res.data)
     }).catch(e => {
-      setUser('none')
-      //if(e.response.data.error === 'User not approved!'){
-        //setUser({user:e.response.data.error})
-      //}else{
-        //e = new Error();
-      //}
+      if(e.response.data.error === 'User not approved!'){
+        setUser({user:e.response.data.error})
+      }else{
+        e = new Error();
+      }
       
     })
   },[location])
