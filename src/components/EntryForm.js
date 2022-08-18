@@ -8,7 +8,7 @@ const EntryForm = (props) => {
     const token = props.token
     const users = props.user
     const compEventGrade = JSON.parse(comp.comp_events);
-    const [user, setUser] = useState(users.length > 1 ? users[0]:users);
+    const [user, setUser] = useState(users[0]);
     const [eventGrade, setEventGrade] = useState();
     const [entryChecked, setEntryChecked] = useState(Array.apply(null, Array(compEventGrade.length)).map(i => i=false));
     const [activeStep, setActiveStep] = useState(0);

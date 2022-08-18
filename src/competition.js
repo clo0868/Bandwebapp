@@ -56,6 +56,7 @@ const Competition = () => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
+            console.log(res.data);
             setUser(res.data.user)
             if (res.data.children) {
                 setChildren(res.data.children)
@@ -203,7 +204,7 @@ const Competition = () => {
                                 >
                                     <Box sx={compmodalstyle}>
                                         <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                        <EntryForm user={user.user_type === 2 ? children:[user]} token={token} comp={comp}/>
+                                        <EntryForm user={user.user_type === 2 ? children:user} token={token} comp={comp}/>
                                     </Box>
                                 </Modal> 
                             
