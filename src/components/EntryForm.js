@@ -34,7 +34,7 @@ const EntryForm = (props) => {
             },
             data: {  
                 compID:comp.compID, 
-                user:user.userID,
+                user:users[0].userID,
             },
         }).then(res => {
             setExistingEntry(res.data)
