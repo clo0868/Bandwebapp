@@ -23,7 +23,7 @@ function App() {
       setUser(res.data)
     }).catch(e => {
       console.log(e);
-      if(e.response.data.error && e.response.data.error === 'User not approved!'){
+      if(e.response.data && e.response.data.error === 'User not approved!'){
         setUser({user:e.response.data.error})
       }else{
         e = new Error();
