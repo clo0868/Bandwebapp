@@ -46,7 +46,7 @@ const Home = (props) => {
                 setChildren(res.data.children)
             }
           }).catch(e => {
-            if(e.response.data.error && e.response.data.error === 'User not approved!'){
+            if(e.response.data && e.response.data.error === 'User not approved!'){
                 setUser({user:e.response.data.error})
                 console.log('Your Account has not been approved yet');
             }else{
