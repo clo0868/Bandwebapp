@@ -7,6 +7,7 @@ const EntryForm = (props) => {
     var comp = props.comp
     const token = props.token
     const users = props.user
+    console.log(users);
     const compEventGrade = JSON.parse(comp.comp_events);
     const [user, setUser] = useState(users[0]);
     const [eventGrade, setEventGrade] = useState();
