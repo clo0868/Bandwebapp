@@ -78,6 +78,7 @@ const Home = (props) => {
         }
         var user_array = []
         user_array.push(user)
+        console.log(user_array);
         return(
             <>
             {loading ? (
