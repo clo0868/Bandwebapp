@@ -153,7 +153,7 @@ const Home = (props) => {
                                         >
                                             <Box sx={compmodalstyle}>
                                                 <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                                <EntryForm user={children ? children:user}  token={token} comp={comp}/>
+                                                <EntryForm user={children ? children:[user]}  token={token} comp={comp}/>
                                             </Box>
                                         </Modal>     
                                         </>                                             
