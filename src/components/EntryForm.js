@@ -6,7 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 const EntryForm = (props) => {
     var comp = props.comp
     const token = props.token
-    const users = props.user
+    const users = Array.of(props.user).flat()
     console.log(users);
     const compEventGrade = JSON.parse(comp.comp_events);
     const [user, setUser] = useState(users[0]);

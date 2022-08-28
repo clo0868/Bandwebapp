@@ -76,9 +76,6 @@ const Home = (props) => {
         if (query) {
              data = data.filter((comp) =>  { return comp.comp_name.toLowerCase().match(query.toLowerCase()) !== null || comp.comp_location.toLowerCase().match(query.toLowerCase()) !== null } )            
         }
-        var user_array = []
-        user_array.push(user)
-        console.log(user_array);
         return(
             <>
             {loading ? (
@@ -156,7 +153,7 @@ const Home = (props) => {
                                         >
                                             <Box sx={compmodalstyle}>
                                                 <button onClick={() => setEnteropen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                                <EntryForm user={children ? children:user_array}  token={token} comp={comp}/>
+                                                <EntryForm user={children ? children:user}  token={token} comp={comp}/>
                                             </Box>
                                         </Modal>     
                                         </>                                             
