@@ -8,6 +8,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import axios from 'axios';
 import Scheduler from './components/Scheduler';
 import ApproveUsers from './components/ApproveUsers';
+import { TokenExpiredError } from 'jsonwebtoken';
 
 function App() {
   let location = useLocation();
@@ -23,11 +24,12 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
     }).then(res => {
+      console.log(res.data);
       setNotifs(res.data)
     }).catch(e => {
         e = new Error();     
     })
-  }, []);
+  }, [token]);
   useEffect(() => {
     axios({
       method: 'POST',
@@ -72,7 +74,7 @@ function App() {
           
           {user ? 
           <li className="col-4">
-            {(user.user.user_type === 3 || user.user.user_type === 4) && 
+            {(user.user.user_type === 5 || user.user.user_type === 4) && 
                   <Link className='relative link-dark me-5' to="/approve">              
                     <i className="fas fa-user-alt"></i>
                     {notifs.length > 0 &&

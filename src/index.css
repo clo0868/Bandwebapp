@@ -148,3 +148,11 @@ time, mark, audio, video {
 .relative{
   position: relative;
 }
+.approve-users-back{
+  position: absolute;
+  top: 1%;
+  left: 1%;
+}
+.approve-users-body{
+  position: relative;
+}
