@@ -1,10 +1,11 @@
 import React, {useState,useEffect} from 'react';
-import {useLocation} from "react-router-dom";
+import {useLocation,useNavigate} from "react-router-dom";
 import axios from'axios';
 const Scheduler = () => {
-    var data = useLocation();
+    var location = useLocation();
+    var navigate = useNavigate();
     const token = sessionStorage.TOKEN
-    const compID = data.state.compID
+    const compID = location.state.compID
     const [schedule, setSchedule] = useState({});
     const [eventGrade, setEventGrade] = useState();
     const [loading, setLoading] = useState(false);
@@ -86,9 +87,24 @@ const Scheduler = () => {
                         </div>
                         <div className='col-10 text-center '>
                             <div className='mt-5 text-center'>
-                                {Reflect.ownKeys(schedule).length === 0 && 
-                                   <button className='btn btn-primary' onClick={() => {createSchedule()}}>Create Schedule</button>
-                                }
+                                <div className='d-flex justify-content-between m-3'>
+                                    <div>
+                                        <button onClick={() => navigate(-1)} className='btn btn-primary'>Back</button>
+                                    </div>
+                                    <div>
+                                        
+                                    </div>
+                                    <div>
+                                        {Reflect.ownKeys(schedule).length === 0 && 
+                                        <button className='btn btn-primary' onClick={() => {createSchedule()}}>Create New Schedule</button>
+                                        }
+
+                                    </div>
+                                    
+
+                                </div>
+                                
+
                                 <div className='mt-5 sch-grid'> 
                                 {loading ? (
                                     <div className='d-flex flex-column justify-content-center align-items-center'>

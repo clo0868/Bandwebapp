@@ -7,6 +7,8 @@ import Competition from './competition';
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import axios from 'axios';
 import Scheduler from './components/Scheduler';
+import ApproveUsers from './components/ApproveUsers';
+
 function App() {
   let location = useLocation();
   const token = sessionStorage.TOKEN
@@ -20,11 +22,13 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
     }).then(res => {
+      console.log(res.data);
       setUser(res.data)
     }).catch(e => {
       console.log(e);
       if(e.response.data && e.response.data.error === 'User not approved!'){
         setUser({user:e.response.data.error})
+
       }else{
         e = new Error();
       }
@@ -41,7 +45,7 @@ function App() {
     <>
     <div className='navbar-sticky grid shadow-sm'>
         <ul className="list-unstyled row align-items-center text-center m-0 p-2 px-4">
-          <li className='col-4'><Link className='link-dark' to="/">Home</Link></li>
+          <li className='col-4'><Link className='link-dark text-decoration-none' to="/">PipeBand</Link></li>
           {location.pathname === '/' ? (
           <li className='col-4 d-flex justify-content-center'>            
               <input className=" search-bar form-control ps-3 border rounded-pill" placeholder='Search:' type="text" onChange={handleChange} value={new URLSearchParams(searchParams).get('query')} />         
@@ -54,7 +58,15 @@ function App() {
           
           {user ? 
           <li className="col-4">
-            <Link className='link-dark '  onClick={() => { setUser();sessionStorage.clear();}} to="/login">
+            {(user.user.user_type === 3 || user.user.user_type === 4) && 
+                  <Link className='relative link-dark me-5' to="/approve">              
+                    <i className="fas fa-user-alt"></i>
+                    <span className='account-notification'>22</span>
+                  </Link>    
+                  
+                
+              }
+            <Link className='link-dark'  onClick={() => { setUser();sessionStorage.clear();}} to="/login">              
               <i className="fas fa-sign-out-alt"></i>
             </Link>
           </li>
@@ -62,7 +74,9 @@ function App() {
           <li className="col-4">
             <Link className='link-dark' to="/signup">
               <i className="fas fa-user-plus"></i>
-            </Link>
+            </Link>           
+            
+
             <Link className='link-dark ms-4' to="/login">
               <i className="fas fa-sign-in-alt"></i>
             </Link>
@@ -85,6 +99,11 @@ function App() {
         <Route index path="/scheduler" element={
           <ProtectedRoute>
             <Scheduler />
+          </ProtectedRoute>
+        } />
+        <Route index path="/approve" element={
+          <ProtectedRoute>
+            <ApproveUsers />
           </ProtectedRoute>
         } />
           <Route path="login" element={<Login />} />

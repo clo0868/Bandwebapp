@@ -19,7 +19,9 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 
-
+.comppagebtn{
+  max-width: 25vw;
+}
 .compevent{
     max-height: 300px;
     overflow-y: auto;
@@ -130,4 +132,19 @@ time, mark, audio, video {
   border: none;
   background-color: inherit;
   padding: 10px;
+}
+.account-notification{
+  display: block;
+  position: absolute; 
+  bottom: 50%;
+  left: 50%;
+  background-color: red;
+  border-radius: 10px;
+  color: white;
+ 
+  padding: 1px 3px;
+  font-size: 10px;
+}
+.relative{
+  position: relative;
 }

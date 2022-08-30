@@ -7,6 +7,8 @@ import EntryForm from './components/EntryForm.js'
 import CompInfoSkeleton from './components/CompInfoSkeleton.js';
 import ConfigCompForm from './components/ConfigCompForm.js';
 import EntriesDisplay from './components/EntriesDisplay.js';
+import EntriesByUserDisplay from './components/EntriesByUserDisplay.js';
+
 import {Link} from "react-router-dom";
 
 
@@ -20,6 +22,7 @@ const Competition = () => {
     const [enteropen, setEnteropen] = useState(false);
     const [configopen, setConfigopen] = useState(false);
     const [entviewopen, setEntviewopen] = useState(false);
+    const [entuserviewopen, setEntuserviewopen] = useState(false);
     const [children, setChildren] = useState({});
     const [comp, setComp] = useState({});
     const compmodalstyle = {
@@ -74,7 +77,7 @@ const Competition = () => {
     
     
     const comp_start = new Date(comp.comp_start_time)
-    const comp_start_time = comp_start.getTime()
+    //const comp_start_time = comp_start.getTime()
     const ent_open = new Date(comp.ent_open_time).getTime()
     const ent_close = new Date(comp.ent_close_time).getTime()
     const current_time = new Date().getTime()
@@ -122,28 +125,68 @@ const Competition = () => {
                             </div>
 
                         ) : (
+                            <>
                             <div className='grid m-3'>
+                                <div className='row mb-2'>
+                                    <div className='col text-start d-flex align-items-center'>
+                                        <button onClick={() => navigate(-1)} className='btn'><i className="fas fa-arrow-left"></i></button>
+                                        <h4 className='ps-2'>{comp.comp_name}</h4>
+                                    </div>
+                                    <div className='col d-flex align-items-center'>
+                                        <h5 className='ms-auto'>{comp.comp_location}</h5>                                        
+                                    </div>
+                                </div>
                                 <div className='row pb-3 border-bottom border-3'>
-                                    <div className='col text-start'>
-                                        <h5>{comp.comp_name}</h5>
-                                        <p>{comp.comp_location}</p>
+                                    <div className='col text-start'>                                        
+                                        <p>{comp_start.toLocaleTimeString()}</p>
                                         <p className='mt-1'>Entries Open: {shortenTime(new Date(comp.ent_open_time).toLocaleTimeString())} {new Date(comp.ent_open_time).toDateString()} </p>
                                     </div>
                                     <div className='col text-end'>
-                                        <h5>{comp_start.toDateString()}</h5>
-                                        <p>{comp_start.toLocaleTimeString()}</p>
+                                        <p>{comp_start.toDateString()}</p>
+                                        
                                         <p className='mt-1'>Entries Close: {shortenTime(new Date(comp.ent_close_time).toLocaleTimeString())} {new Date(comp.ent_close_time).toDateString()} </p>
                                     </div>
-                                    
                                 </div> 
-                            {current_time > ent_close && current_time < comp_start_time && comp.comp_schedule !== '0' &&
-                                <div className=' row m-2'>
-                                    <p> you have a schedule</p>
-                                </div>                              
-                            }
+
+                            </div>
+                            
+
+                            <div className='grid m-3  '>                    
+                            {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
+                                <>
+                                <div className=' row m-2 d-flex justify-content-center'>
+                                <button onClick={() => setEntviewopen(true)} className='comppagebtn btn btn-primary'>View Entries</button>
+                                <Modal
+                                    open={entviewopen}
+                                    onClose={() => setEntviewopen(false)}
+                                    aria-labelledby="modal-modal-title"
+                                    aria-describedby="modal-modal-description"
+                                >
+                                    <Box sx={compmodalstyle}>
+                                        <button onClick={() => setEntviewopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+                                        <EntriesDisplay token={token} comp={comp}/>
+                                    </Box>
+                                </Modal>     
+                                </div> 
+                                <div className=' row m-2 d-flex justify-content-center'>
+                                <button onClick={() => setEntuserviewopen(true)} className='comppagebtn btn btn-primary'>View Entries By User</button>
+                                <Modal
+                                    open={entuserviewopen}
+                                    onClose={() => setEntuserviewopen(false)}
+                                    aria-labelledby="modal-modal-title"
+                                    aria-describedby="modal-modal-description"
+                                >
+                                    <Box sx={compmodalstyle}>
+                                        <button onClick={() => setEntuserviewopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+                                        <EntriesByUserDisplay token={token} comp={comp}/>
+                                    </Box>
+                                </Modal>     
+                                </div>
+                                </> 
+                            ):null}
                             {user && user.user_type === 4 && ent_close > current_time &&
-                                <div className=' row m-2'>
-                                    <button onClick={() => setConfigopen(true)} className='btn btn-primary'>Configure Competition</button>
+                                <div className=' row m-2 d-flex justify-content-center'>
+                                    <button onClick={() => setConfigopen(true)} className='comppagebtn btn btn-primary'>Configure Competition</button>
                                     <Modal
                                         open={configopen}
                                         onClose={() => setConfigopen(false)}
@@ -159,26 +202,11 @@ const Competition = () => {
                                 </div>
                             
                             }
-                            {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
-                                <div className=' row m-2'>
-                                <button onClick={() => setEntviewopen(true)} className='btn btn-primary'>View Entries</button>
-                                <Modal
-                                    open={entviewopen}
-                                    onClose={() => setEntviewopen(false)}
-                                    aria-labelledby="modal-modal-title"
-                                    aria-describedby="modal-modal-description"
-                                >
-                                    <Box sx={compmodalstyle}>
-                                        <button onClick={() => setEntviewopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                        <EntriesDisplay token={token} comp={comp}/>
-                                    </Box>
-                                </Modal>     
-                                </div> 
-                            ):null}
+                            
                             {user && user.user_type === 0 && ent_open < current_time && ent_close > current_time &&
                             <>
-                            <div className=' row m-2'>
-                                <button onClick={() => setEnteropen(true)} className='btn btn-primary'>Enter Competition</button>
+                            <div className=' row m-2 d-flex justify-content-center'>
+                                <button onClick={() => setEnteropen(true)} className='comppagebtn btn btn-primary'>Enter Competition</button>
                                 <Modal
                                     open={enteropen}
                                     onClose={() => setEnteropen(false)}
@@ -194,8 +222,8 @@ const Competition = () => {
                             </>                                             
                             } 
                             {user && user.user_type === 2 &&
-                            <div className=' row m-2'>
-                                <button onClick={() => setEnteropen(true)} className='btn btn-primary'>Enter Competition</button>
+                            <div className=' row m-2 d-flex justify-content-center'>
+                                <button onClick={() => setEnteropen(true)} className='comppagebtn btn btn-primary'>Enter Competition</button>
                                 <Modal
                                     open={enteropen}
                                     onClose={() => setEnteropen(false)}
@@ -211,17 +239,17 @@ const Competition = () => {
                             </div>
                             }
                             {user && user.user_type === 4 && 
-                                <div className='row m-2'>
-                                    <button className='btn btn-primary'><Link className='text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
+                                <div className='row m-2 d-flex justify-content-center'>
+                                    <button className='comppagebtn btn btn-primary'><Link className=' text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
                                 </div>
                             }
                             {user && (user.user_type === 1 || user.user_type === 4) &&
-                                <div className='row m-2'>
-                                    <button className='btn btn-primary' onClick={() => {deleteComp(comp.compID)}}>Delete Competiton</button>
+                                <div className='row m-2 d-flex justify-content-center'>
+                                    <button className='comppagebtn btn btn-primary' onClick={() => {deleteComp(comp.compID)}}>Delete Competiton</button>
                                 </div>
                             }
                         </div>
-                            
+                        </>
                         )}
                         
                     </div>
