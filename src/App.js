@@ -14,6 +14,20 @@ function App() {
   const token = sessionStorage.TOKEN
   const [user, setUser] = useState()
   const [searchParams, setSearchParams] = useSearchParams({query:''});
+  const [notifs, setNotifs] = useState(0);
+  useEffect(() => {
+    axios({
+      method: 'POST',
+      url: 'https://pipe-band-server.herokuapp.com/approve_notif',
+      headers: {
+          Authorization: `Bearer ${token}`,
+        },
+    }).then(res => {
+      setNotifs(res.data)
+    }).catch(e => {
+        e = new Error();     
+    })
+  }, []);
   useEffect(() => {
     axios({
       method: 'POST',
@@ -61,7 +75,10 @@ function App() {
             {(user.user.user_type === 3 || user.user.user_type === 4) && 
                   <Link className='relative link-dark me-5' to="/approve">              
                     <i className="fas fa-user-alt"></i>
-                    <span className='account-notification'>22</span>
+                    {notifs.length > 0 &&
+                      <span className='account-notification'>{notifs.length}</span>
+                    }
+                    
                   </Link>    
                   
                 

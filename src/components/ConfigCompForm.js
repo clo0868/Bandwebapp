@@ -31,12 +31,19 @@ const ConfigCompForm = (props) => {
           })
           axios({
             method: 'POST',
-            url: 'https://pipe-band-server.herokuapp.com/offical_names',
+            url: 'https://pipe-band-server.herokuapp.com/officials',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            setOfficialNames(res.data)
+            var res_stew = res.data.steward.filter((v,i) => {
+                return v.user_approve === 1
+            })
+            var res_judge = res.data.judge.filter((v,i) => {
+                return v.user_approve === 1
+            })
+            setOfficialNames({steward:res_stew,judge:res_judge})
+            
           }).catch(e => {
             e = new Error();
           })
@@ -160,7 +167,7 @@ const ConfigCompForm = (props) => {
                                         
                                         <div className='form-floating'>
                                         <input id='RoomNameInput' className='m-1 form-control config-input' placeholder='  Room Name' value={room.room_name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_name:event.target.value}:value}));}} type='text'></input>
-                                        <label for="RoomNameInput">Room Name:</label>
+                                        <label htmlFor="RoomNameInput">Room Name:</label>
                                         </div>
                                         <div className="dropdown">
                                             <div id={'judgeDropdown'+index} data-bs-toggle="dropdown" className='form-floating' aria-expanded="false">

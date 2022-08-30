@@ -5,7 +5,6 @@ import 'react-loading-skeleton/dist/skeleton.css'
 const EntriesByUserDisplay = (props) => {
     var comp = props.comp
     const token = props.token
-    const compEventGrade = JSON.parse(comp.comp_events);
     const [entries,setEntries] = useState([]);
     const [eventGrade, setEventGrade] = useState();
     const [loading, setLoading] = useState(true);
