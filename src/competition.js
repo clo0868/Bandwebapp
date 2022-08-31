@@ -59,7 +59,6 @@ const Competition = () => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            console.log(res.data);
             setUser(res.data.user)
             if (res.data.children) {
                 setChildren(res.data.children)
@@ -98,7 +97,6 @@ const Competition = () => {
                 compID,
               },
           }).then(res => {
-            console.log(res);
             navigate('/')
           }).catch(e => {
             e = new Error();
@@ -180,11 +178,12 @@ const Competition = () => {
                                         <button onClick={() => setEntuserviewopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
                                         <EntriesByUserDisplay token={token} comp={comp}/>
                                     </Box>
+
                                 </Modal>     
                                 </div>
                                 </> 
                             ):null}
-                            {user && user.user_type === 4 && ent_close > current_time &&
+                            {user && user.user_type === 4 && ent_close < current_time &&
                                 <div className=' row m-2 d-flex justify-content-center'>
                                     <button onClick={() => setConfigopen(true)} className='comppagebtn btn btn-primary'>Configure Competition</button>
                                     <Modal
@@ -221,7 +220,7 @@ const Competition = () => {
                             </div>  
                             </>                                             
                             } 
-                            {user && user.user_type === 2 &&
+                            {user && user.user_type === 2 && ent_open < current_time && ent_close > current_time &&
                             <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEnteropen(true)} className='comppagebtn btn btn-primary'>Enter Competition</button>
                                 <Modal
@@ -238,7 +237,7 @@ const Competition = () => {
                             
                             </div>
                             }
-                            {user && user.user_type === 4 && 
+                            {user && user.user_type === 4 && ent_close < current_time &&
                                 <div className='row m-2 d-flex justify-content-center'>
                                     <button className='comppagebtn btn btn-primary'><Link className=' text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
                                 </div>

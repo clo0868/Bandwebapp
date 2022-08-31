@@ -30,7 +30,6 @@ const Login = () => {
           pass:user.password,
         },
       }).then(res => {
-        console.log(res);
         user_input.className = " form-control"; 
         pass_input.className = " form-control";
         sessionStorage.setItem("TOKEN", res.data.token);

@@ -22,7 +22,6 @@ const ApproveUsers = () => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            console.log(res.data);
             setOfficials(res.data)
           }).catch(e => {
              e = new Error();            
@@ -65,7 +64,6 @@ const ApproveUsers = () => {
                     user,
                 },
               }).then(res => {
-                console.log(res.data);
               }).catch(e => {
                  e = new Error();            
               })   
@@ -89,7 +87,6 @@ const ApproveUsers = () => {
                         user,
                     },
                   }).then(res => {
-                    console.log(res.data);
                   }).catch(e => {
                      e = new Error();            
                   })             

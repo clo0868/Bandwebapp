@@ -47,7 +47,7 @@ const EntryForm = (props) => {
     function handleSubmitEntryForm(){
         axios({
             method: 'POST',
-            url: './create_entries',
+            url: 'https://pipe-band-server.herokuapp.com/create_entries',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -75,7 +75,7 @@ const EntryForm = (props) => {
     function handleDeleteEntry(){
         axios({
             method: 'POST',
-            url: './create_entries',
+            url: 'https://pipe-band-server.herokuapp.com/create_entries',
             headers: {
                 Authorization: `Bearer ${token}`,
               },
