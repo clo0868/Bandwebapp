@@ -196,6 +196,12 @@ const Signup = () => {
                 <div key={index} className=" mb-3 dropdown">
                   <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">              
                   <input type="text" ref={(element) => studentRefs.current[index] = element } onSelect={unerror} className='form-control' value={child} onChange={(event) => setStudent(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
+                  
+                  {index !== 0 &&
+                    <button onClick={() => {setStudent((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button" id="add-child">X</button>
+
+                  }
+                  
                   {index === student.length-1 &&
                     <button onClick={() => {setStudent(prevChilds => [...prevChilds,''])}} className="btn btn-outline-primary" type="button" id="add-child">Add Child</button>
                   }

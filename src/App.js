@@ -8,6 +8,8 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import axios from 'axios';
 import Scheduler from './components/Scheduler';
 import ApproveUsers from './components/ApproveUsers';
+import AllUsers from './components/AllUsers'
+import Account from './components/Account'
 
 function App() {
   let location = useLocation();
@@ -72,16 +74,25 @@ function App() {
           {user ? 
           <li className="col-4">
             {(user.user.user_type === 5 || user.user.user_type === 4) && 
+              <>
+                  <Link className='link-dark me-5' to='/users'>
+                    <i className="fas fa-user-friends"></i>
+                  </Link>
+
                   <Link className='relative link-dark me-5' to="/approve">              
-                    <i className="fas fa-user-alt"></i>
+                    <i className="fas fa-user-check"></i>
                     {notifs.length > 0 &&
                       <span className='account-notification'>{notifs.length}</span>
                     }
                     
                   </Link>    
                   
+              </>
                 
               }
+            <Link className='me-5 link-dark' to='/account'>
+              <i className="fas fa-user"></i>
+            </Link>
             <Link className='link-dark'  onClick={() => { setUser();sessionStorage.clear();}} to="/login">              
               <i className="fas fa-sign-out-alt"></i>
             </Link>
@@ -120,6 +131,16 @@ function App() {
         <Route index path="/approve" element={
           <ProtectedRoute>
             <ApproveUsers />
+          </ProtectedRoute>
+        } />
+        <Route index path="/users" element={
+          <ProtectedRoute>
+            <AllUsers />
+          </ProtectedRoute>
+        } />
+        <Route index path="/account" element={
+          <ProtectedRoute>
+            <Account />
           </ProtectedRoute>
         } />
           <Route path="login" element={<Login />} />

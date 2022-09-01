@@ -13,7 +13,6 @@ const EntriesByUserDisplay = (props) => {
     const [editUser, setEditUser] = useState();
     const [activeStep, setActiveStep] = useState(0);
     const compEventGrade = JSON.parse(comp.comp_events);
-    //const [eventGrade, setEventGrade] = useState();
     const [entryChecked, setEntryChecked] = useState(Array.apply(null, Array(compEventGrade.length)).map(i => i=false));
     useEffect(() => {
         setLoading(true)
