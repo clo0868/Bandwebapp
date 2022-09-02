@@ -4,8 +4,9 @@ import axios from 'axios';
 
 const AllUsers = () => {
     const token = sessionStorage.TOKEN
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const [allUsers, setAllUsers] = useState();
+    
 
     useEffect(() => {
         axios({
@@ -21,6 +22,7 @@ const AllUsers = () => {
              e = new Error();            
           })
     }, []);
+    
 
 
 
@@ -56,6 +58,15 @@ const AllUsers = () => {
                                     return(
                                         <>
                                             <p className='ms-2'>{index+1}. {user.user} </p>
+                                            <ul>
+                                                {allUsers.filter((v) => {return v.user_type === 0 && v.parent === user.userID}).map((child,child_index) => {
+                                                    return(
+                                                        <>
+                                                            <p className='ms-3'>{child_index+1}. {child.first_name} {child.last_name}</p>
+                                                        </>
+                                                    )
+                                                })}
+                                            </ul>
                                         </>
                                     )
                                 })}

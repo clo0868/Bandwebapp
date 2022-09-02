@@ -10,7 +10,7 @@ const Signup = () => {
   const email_ref = useRef(null);
   const pass_ref = useRef(null);
   const pass_confirm_ref = useRef(null);
-  var studentRefs = useRef([])
+  
 
 
   const navigate = useNavigate();
@@ -21,21 +21,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [accountType, setAccountType] = useState('0');
-  const [names, setNames] = useState([]);
-  const [student, setStudent] = useState(['']);
-  useEffect(() => {
-    if(sessionStorage.TOKEN){
-      navigate("/")
-    }
-    axios({
-      method: 'POST',
-      url: 'https://pipe-band-server.herokuapp.com/get_existing_names',
-    }).then(res => {  
-      setNames(res.data)
-    }).catch(e => {
-      e = new Error();
-    })
-  },[])
+
 
 
   useEffect(() => {
@@ -62,22 +48,8 @@ const Signup = () => {
     e.preventDefault();
     const pass_input = pass_ref.current; 
     const pass_confirm_input = pass_confirm_ref.current;
-    const merged_names = names.map(name => Object.values(name).slice(1).join(" "))
     
-    if (accountType === '2') {
-      var validate_children = student.every((stud_name,index) => {
-        const student_input = studentRefs.current[index];
-        if ((merged_names.every((name) => name !== stud_name) && accountType === "2") || (stud_name !== '' && (accountType !== '2' ))) {
-          console.log(index+' is bad');
-          student_input.className = " form-control is-invalid";
-          return false
-        }else{
-          console.log(index+' is good');
-          student_input.className = " form-control";
-          return true
-        }
-      })      
-    }else{validate_children = true}
+    
         
     if (password !== passwordConfirm) {
       pass_input.className = " form-control is-invalid";
@@ -87,44 +59,28 @@ const Signup = () => {
     }else{
       pass_input.className = " form-control";        
       pass_confirm_input.className = " form-control ";
-      if (validate_children) {
-        const send_children = []
-        if (accountType === '2') {
-          
-          student.forEach((child) => {
-            send_children.push(names[merged_names.indexOf(child)].userID)
-          });
-          console.log(send_children);
-          
-        }
+      const send_children = []
+      
+      // send the username and password to the server
+      axios({
+        method: 'POST',
+        url: 'https://pipe-band-server.herokuapp.com/signup',
+        data: { username:username,email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
+      }).then(res => {
+          sessionStorage.setItem("TOKEN", res.data.token);
+          navigate("/")
+      }).catch(e => {
+        e = new Error();
+      })
         
-        // send the username and password to the server
-        axios({
-          method: 'POST',
-          url: 'https://pipe-band-server.herokuapp.com/signup',
-          data: { username:username,student:(accountType === '2' ? send_children:null),email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
-        }).then(res => {
-            sessionStorage.setItem("TOKEN", res.data.token);
-            navigate("/")
-        }).catch(e => {
-          e = new Error();
-        })
-        
-      }
+      
     }
       
     
 
   };
   function unerror(){
-    if(accountType === '2'){
-      console.log(studentRefs);
-      studentRefs.current.forEach((child,index) => {
-        const student_input = studentRefs.current[index];
-        student_input.className = " form-control";
-      });
-      
-    }
+    
     const pass_confirm_input = pass_confirm_ref.current; 
     const pass_input = pass_ref.current; 
     pass_confirm_input.className = " form-control"; 
@@ -138,6 +94,12 @@ const Signup = () => {
         <div className="card login-card p-5 py-4 mt-5 text-center">
           <h1 className="pb-3">Sign Up</h1>
          <form className="login" onSubmit={handleSubmitSignup} >
+         <div className="mb-3">
+          <div className="input-group login-input">
+            <input type="text" ref={first_ref} className="form-control me-2 " value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
+            <input type="text" ref={last_ref} className="form-control " value={lastName} onChange={({ target }) => setLastName(target.value)} placeholder="Last Name"  required/>
+          </div>           
+        </div>   
           
             <div className="mb-3">
               <div className="input-group login-input">
@@ -174,61 +136,7 @@ const Signup = () => {
             <option value="5">Judge</option>
           </select>
            </div>
-           {(accountType === '0'||accountType === '3'||accountType === '4'||accountType === '5') ? (
-          <div className="mb-3">
-          <div className="input-group login-input">
-            <input type="text" ref={first_ref} className="form-control me-2 " value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
-            <input type="text" ref={last_ref} className="form-control " value={lastName} onChange={({ target }) => setLastName(target.value)} placeholder="Last Name"  required/>
-          </div>           
-        </div>          
-          ):(null)}
-           {accountType === '2'&&
-           <div className="">
-            {student.map((child,index) => {
-              const filter_names = names.filter((name) => {
-                return !student.some((child) => {
-                  return child === (name.first_name+' '+name.last_name)
-                })
-                
-              })
-              return(
-                <>
-                <div key={index} className=" mb-3 dropdown">
-                  <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">              
-                  <input type="text" ref={(element) => studentRefs.current[index] = element } onSelect={unerror} className='form-control' value={child} onChange={(event) => setStudent(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
-                  
-                  {index !== 0 &&
-                    <button onClick={() => {setStudent((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button" id="add-child">X</button>
-
-                  }
-                  
-                  {index === student.length-1 &&
-                    <button onClick={() => {setStudent(prevChilds => [...prevChilds,''])}} className="btn btn-outline-primary" type="button" id="add-child">Add Child</button>
-                  }
-                  <div className="invalid-feedback">
-                      This Student Does Not Exist. Please Select An Existing Student.
-                  </div>
-                  </div>
-                  <ul className="dropdown-menu student-dropdown" aria-labelledby="studentDropdown">
-                    {filter_names.map((name,ind) => {
-                      return (
-                        <div key={ind}>
-                        {((name.first_name+' '+name.last_name).toLowerCase().match(child) !== null) ? (
-                          <li onClick={() => {setStudent(values => values.map((value,i) => { return i === index ? name.first_name+' '+name.last_name:value}))}} className='student-dropdown-item ps-1'>{name.first_name+' '+name.last_name}</li>
-                        ):(null)}
-                        </div>
-                      )
-                    })}
-                  </ul>
-                  
-                </div>
-                
-                </>
-              )
-            })}
-            
-           </div>
-           }
+               
           <button className="btn btn-primary px-3"type="submit" name="submit">Sign Up</button>
 
          </form>

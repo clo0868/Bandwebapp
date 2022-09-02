@@ -156,3 +156,8 @@ time, mark, audio, video {
 .approve-users-body{
   position: relative;
 }
+.account-back{
+  position: absolute;
+  top: 2%;
+  left: 3%;
+}

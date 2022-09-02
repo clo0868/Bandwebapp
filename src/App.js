@@ -10,6 +10,7 @@ import Scheduler from './components/Scheduler';
 import ApproveUsers from './components/ApproveUsers';
 import AllUsers from './components/AllUsers'
 import Account from './components/Account'
+import AddChildren from './components/AddChildren';
 
 function App() {
   let location = useLocation();
@@ -141,6 +142,11 @@ function App() {
         <Route index path="/account" element={
           <ProtectedRoute>
             <Account />
+          </ProtectedRoute>
+        } />
+        <Route index path="/addchildren" element={
+          <ProtectedRoute>
+            <AddChildren />
           </ProtectedRoute>
         } />
           <Route path="login" element={<Login />} />

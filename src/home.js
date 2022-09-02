@@ -1,4 +1,6 @@
 import React,{useEffect,useState} from 'react';
+import {useNavigate} from "react-router-dom";
+
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -11,6 +13,7 @@ import {Link,useLocation} from "react-router-dom";
 import axios from 'axios';
 
 const Home = (props) => {
+    const navigate = useNavigate();
     const { search } = useLocation();
     const query = new URLSearchParams(search)
     const token = sessionStorage.TOKEN
@@ -42,6 +45,10 @@ const Home = (props) => {
               },
           }).then(res => {
             setUser(res.data.user)
+            console.log(res.data);
+            if (res.data.user.user_type === 2 && res.data.children.length === 0) {
+                navigate('/addchildren')
+            }
             if (res.data.children) {
                 setChildren(res.data.children)
             }
