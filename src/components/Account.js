@@ -21,6 +21,7 @@ const Account = () => {
     const [names, setNames] = useState([]);
     const [prevUsername, setPrevUsername] = useState('');
     const [prevChildren, setPrevChildren] = useState([]);
+    const [valid, setValid] = useState(false);
 
     useEffect(() => {
         axios({
@@ -65,7 +66,9 @@ const Account = () => {
           const user_input = user_ref.current; 
           if( username.length > 0 && username !== prevUsername && res.data.length > 0){
             user_input.className = " form-control is-invalid";
+            setValid(false)
           }else{
+            setValid(true)
             user_input.className = " form-control";        
           }
     
@@ -79,23 +82,43 @@ const Account = () => {
             const child_input = childRefs.current[index];
             child_input.className = " form-control";    
       }
+      function unerrorEmail(){          
+        const email_input = email_ref.current
+        email_input.className =" form-control";    
+  }
     function handleAccountUpdate(){            
             // send the username and password to the server
+
+            const email_input = email_ref.current; 
+            if(email_input.value.slice(1,email_input.length-1).includes('@')){
+                email_input.className = "form-control";
+
+            }else{
+                email_input.className = "form-control is-invalid";
+
+            }
+
             axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/update_account',
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
             data: { username:username,email:email, firstname: firstname, lastname: lastName},
             }).then(res => {
+                console.log(res.data);
             }).catch(e => {
             e = new Error();
             })
       }
 
       function updateChildren(){
+
+        if (children.length === 0 ) return null
+
         const filter_names = names.filter((name) => {
             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
         })
-        console.log(filter_names);
         const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
         var validate_children = children.every((stud_name,index) => {
           const children_input = childRefs.current[index];
@@ -108,6 +131,7 @@ const Account = () => {
           }
         })   
         if (validate_children) {
+
             const send_children = []
             children.forEach((child) => {
                 send_children.push(names[merged_names.indexOf(child)].userID)
@@ -145,9 +169,8 @@ const Account = () => {
                             </>
                         ):(
                             <>
-                                <div className="form-control m-2 p-2" >
+                                <form className="form-control m-2 p-2" >
                                     <h4 className='mb-3'>Your Account Details:</h4>
-                                    {(accountType === 0||accountType === 3||accountType === 4||accountType === 5) ? (
                                     <div className="mb-3 grid">
                                         <div className="row">
                                             <div className='col-6'>
@@ -155,20 +178,15 @@ const Account = () => {
                                                 <input type="text" ref={first_ref} id='floatingFirstnameInput' className="form-control" value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
                                                 <label htmlFor="floatingFirstnameInput">Firstname</label>
                                                 </div>
-                                                
-
                                             </div>
                                             <div className='col-6'>
                                                 <div className='form-floating'>
                                                 <input type="text" ref={last_ref} id='floatingLastnameInput' className="form-control " value={lastName} onChange={({ target }) => setLastName(target.value)} placeholder="Last Name"  required/>
                                                 <label htmlFor="floatingLastnameInput">Lastname</label>
-
-                                                </div>
-                                                
+                                                </div>                                                
                                             </div>
                                         </div>           
-                                    </div>          
-                                    ):(null)}
+                                    </div>         
                                     <div className="mb-3">
                                         <div className="form-floating">
                                             <input type="text" ref={user_ref} className="form-control" id='floatingUsernameInput' value={username} onChange={({ target }) => setUsername(target.value)} placeholder="Username"  required/>
@@ -180,19 +198,18 @@ const Account = () => {
                                     </div>
                                     <div className="mb-3">
                                         <div className="form-floating">
-                                        <input type="email" ref={email_ref} className="form-control" id="floatingEmailInput" value={email} onChange={({ target }) => setEmail(target.value)} placeholder="Email"  required/>
-                                        <label htmlFor="floatingEmailInput">Email address</label>
-                                        </div>           
-                                    </div>
-                                    
-                                    
-                                    <button onClick={() => {handleAccountUpdate()}} className="btn btn-primary px-3"type="submit" name="submit">Update Account</button>
-
-                                </div>
-                                
+                                            <input type="email" ref={email_ref} onFocus={unerrorEmail} className="form-control" id="floatingEmailInput" value={email} onChange={({ target }) => setEmail(target.value)} placeholder="Email"  required/>
+                                            <label htmlFor="floatingEmailInput">Email address</label>
+                                            <div className="invalid-feedback">
+                                                Email must be of form example@example.co.nz
+                                            </div>
+                                        </div>
+                                    </div>                                   
+                                    <button disabled={!valid} onClick={() => {handleAccountUpdate()}} className="btn btn-primary px-3" type="button" name="submit">Update Account</button>
+                                </form>                                
                                 {accountType === 2 &&
                                 <div className='form-control text-center m-2 p-2'>
-                                    <h5 className='m-2'>Edit Children</h5>
+                                    <h5 className='m-2'>Edit Students</h5>
                                     <div className="">
                                     {children.map((child,index) => {
                                         
@@ -205,17 +222,18 @@ const Account = () => {
                                         })
                                         return(
                                         <>
-                                        <div key={index} className=" mb-3 dropdown">
-                                            <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">              
-                                            <input type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
+                                        <div key={index} className=" mb-3 dropdown ">
+                                            <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">  
+                                            <input id={'student'+index} type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
                                             
+
                                             {index !== 0 &&
                                             <button onClick={() => {setChildren((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button" id="add-child">X</button>
 
                                             }
                                             
                                             {index === children.length-1 &&
-                                            <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} className="btn btn-outline-primary" type="button" id="add-child">Add Child</button>
+                                            <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} className="btn btn-outline-primary" type="button" id="add-child">Add Student</button>
                                             }
                                             <div className="invalid-feedback">
                                                 This Student Does Not Exist. Please Select An Existing Student.
@@ -240,7 +258,7 @@ const Account = () => {
                                     })}
                                     
                                     </div>
-                                    <button className='btn btn-primary' onClick={() => {updateChildren()}}>Update Children</button>
+                                    <button className='btn btn-primary mt-2' onClick={() => {updateChildren()}}>Update Students</button>
                                     </div>
                                     }
 

@@ -47,6 +47,7 @@ function App() {
 
       }else{
         e = new Error();
+        sessionStorage.removeItem('TOKEN')
       }
       
     })

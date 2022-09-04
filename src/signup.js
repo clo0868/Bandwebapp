@@ -59,7 +59,6 @@ const Signup = () => {
     }else{
       pass_input.className = " form-control";        
       pass_confirm_input.className = " form-control ";
-      const send_children = []
       
       // send the username and password to the server
       axios({
