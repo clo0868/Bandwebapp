@@ -113,7 +113,8 @@ const Account = () => {
       }
 
       function updateChildren(){
-
+        console.log(children);
+        console.log(prevChildren);
         if (children.length === 0 ) return null
 
         const filter_names = names.filter((name) => {
@@ -134,8 +135,9 @@ const Account = () => {
 
             const send_children = []
             children.forEach((child) => {
-                send_children.push(names[merged_names.indexOf(child)].userID)
+                send_children.push(filter_names[merged_names.indexOf(child)])
             });
+            console.log(send_children);
             axios({
                 method: 'POST',
                 url: 'https://pipe-band-server.herokuapp.com/update_children',
@@ -227,7 +229,7 @@ const Account = () => {
                                             <input id={'student'+index} type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
                                             
 
-                                            {index !== 0 &&
+                                            {children.length > 1 &&
                                             <button onClick={() => {setChildren((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button" id="add-child">X</button>
 
                                             }

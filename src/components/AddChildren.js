@@ -28,6 +28,7 @@ const AddChildren = () => {
           return name.parent === 0
         })
         const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
+        console.log(names);
         console.log(merged_names);
         console.log(children);
         var validate_children = children.every((stud_name,index) => {
@@ -44,8 +45,9 @@ const AddChildren = () => {
         if (validate_children) {
             const send_children = []
             children.forEach((child) => {
-                send_children.push(names[merged_names.indexOf(child)].userID)
+                send_children.push(filter_names[merged_names.indexOf(child)])
             });
+            console.log(send_children);
             axios({
                 method: 'POST',
                 url: 'https://pipe-band-server.herokuapp.com/update_children',
@@ -97,7 +99,7 @@ const AddChildren = () => {
                       }).filter((name) => {
                         return name.parent === 0
                     })
-                      console.log(filter_names);
+                      //console.log(filter_names);
                 return(
                     <>
                     <div key={index} className=" mb-3 dropdown">
