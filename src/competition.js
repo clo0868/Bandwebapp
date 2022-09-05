@@ -8,14 +8,15 @@ import CompInfoSkeleton from './components/CompInfoSkeleton.js';
 import ConfigCompForm from './components/ConfigCompForm.js';
 import EntriesDisplay from './components/EntriesDisplay.js';
 import EntriesByUserDisplay from './components/EntriesByUserDisplay.js';
-
 import {Link} from "react-router-dom";
+import DeleteComp from './components/DeleteComp.js';
 
 
 const Competition = () => {
     let navigate = useNavigate();
     var data = useLocation();
     const token = sessionStorage.TOKEN
+
     const compID = data.state.comp.compID
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState();
@@ -25,13 +26,14 @@ const Competition = () => {
     const [entuserviewopen, setEntuserviewopen] = useState(false);
     const [children, setChildren] = useState({});
     const [comp, setComp] = useState({});
+    
     const compmodalstyle = {
         position: 'absolute',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
         bgcolor: 'background.paper',
-        border: '2px solid #000',
+        border: '1px solid #000',
         boxShadow: 24,
         p: 4,
       };
@@ -82,28 +84,15 @@ const Competition = () => {
     const current_time = new Date().getTime()
     function shortenTime(time){
         if (time.length === 10) {return time.slice(0,4)+time.slice(7)}
-        if (time.length === 11) {return time.slice(0,5)+time.slice(8)}        
-        //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(0,4)} 
-        //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(8)}
+        if (time.length === 11) {return time.slice(0,5)+time.slice(8)} 
     }
-    function deleteComp(compID){
-        axios({
-            method: 'POST',
-            url: 'https://pipe-band-server.herokuapp.com/delete_comp',
-            headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              data: { 
-                compID,
-              },
-          }).then(res => {
-            navigate('/')
-          }).catch(e => {
-            e = new Error();
-          })
-    }
+    
+
+    
     return (
+        
         <div className='container-fluid comp-container'>
+            
             <div className='grid'>
                 <div className='row'>
                     <div className='col-2 shadow-sm comp-height'>
@@ -124,6 +113,8 @@ const Competition = () => {
 
                         ) : (
                             <>
+                            {/* this is a jsx comment */}
+                            {/* */}
                             <div className='grid m-3'>
                                 <div className='row mb-2'>
                                     <div className='col text-start d-flex align-items-center'>
@@ -136,7 +127,7 @@ const Competition = () => {
                                 </div>
                                 <div className='row pb-3 border-bottom border-3'>
                                     <div className='col text-start'>                                        
-                                        <p>{comp_start.toLocaleTimeString()}</p>
+                                        <p>{shortenTime(new Date(comp_start).toLocaleTimeString())}</p>
                                         <p className='mt-1'>Entries Open: {shortenTime(new Date(comp.ent_open_time).toLocaleTimeString())} {new Date(comp.ent_open_time).toDateString()} </p>
                                     </div>
                                     <div className='col text-end'>
@@ -150,7 +141,7 @@ const Competition = () => {
                             
 
                             <div className='grid m-3  '>                    
-                            {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
+                            {((user && user.user_type === 4 && ent_open > current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
                                 <>
                                 <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEntviewopen(true)} className='comppagebtn btn btn-primary'>View Entries</button>
@@ -244,7 +235,7 @@ const Competition = () => {
                             }
                             {user && (user.user_type === 1 || user.user_type === 4) &&
                                 <div className='row m-2 d-flex justify-content-center'>
-                                    <button className='comppagebtn btn btn-primary' onClick={() => {deleteComp(comp.compID)}}>Delete Competiton</button>
+                                    <DeleteComp comp={comp} />
                                 </div>
                             }
                         </div>

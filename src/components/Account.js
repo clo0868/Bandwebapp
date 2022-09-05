@@ -212,10 +212,8 @@ const Account = () => {
                       </div>
                       {accUpdateBtn !== 1 ? (
                         <button onClick={() => {accUpdateBtn === 0 ?  handleAccountUpdate() : setConfirmAccountOpen(false)}} className='m-2 btn btn-primary'>{accUpdateBtn === 0 ? 'Confirm Changes' : <i className="fas fa-check"></i> }</button>
-                      ):(
-                        <>
+                      ):(                        
                         <button className='btn btn-outline-primary'><div className='loader-sm'></div></button>
-                        </>
                       )}
                       
                       

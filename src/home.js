@@ -34,7 +34,6 @@ const Home = (props) => {
         boxShadow: 24,
         p: 4,
       };
-    
 
     useEffect(() => {
         axios({
@@ -82,6 +81,11 @@ const Home = (props) => {
         if (query) {
              data = data.filter((comp) =>  { return comp.comp_name.toLowerCase().match(query.toLowerCase()) !== null || comp.comp_location.toLowerCase().match(query.toLowerCase()) !== null } )            
         }
+        function shortenTime(time){
+            if (time.length === 10) {return time.slice(0,4)+time.slice(7)}
+            if (time.length === 11) {return time.slice(0,5)+time.slice(8)} 
+        }
+        
         return(
             <>
             {loading ? (
@@ -104,7 +108,7 @@ const Home = (props) => {
                                     </div>
                                     <div className='col text-end'>
                                         <h5>{comp_start_time.toDateString()}</h5>
-                                        <p>{comp_start_time.toLocaleTimeString()}</p>
+                                        <p>{shortenTime(comp_start_time.toLocaleTimeString())}</p>
                                     </div>
                                 </div> 
                                 <div className='row mt-3'>
@@ -208,6 +212,8 @@ const Home = (props) => {
                                     aria-describedby="modal-modal-description"
                                 >
                                     <Box sx={compmodalstyle}>
+                                    <button onClick={() => setCompopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+
                                         <div className='text-center mb-3'>New Competition</div>
                                         <CompForm  />  
                                     </Box>

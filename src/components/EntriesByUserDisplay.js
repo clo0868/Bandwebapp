@@ -296,6 +296,11 @@ const EntriesByUserDisplay = (props) => {
                         </div>
                     )
                 })}
+                {entries.length === 0 && 
+                    <div className='m-5'>
+                        <p>There are currently no entries in this competition </p>
+                    </div>
+                }
                 </div>
                 </>
                 

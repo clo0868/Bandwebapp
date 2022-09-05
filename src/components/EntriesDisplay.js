@@ -72,6 +72,11 @@ const EntriesDisplay = (props) => {
                                         </div>
                                     );
                                 })}
+                                {event_entries.length === 0 &&
+                                    <div className='m-2'>
+                                        <p>There are currently no entries in this event</p>
+                                    </div>
+                                }
                             
                             </div>
                             </div>

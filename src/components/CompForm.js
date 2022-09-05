@@ -41,6 +41,7 @@ const CompForm = () => {
     const [entStartDateValue, setEntStartDateValue] = useState(new Date());
     const [entEndDateValue, setEntEndDateValue] = useState(new Date());
     const [eventfields, setEventfields] = useState([{event:'',grade:''}]);
+    const [btnLoader, setBtnLoader] = useState(0);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -54,6 +55,7 @@ const CompForm = () => {
     setActiveStep(0);
   };
   const handleSubmit = () => {
+    setBtnLoader(1)
     const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields]
     axios({
       method: 'POST',
@@ -65,6 +67,7 @@ const CompForm = () => {
         form_data
       },
     }).then(res => {
+      setBtnLoader(2)
       setActiveStep(4)
     }).catch(e => {
       e = new Error();
@@ -131,7 +134,11 @@ const CompForm = () => {
             </button>
             <Box sx={{ flex: '1 1 auto' }} />
             <button className='btn-border-none' onClick={handleReset}>Reset</button>
-            <button className='btn-border-none' disabled={activeStep === 4} onClick={handleSubmit}>Create</button>
+            {btnLoader !== 1 ? (
+              <button onClick={() => {handleSubmit()}} disabled={btnLoader === 2} className='btn-border-none'>{btnLoader === 0 ? 'Create' : <i className="fas fa-check"></i> }</button>
+            ):(                        
+              <button className='btn btn-outline-primary'><div className='loader-sm'></div></button>
+            )}
 
           </Box>
         </React.Fragment>
@@ -273,7 +280,9 @@ const CompForm = () => {
               Back
             </button>
             <Box sx={{ flex: '1 1 auto' }} />
-            <button className='btn-border-none' disabled={(activeStep === 0 && (compname === '' || complocation === ''))||(activeStep === 2 && eventfields.some((v) => {return(v.event === '' || v.grade === '')}))||(activeStep === 1 && entStartDateValue >= entEndDateValue)} onClick={handleNext}>
+            <button className='btn-border-none'
+            disabled={(activeStep === 0 && (compname === '' || complocation === ''))||(activeStep === 2 && eventfields.some((v) => {return(v.event === '' || v.grade === '')}))||(activeStep === 1 && entStartDateValue >= entEndDateValue)} 
+            onClick={handleNext}>
               Next
             </button>
           </Box>
