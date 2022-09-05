@@ -1,6 +1,8 @@
 import React,{useEffect,useState,useRef} from 'react';
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 
 const Account = () => {
     const first_ref = useRef(null);
@@ -22,6 +24,19 @@ const Account = () => {
     const [prevUsername, setPrevUsername] = useState('');
     const [prevChildren, setPrevChildren] = useState([]);
     const [valid, setValid] = useState(false);
+    const [confirmAccountOpen, setConfirmAccountOpen] = useState(false);
+    const [confirmChildrenOpen, setConfirmChildrenOpen] = useState(false);
+    const [accUpdateBtn, setAccUpdateBtn] = useState(0);
+    const compmodalstyle = {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      bgcolor: 'background.paper',
+      border: '2px solid #000',
+      boxShadow: 24,
+      p: 4,
+    };
 
     useEffect(() => {
         axios({
@@ -50,9 +65,9 @@ const Account = () => {
           axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/get_existing_names',
+            
           }).then(res => {  
             setNames(res.data)
-            console.log(res.data);
           }).catch(e => {
             e = new Error();
           })
@@ -87,16 +102,8 @@ const Account = () => {
         email_input.className =" form-control";    
   }
     function handleAccountUpdate(){            
-            // send the username and password to the server
-
-            const email_input = email_ref.current; 
-            if(email_input.value.slice(1,email_input.length-1).includes('@')){
-                email_input.className = "form-control";
-
-            }else{
-                email_input.className = "form-control is-invalid";
-
-            }
+            // send the username and password to the server  
+            setAccUpdateBtn(1)        
 
             axios({
             method: 'POST',
@@ -106,22 +113,49 @@ const Account = () => {
               },
             data: { username:username,email:email, firstname: firstname, lastname: lastName},
             }).then(res => {
-                console.log(res.data);
+                setAccUpdateBtn(2)
             }).catch(e => {
             e = new Error();
             })
       }
 
-      function updateChildren(){
-        console.log(children);
-        console.log(prevChildren);
+      function handleChildrenUpdate(){
+        setAccUpdateBtn(1)      
+        
+        const filter_names = names.filter((name) => {
+          return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
+        })
+        const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
+        const send_children = []
+        children.forEach((child) => {
+            send_children.push(filter_names[merged_names.indexOf(child)])
+        });
+        axios({
+            method: 'POST',
+            url: 'https://pipe-band-server.herokuapp.com/update_children',
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            data:{
+                children:send_children
+            },
+          }).then(res => {  
+            setAccUpdateBtn(2)      
+          }).catch(e => {
+            e = new Error();
+          })
+            
+        
+
+      }
+      function handleConfirmChildren(){
         if (children.length === 0 ) return null
 
         const filter_names = names.filter((name) => {
             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
         })
         const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
-        var validate_children = children.every((stud_name,index) => {
+        if(children.every((stud_name,index) => {
           const children_input = childRefs.current[index];
           if (merged_names.every((name) => name !== stud_name)) {
             children_input.className = " form-control is-invalid";
@@ -130,34 +164,117 @@ const Account = () => {
             children_input.className = " form-control";
             return true
           }
-        })   
-        if (validate_children) {
+        })){
+          setAccUpdateBtn(0)      
+          setConfirmChildrenOpen(true)
+        }   
 
-            const send_children = []
-            children.forEach((child) => {
-                send_children.push(filter_names[merged_names.indexOf(child)])
-            });
-            console.log(send_children);
-            axios({
-                method: 'POST',
-                url: 'https://pipe-band-server.herokuapp.com/update_children',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                data:{
-                    children:send_children
-                },
-              }).then(res => {  
-              }).catch(e => {
-                e = new Error();
-              })
-            
+      }
+      function handleConfirmAccount(){
+        const email_input = email_ref.current; 
+        if(email.slice(1,email.length-1).includes('@')){
+            email_input.className = "form-control";
+            setAccUpdateBtn(0)
+            setConfirmAccountOpen(true)
+        }else{
+            email_input.className = "form-control is-invalid";
+
         }
 
       }
 
+      
+      const ConfirmUpdateAccount = () => {
+        return (
+          <div>
+            <Modal
+                open={confirmAccountOpen}
+                onClose={() => setConfirmAccountOpen(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={compmodalstyle}>
+                    <button onClick={() => setConfirmAccountOpen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+                    <div className='text-center p-3'>
+                      <h5>Confirm The Changes to Your Account</h5>
+                      <div className='grid text-start p-4'>
+                        <div className='row m-2 mt-0'>
+                          <p> Name: {firstname.charAt(0).toUpperCase() + firstname.slice(1)} {lastName.charAt(0).toUpperCase() + lastName.slice(1)}</p>
+                        </div>
+                        <div className='row m-2'>
+                          <p>Username: {username}</p>
+                        </div>
+                        <div className='row m-2'>
+                          <p>Email: {email}</p>
+                        </div>
+                        
+
+                      </div>
+                      {accUpdateBtn !== 1 ? (
+                        <button onClick={() => {accUpdateBtn === 0 ?  handleAccountUpdate() : setConfirmAccountOpen(false)}} className='m-2 btn btn-primary'>{accUpdateBtn === 0 ? 'Confirm Changes' : <i className="fas fa-check"></i> }</button>
+                      ):(
+                        <>
+                        <button className='btn btn-outline-primary'><div className='loader-sm'></div></button>
+                        </>
+                      )}
+                      
+                      
+                    </div>
+                </Box>
+            </Modal> 
+            
+          </div>
+        );
+      }
+      const ConfirmUpdateChildren = () => {
+        return (
+          <div>
+            <Modal
+                open={confirmChildrenOpen}
+                onClose={() => setConfirmChildrenOpen(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={compmodalstyle}>
+                    <button onClick={() => setConfirmChildrenOpen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+                    <div className='text-center p-3'>
+                      <h5>Confirm These Changes</h5>
+                      <div className='grid text-start p-4'>
+                        {children.map((child,index) => {
+                          return(
+                            
+                              <div key={index} className='row'>
+                                <p>{index+1}. {child}</p>
+                              </div>
+                            
+                          )
+                        })}
+                        
+
+                      </div>
+                      {accUpdateBtn !== 1 ? (
+                        <button onClick={() => {accUpdateBtn === 0 ?  handleChildrenUpdate() : setConfirmChildrenOpen(false)}} className='m-2 btn btn-primary'>{accUpdateBtn === 0 ? 'Confirm Changes' : <i className="fas fa-check"></i> }</button>
+                      ):(
+                        <>
+                        <button className='btn btn-outline-primary'><div className='loader-sm'></div></button>
+                        </>
+                      )}
+                      
+                      
+                    </div>
+                </Box>
+            </Modal> 
+            
+          </div>
+        );
+      }
+      
+      
     return (
+      
         <div className='container-fluid comp-container'>
+          <ConfirmUpdateAccount />
+          <ConfirmUpdateChildren />
             <div className='grid'>
                 <div className='row'>
                     <div className='col-2 shadow-sm comp-height'>
@@ -207,7 +324,7 @@ const Account = () => {
                                             </div>
                                         </div>
                                     </div>                                   
-                                    <button disabled={!valid} onClick={() => {handleAccountUpdate()}} className="btn btn-primary px-3" type="button" name="submit">Update Account</button>
+                                    <button disabled={!valid} onClick={() => {handleConfirmAccount()}} className="btn btn-primary px-3" type="button" name="submit">Update Account</button>
                                 </form>                                
                                 {accountType === 2 &&
                                 <div className='form-control text-center m-2 p-2'>
@@ -223,8 +340,8 @@ const Account = () => {
                                             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
                                         })
                                         return(
-                                        <>
-                                        <div key={index} className=" mb-3 dropdown ">
+                                        <div key={index}>
+                                        <div  className=" mb-3 dropdown ">
                                             <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">  
                                             <input id={'student'+index} type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
                                             
@@ -255,12 +372,12 @@ const Account = () => {
                                             
                                         </div>
                                         
-                                        </>
+                                        </div>
                                         )
                                     })}
                                     
                                     </div>
-                                    <button className='btn btn-primary mt-2' onClick={() => {updateChildren()}}>Update Students</button>
+                                    <button className='btn btn-primary mt-2' onClick={() => {handleConfirmChildren()}}>Update Students</button>
                                     </div>
                                     }
 
@@ -280,6 +397,7 @@ const Account = () => {
             
             
         </div>
+
     );
 }
 

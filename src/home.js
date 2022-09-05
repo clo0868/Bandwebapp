@@ -45,7 +45,6 @@ const Home = (props) => {
               },
           }).then(res => {
             setUser(res.data.user)
-            console.log(res.data);
             if (res.data.user.user_type === 2 && res.data.children.length === 0) {
                 navigate('/addchildren')
             }
@@ -199,7 +198,7 @@ const Home = (props) => {
                                 <p>Contact an admin if this was a mistake</p>                             
                             </div>
                             }
-                            {user && user.user !== "User not approved!" && user.user_type === 1 && 
+                            {user && user.user !== "User not approved!" && user.user_type === 4 && 
                             <div className='shadow-sm p-3 mt-1'>
                                 <Button onClick={() => setCompopen(true)} variant='contained'>Create New Competition</Button>
                                 <Modal

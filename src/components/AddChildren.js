@@ -28,9 +28,7 @@ const AddChildren = () => {
           return name.parent === 0
         })
         const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
-        console.log(names);
-        console.log(merged_names);
-        console.log(children);
+
         var validate_children = children.every((stud_name,index) => {
           const children_input = childRefs.current[index];
           if (merged_names.every((name) => name !== stud_name)) {
@@ -41,13 +39,11 @@ const AddChildren = () => {
             return true
           }
         })   
-        console.log(validate_children);
         if (validate_children) {
             const send_children = []
             children.forEach((child) => {
                 send_children.push(filter_names[merged_names.indexOf(child)])
             });
-            console.log(send_children);
             axios({
                 method: 'POST',
                 url: 'https://pipe-band-server.herokuapp.com/update_children',
@@ -58,7 +54,6 @@ const AddChildren = () => {
                     children:send_children
                 },
               }).then(res => {  
-                console.log(res.data);
                 navigate("/")
               }).catch(e => {
                 e = new Error();
@@ -68,7 +63,6 @@ const AddChildren = () => {
 
       }
       function unerror(index){
-        console.log(childRefs);
        
         const children_input = childRefs.current[index];
         children_input.className = " form-control";
@@ -99,20 +93,19 @@ const AddChildren = () => {
                       }).filter((name) => {
                         return name.parent === 0
                     })
-                      //console.log(filter_names);
                 return(
-                    <>
+                    
                     <div key={index} className=" mb-3 dropdown">
                     <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">              
                     <input type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
                     
-                    {index !== 0 &&
+                    {children.length > 1 &&
                         <button onClick={() => {setChildren((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button">X</button>
 
                     }
                     
                     {index === children.length-1 &&
-                        <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} id="studentDropdown" data-bs-toggle="dropdown" className="btn btn-outline-primary" type="button">Add Child</button>
+                        <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} id="studentDropdown" data-bs-toggle="dropdown" className="btn btn-outline-primary" type="button">Add Student</button>
                     }
                     <div className="invalid-feedback">
                         This Student Does Not Exist. Please Select An Existing Student.
@@ -132,7 +125,7 @@ const AddChildren = () => {
                     
                     </div>
                     
-                    </>
+                    
                 )
                 })}
                         <button className='btn btn-primary' onClick={updateChildren}>Confirm</button>

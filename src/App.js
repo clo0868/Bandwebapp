@@ -41,13 +41,17 @@ function App() {
     }).then(res => {
       setUser(res.data)
     }).catch(e => {
-      console.log(e);
       if(e.response.data && e.response.data.error === 'User not approved!'){
         setUser({user:e.response.data.error})
 
       }else{
-        e = new Error();
-        sessionStorage.removeItem('TOKEN')
+        if(e.response.status === 403){
+          sessionStorage.removeItem('TOKEN')
+        }else{
+          e = new Error();
+        }
+        
+        
       }
       
     })

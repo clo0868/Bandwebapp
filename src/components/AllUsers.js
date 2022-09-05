@@ -17,7 +17,6 @@ const AllUsers = () => {
               },
           }).then(res => {
             setAllUsers(res.data)
-            console.log(res.data);
           }).catch(e => {
              e = new Error();            
           })
@@ -44,7 +43,7 @@ const AllUsers = () => {
                                 {allUsers.filter((V) => {return V.user_type === 0}).map((user,index) => {
                                     return(
                                         <>
-                                            <p className='ms-2'>{user.userID} {index+1}. {user.first_name} {user.last_name}</p>
+                                            <p className='ms-2'>{index+1}. {user.first_name} {user.last_name}</p>
                                         </>
                                     )
                                 })}
@@ -57,12 +56,12 @@ const AllUsers = () => {
                                 {allUsers.filter((V) => {return V.user_type === 2}).map((user,index) => {
                                     return(
                                         <>
-                                            <p className='ms-2'> {user.userID} {index+1}. {user.user} </p>
+                                            <p className='ms-2'>{index+1}. {user.first_name} {user.last_name} </p>
                                             <ul>
                                                 {allUsers.filter((v) => {return v.user_type === 0 && v.parent === user.userID}).map((child,child_index) => {
                                                     return(
                                                         <>
-                                                            <p className='ms-3'>{child.userID} {child_index+1}. {child.first_name} {child.last_name} {child.parent}</p>
+                                                            <p className='ms-3'>{child_index+1}. {child.first_name} {child.last_name}</p>
                                                         </>
                                                     )
                                                 })}
