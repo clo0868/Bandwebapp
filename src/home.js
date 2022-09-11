@@ -97,6 +97,7 @@ const Home = (props) => {
                 const ent_open = new Date(comp.ent_open_time).getTime()
                 const ent_close = new Date(comp.ent_close_time).getTime()
                 const current_date = new Date().getTime()
+                
                 return(
                     <div key={index} className='row m-2 mt-3'>
                         <div className='card p-2 shadow-sm '>
@@ -132,7 +133,7 @@ const Home = (props) => {
                                         
                                     </div>
                                     <div className='col text-center'>
-                                        <Link className='text-decoration-none text-white' to="/competition" state={{comp:comp}} ><Button variant='contained'>More Info</Button></Link>
+                                        <Link className='text-decoration-none text-white' to={"/competition?compID="+comp.compID}><Button variant='contained'>More Info</Button></Link>
                                     
                                     </div>
                                     <div className='col text-end'>

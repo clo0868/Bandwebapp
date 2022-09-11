@@ -68,7 +68,7 @@ const EntriesDisplay = (props) => {
                                 {event_entries.map((entry,index) => {
                                     return(
                                         <div key={index} className='border-bottom text-start'>
-                                            <p>{index+1}.  {entry.user}</p>
+                                            <p>{index+1}.  {entry.user_name}</p>
                                         </div>
                                     );
                                 })}

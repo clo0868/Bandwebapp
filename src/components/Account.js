@@ -5,8 +5,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 
 const Account = () => {
-    const first_ref = useRef(null);
-    const last_ref = useRef(null);
+    const name_ref = useRef(null);
     const user_ref = useRef(null);
     const email_ref = useRef(null);
     var childRefs = useRef([])
@@ -15,9 +14,8 @@ const Account = () => {
     const token = sessionStorage.TOKEN
     const [children, setChildren] = useState([]);
     const [loading,setLoading] = useState(true)
-    const [firstname, setFirstName] = useState("");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [accountType, setAccountType] = useState('0');
     const [names, setNames] = useState([]);
@@ -46,8 +44,7 @@ const Account = () => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
-            setFirstName(res.data.user.first_name)
-            setLastName(res.data.user.last_name)
+            setName(res.data.user.user_name)
             setEmail(res.data.user.email)
             setPrevUsername(res.data.user.user)
             setUsername(res.data.user.user)
@@ -111,7 +108,7 @@ const Account = () => {
             headers: {
                 Authorization: `Bearer ${token}`,
               },
-            data: { username:username,email:email, firstname: firstname, lastname: lastName},
+            data: { username:username,email:email, name:name},
             }).then(res => {
                 setAccUpdateBtn(2)
             }).catch(e => {
@@ -199,7 +196,7 @@ const Account = () => {
                       <h5>Confirm The Changes to Your Account</h5>
                       <div className='grid text-start p-4'>
                         <div className='row m-2 mt-0'>
-                          <p> Name: {firstname.charAt(0).toUpperCase() + firstname.slice(1)} {lastName.charAt(0).toUpperCase() + lastName.slice(1)}</p>
+                          <p> Name: {name}</p>
                         </div>
                         <div className='row m-2'>
                           <p>Username: {username}</p>
@@ -288,21 +285,13 @@ const Account = () => {
                             <>
                                 <form className="form-control m-2 p-2" >
                                     <h4 className='mb-3'>Your Account Details:</h4>
-                                    <div className="mb-3 grid">
-                                        <div className="row">
-                                            <div className='col-6'>
-                                                <div className='form-floating'>
-                                                <input type="text" ref={first_ref} id='floatingFirstnameInput' className="form-control" value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
-                                                <label htmlFor="floatingFirstnameInput">Firstname</label>
-                                                </div>
-                                            </div>
-                                            <div className='col-6'>
-                                                <div className='form-floating'>
-                                                <input type="text" ref={last_ref} id='floatingLastnameInput' className="form-control " value={lastName} onChange={({ target }) => setLastName(target.value)} placeholder="Last Name"  required/>
-                                                <label htmlFor="floatingLastnameInput">Lastname</label>
-                                                </div>                                                
-                                            </div>
-                                        </div>           
+                                    <div className="mb-3">
+                                            
+                                      <div className='form-floating'>
+                                        <input type="text" ref={name_ref} id='floatingFirstnameInput' className="form-control" value={name} onChange={({ target }) => setName(target.value)} placeholder="Name"  required/>
+                                        <label htmlFor="floatingFirstnameInput">Name</label>
+                                      </div>
+                                            
                                     </div>         
                                     <div className="mb-3">
                                         <div className="form-floating">

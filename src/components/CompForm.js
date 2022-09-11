@@ -113,11 +113,13 @@ const CompForm = () => {
             </div>
             <div className='compevent'>
               <h5>Events:</h5>
-              {eventfields.map((event,index) => {
+              {eventGrade && eventfields.map((event,index) => {
                 if(event.grade === ''||event.event === ''){
                   return <p>Empty field please go back</p>
                 }
-                return <p key={index}>Event {index+1}: {eventGrade.grades[event.grade].grade_name} grade {eventGrade.events[event.event].event_name}</p>
+                console.log(eventGrade.grades);
+                console.log(event.grade);
+                return <p key={index}>Event {index+1}: {eventGrade.grades[event.grade-1].grade_name} grade {eventGrade.events[event.event-1].event_name}</p>
               })}
 
             </div>

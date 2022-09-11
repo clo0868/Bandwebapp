@@ -158,7 +158,7 @@ const EntriesByUserDisplay = (props) => {
             <div className=' text-center m-3 pt-2'>
                 {activeStep === 0 &&
                 <>
-                <h5 className='mb-4'>Enter Events for {user.first_name} {user.last_name}</h5>
+                <h5 className='mb-4'>Enter Events for {user.user_name}</h5>
                 <div className='grid entry-form'>
                     {compEventGrade.map((field,index) => {
                         return(
@@ -171,7 +171,7 @@ const EntriesByUserDisplay = (props) => {
                 }
                 {activeStep === 1 &&
                 <>
-                <h5 className='mb-4'>Confirm Your Entries for {user.user}</h5>
+                <h5 className='mb-4'>Confirm Your Entries for {user.user_name}</h5>
                 {entryChecked.every((v) => (v === false)) && 
                     <div>                        
                         <p>You have not entered any events</p>            
@@ -200,7 +200,7 @@ const EntriesByUserDisplay = (props) => {
                 {activeStep === 2 &&
                 <>
                 <div className='m-2'>
-                    <h5 className='mb-2'>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has succesfully entered these events</h5>
+                    <h5 className='mb-2'>{user.user_name} has succesfully been entered in these events</h5>
                     {entryChecked.map((entry,index) => { 
                         return(
                             <div key={index}>
@@ -254,14 +254,14 @@ const EntriesByUserDisplay = (props) => {
                     
                     return(
                         <div key={index}>
-                            {eventGrade && ((user.first_name+' '+user.last_name).toLowerCase().match(searchUser) !== null) ? (
+                            {eventGrade && ((user.user_name).toLowerCase().match(searchUser) !== null) ? (
                                
                                 <div className="accordion-item mb-2">
                                 <h2 className="accordion-header" id={"heading"+index}>
                                 <button className="accordion-button collapsed grid" type="button" data-bs-toggle="collapse" data-bs-target={"#collapse"+index} aria-expanded="false" aria-controls={"collapse"+index}>
                                     <div className='w-100 row align-items-center'>
                                         <div className='col-6'>
-                                        <p>{user.first_name} {user.last_name}</p>
+                                        <p>{user.user_name}</p>
                                         </div>
                                         <div className='col-6 text-end pe-4'>
                                         {activeMode === 1 && <button onClick={() => {deleteAllEntries(user,comp)}} className='btn btn-primary btn-sm'>Delete All Entries</button>}

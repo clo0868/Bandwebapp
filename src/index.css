@@ -23,9 +23,10 @@ time, mark, audio, video {
   max-width: 25vw;
 }
 .compevent{
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: hidden;
+  min-height: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .login-card{
     width: 500px;

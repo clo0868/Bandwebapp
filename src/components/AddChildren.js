@@ -9,7 +9,7 @@ const AddChildren = () => {
 
     var childRefs = useRef([])
     const [names,setNames] = useState();
-    const [children, setChildren] = useState(['']);
+    const [children, setChildren] = useState([{user_name:''}]);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         axios({
@@ -24,14 +24,13 @@ const AddChildren = () => {
       },[])
 
       function updateChildren(){
-        const filter_names = names.filter((name) => {
-          return name.parent === 0
+        const filter_names = names.filter((student) => {
+          return student.parent === 0
         })
-        const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
 
         var validate_children = children.every((stud_name,index) => {
           const children_input = childRefs.current[index];
-          if (merged_names.every((name) => name !== stud_name)) {
+          if (names.every((student) => student.user_name !== stud_name.user_name)) {
             children_input.className = " form-control is-invalid";
             return false
           }else{
@@ -42,8 +41,10 @@ const AddChildren = () => {
         if (validate_children) {
             const send_children = []
             children.forEach((child) => {
-                send_children.push(filter_names[merged_names.indexOf(child)])
+                send_children.push(filter_names[names.indexOf(child)])
+                console.log(send_children);
             });
+            
             axios({
                 method: 'POST',
                 url: 'https://pipe-band-server.herokuapp.com/update_children',
@@ -54,6 +55,7 @@ const AddChildren = () => {
                     children:send_children
                 },
               }).then(res => {  
+                console.log(res);
                 navigate("/")
               }).catch(e => {
                 e = new Error();
@@ -86,9 +88,9 @@ const AddChildren = () => {
                     <div className='p-3 login-card m-5 text-center'>
                         <h5 className='m-2 mb-4'>Add Students</h5>
                     {children.map((child,index) => {
-                      const filter_names = names.filter((name) => {
+                      const filter_names = names.filter((student) => {
                           return !children.some((child) => {
-                            return child === (name.first_name+' '+name.last_name)
+                            return child.user_name === (student.user_name)
                           })   
                       }).filter((name) => {
                         return name.parent === 0
@@ -97,7 +99,7 @@ const AddChildren = () => {
                     
                     <div key={index} className=" mb-3 dropdown">
                     <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">              
-                    <input type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
+                    <input type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child.user_name} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
                     
                     {children.length > 1 &&
                         <button onClick={() => {setChildren((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button">X</button>
@@ -112,11 +114,12 @@ const AddChildren = () => {
                     </div>
                     </div>
                     <ul className="dropdown-menu student-dropdown" aria-labelledby="studentDropdown">
-                        {filter_names.map((name,ind) => {
+                        {filter_names.map((student,ind) => {
+                          console.log(student);
                         return (
                             <div key={ind}>
-                            {((name.first_name+' '+name.last_name).toLowerCase().match(child) !== null) ? (
-                            <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? name.first_name+' '+name.last_name:value}))}} className='student-dropdown-item ps-1'>{name.first_name+' '+name.last_name}</li>
+                            {((student.user_name).toLowerCase().match(child) !== null) ? (
+                            <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? student:value}))}} className='student-dropdown-item ps-1'>{student.user_name}</li>
                             ):(null)}
                             </div>
                         )

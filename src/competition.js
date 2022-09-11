@@ -12,12 +12,11 @@ import {Link} from "react-router-dom";
 import DeleteComp from './components/DeleteComp.js';
 
 
-const Competition = () => {
-    let navigate = useNavigate();
-    var data = useLocation();
+const Competition = (props) => {
     const token = sessionStorage.TOKEN
-
-    const compID = data.state.comp.compID
+    const { search } = useLocation();
+    const get_array = new URLSearchParams(search)
+    const compID = get_array.get('compID')
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState();
     const [enteropen, setEnteropen] = useState(false);
@@ -26,7 +25,9 @@ const Competition = () => {
     const [entuserviewopen, setEntuserviewopen] = useState(false);
     const [children, setChildren] = useState({});
     const [comp, setComp] = useState({});
-    
+
+    let navigate = useNavigate();
+
     const compmodalstyle = {
         position: 'absolute',
         top: '50%',
@@ -51,6 +52,7 @@ const Competition = () => {
               },
           }).then(res => {
             setComp(res.data[0])
+            setLoading(false)
           }).catch(e => {
             e = new Error();
           })
@@ -65,7 +67,7 @@ const Competition = () => {
             if (res.data.children) {
                 setChildren(res.data.children)
             }
-            setLoading(false)
+            
           }).catch(e => {
             if(e.response.data && e.response.data.error === 'User not approved!'){
                 setUser({user:e.response.data.error})
@@ -141,7 +143,7 @@ const Competition = () => {
                             
 
                             <div className='grid m-3  '>                    
-                            {((user && user.user_type === 4 && ent_open > current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
+                            {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
                                 <>
                                 <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEntviewopen(true)} className='comppagebtn btn btn-primary'>View Entries</button>
@@ -174,7 +176,7 @@ const Competition = () => {
                                 </div>
                                 </> 
                             ):null}
-                            {user && user.user_type === 4 && ent_close < current_time &&
+                            {user && user.user_type === 4 && ent_open < current_time &&
                                 <div className=' row m-2 d-flex justify-content-center'>
                                     <button onClick={() => setConfigopen(true)} className='comppagebtn btn btn-primary'>Configure Competition</button>
                                     <Modal
@@ -228,7 +230,8 @@ const Competition = () => {
                             
                             </div>
                             }
-                            {user && user.user_type === 4 && ent_close < current_time &&
+                            {user && user.user_type === 4 && ent_open < current_time &&
+                            
                                 <div className='row m-2 d-flex justify-content-center'>
                                     <button className='comppagebtn btn btn-primary'><Link className=' text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
                                 </div>

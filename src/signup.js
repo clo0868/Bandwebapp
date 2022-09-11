@@ -4,8 +4,7 @@ import { useNavigate,Link } from "react-router-dom";
 import axios from 'axios';
 
 const Signup = () => {
-  const first_ref = useRef(null);
-  const last_ref = useRef(null);
+  const name_ref = useRef(null);
   const user_ref = useRef(null);
   const email_ref = useRef(null);
   const pass_ref = useRef(null);
@@ -14,9 +13,8 @@ const Signup = () => {
 
 
   const navigate = useNavigate();
-  const [firstname, setFirstName] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -64,7 +62,7 @@ const Signup = () => {
       axios({
         method: 'POST',
         url: 'https://pipe-band-server.herokuapp.com/signup',
-        data: { username:username,email:email, firstname: firstname, lastname: lastName, pass: password,type: accountType},
+        data: { username:username,email:email, name:name, pass: password,type: accountType},
       }).then(res => {
           sessionStorage.setItem("TOKEN", res.data.token);
           navigate("/")
@@ -95,8 +93,7 @@ const Signup = () => {
          <form className="login" onSubmit={handleSubmitSignup} >
          <div className="mb-3">
           <div className="input-group login-input">
-            <input type="text" ref={first_ref} className="form-control me-2 " value={firstname} onChange={({ target }) => setFirstName(target.value)} placeholder="First Name"  required/>
-            <input type="text" ref={last_ref} className="form-control " value={lastName} onChange={({ target }) => setLastName(target.value)} placeholder="Last Name"  required/>
+            <input type="text" ref={name_ref} className="form-control me-2 " value={name} onChange={({ target }) => setName(target.value)} placeholder="Name"  required/>
           </div>           
         </div>   
           
