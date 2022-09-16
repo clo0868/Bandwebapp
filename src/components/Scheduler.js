@@ -24,7 +24,7 @@ const Scheduler = () => {
             },
         }).then(res => {
             setSchedule(res.data)
-            setLoading(false)
+            
         }).catch(e => {
             e = new Error();
         })
@@ -127,13 +127,15 @@ const Scheduler = () => {
                                                     
                                                     {JSON.parse(comp.comp_schedule).map((room,room_index) => {
                                                         //const schedule = JSON.parse(comp.comp_schedule)
-                                                        const room_data = JSON.parse(comp.comp_rooms)[room_index]    
+                                                        const room_data = JSON.parse(comp.comp_rooms)[room_index]  
+                                                        console.log(room_data);  
+                                                        console.log(comp);
                                                         return(
                                                             <div key={room_index} className='col-3 p-0 mb-5'>
                                                                 <div>
                                                                     <h3>Room {room_data.room_name}</h3>
-                                                                    <p>Judge: {room_data.room_judge} </p>
-                                                                    <p>Steward: {room_data.room_steward} </p>
+                                                                    <p>Judge: {room_data.room_judge.user_name} </p>
+                                                                    <p>Steward: {room_data.room_steward.user_name} </p>
                                                                 </div>
                                                                 
 
@@ -163,7 +165,7 @@ const Scheduler = () => {
                                                                                     return(
                                                                                         <tr key={entry_index}>
                                                                                             <th scope="row">{shortenTime((new Date(new Date(comp.comp_start_time).getTime()+60000*entry.play_time)).toLocaleTimeString())}</th>
-                                                                                            <td>{entry_user.first_name.charAt(0).toUpperCase() + entry_user.first_name.slice(1)} {entry_user.last_name.charAt(0).toUpperCase() + entry_user.last_name.slice(1)}</td>                                                            
+                                                                                            <td>{entry_user.user_name}</td>                                                            
                                                                                         </tr>
                                                                                     )
                                                                                 })}
@@ -196,13 +198,14 @@ const Scheduler = () => {
                                                 <div className='row'>
                                                     
                                                     {schedule.sch_res.map((room,room_index) => {
+                                                        console.log(room);
                                                         const room_data = JSON.parse(schedule.comp_data.comp_rooms)[room_index]    
                                                         return(
                                                             <div key={room_index} className='col-3 p-0'>
                                                                 <div>
                                                                     <h3>Room {room_data.room_name}</h3>
-                                                                    <p>Judge: {room_data.room_judge} </p>
-                                                                    <p>Steward: {room_data.room_steward} </p>
+                                                                    <p>Judge: {room_data.room_judge.user_name} </p>
+                                                                    <p>Steward: {room_data.room_steward.user_name} </p>
                                                                 </div>
                                                                 
 
@@ -232,7 +235,7 @@ const Scheduler = () => {
                                                                                     return(
                                                                                         <tr key={entry_index}>
                                                                                             <th scope="row">{shortenTime((new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*entry.play_time)).toLocaleTimeString())}</th>
-                                                                                            <td>{entry_user.first_name.charAt(0).toUpperCase() + entry_user.first_name.slice(1)} {entry_user.last_name.charAt(0).toUpperCase() + entry_user.last_name.slice(1)}</td>                                                            
+                                                                                            <td>{entry_user.user_name}</td>                                                            
                                                                                         </tr>
                                                                                     )
                                                                                 })}

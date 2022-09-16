@@ -7,7 +7,7 @@ const ConfigCompForm = (props) => {
     const token = props.token
     const compID = props.comp.compID
     const [activeStep, setActiveStep] = useState(0);
-    const [rooms, setRooms] = useState([{room_name:'',room_judge:{name:''},room_steward:{name:''}}]);
+    const [rooms, setRooms] = useState([{room_name:'',room_judge:{user_name:''},room_steward:{user_name:''}}]);
     const [comp, setComp] = useState();
     const [loading, setLoading] = useState(true);
     const [officialNames, setOfficialNames] = useState();
@@ -146,14 +146,11 @@ const ConfigCompForm = (props) => {
                         <div className='mt-3 p-2 compevent'>
                             <div>
                                 {officialNames && rooms.map((room,index) => {
-                                    console.log(officialNames);
-                                    var judges = officialNames.judge.filter((name) => {
+                                    var judges = officialNames.judge.filter((judge) => {
                                         if (rooms.some((room) => {
-                                            if (room.room_judge.name){
-                                                return room.room_judge.name.match(name.first_name + ' ' + name.last_name) !== null 
-                                            }else{
-                                                return (room.room_judge.first_name + '' + room.room_judge.last_name).match(name.first_name + ' ' + name.last_name) !== null 
-                                            }
+                                            
+                                            return (room.room_judge.user_name).match(judge.user_name) !== null 
+                                            
                                             
                                         })){
                                             return false
@@ -161,14 +158,12 @@ const ConfigCompForm = (props) => {
                                             return true
                                         }
                                     })
-                                    var stewards = officialNames.steward.filter((name) => {
+                                    var stewards = officialNames.steward.filter((steward) => {
                                         if (rooms.some((room) => {
                                             
-                                            if (room.room_steward.name) {
-                                                return room.room_steward.name.match(name.first_name+ ' ' + name.last_name) !== null
-                                            } else {
-                                                return (room.room_steward.first_name + '' + room.room_steward.last_name).match(name.first_name+ ' ' + name.last_name) !== null
-                                            }
+                                            
+                                            return (room.room_steward.user_name).match(steward.user_name) !== null
+                                            
                                         })){
                                             return false
                                         }else{
@@ -184,17 +179,17 @@ const ConfigCompForm = (props) => {
                                         </div>
                                         <div className="dropdown">
                                             <div id={'judgeDropdown'+index} data-bs-toggle="dropdown" className='form-floating' aria-expanded="false">
-                                            <input id='JudgeNameInput' type="text" className='form-control' value={room.room_judge.name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_judge:{name:event.target.value}}:value}));}} />
+                                            <input id='JudgeNameInput' type="text" className='form-control' value={room.room_judge.user_name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_judge:{user_name:event.target.value}}:value}));}} />
                                             <label htmlFor="JudgeNameInput">Judge:</label>
                                             </div>
                                             <ul className="dropdown-menu student-dropdown" aria-labelledby={'judgeDropdown'+index}>
                                                 
                                                 {judges.map((judge,ind) => {      
-                                                                                            
+                                                    console.log(rooms);                                    
                                                 return (
                                                     <div key={ind}>
-                                                    {(judge.last_name.toLowerCase().startsWith(room.room_judge.name.toLowerCase())||(judge.first_name.toLowerCase()+" "+judge.last_name.toLowerCase()).startsWith(room.room_judge.name.toLowerCase())) ? (
-                                                    <li onClick={() => {setRooms(values => values.map((value,i) => {return i === index ? {...value, room_judge:judge}:value}))}} className='student-dropdown-item ps-1'>{judge.first_name+' '+judge.last_name}</li>
+                                                    {(judge.user_name.toLowerCase()).startsWith(room.room_judge.user_name.toLowerCase()) ? (
+                                                    <li onClick={() => {setRooms(values => values.map((value,i) => {return i === index ? {...value, room_judge:judge}:value}))}} className='student-dropdown-item ps-1'>{judge.user_name}</li>
                                                     ):(null)}
                                                     </div>
                                                 )
@@ -203,15 +198,15 @@ const ConfigCompForm = (props) => {
                                         </div>
                                         <div className="dropdown">
                                             <div id={'stewardDropdown'+index} data-bs-toggle="dropdown" className='form-floating' aria-expanded="false">
-                                            <input id='StewardNameInput' type="text" className='form-control' value={room.room_steward.name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_steward:{name:event.target.value}}:value}));}} />
+                                            <input id='StewardNameInput' type="text" className='form-control' value={room.room_steward.user_name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_steward:{user_name:event.target.value}}:value}));}} />
                                             <label htmlFor="StewardNameInput">Steward:</label>
                                             </div>
                                             <ul className="dropdown-menu student-dropdown" aria-labelledby={'stewardDropdown'+index}>
-                                                {stewards.map((name,ind) => {  
+                                                {stewards.map((steward,ind) => {  
                                                 return (
                                                     <div key={ind}>
-                                                    {(name.last_name.toLowerCase().startsWith(room.room_steward.name.toLowerCase())||(name.first_name.toLowerCase()+" "+name.last_name.toLowerCase()).startsWith(room.room_steward.toLowerCase())) ? (
-                                                    <li onClick={() => {setRooms(values => values.map((value,i) => {return i === index ? {...value, room_steward:name}:value}))}} className='student-dropdown-item ps-1'>{name.first_name+' '+name.last_name}</li>
+                                                    {(steward.user_name.toLowerCase()).startsWith(room.room_steward.user_name.toLowerCase()) ? (
+                                                    <li onClick={() => {setRooms(values => values.map((value,i) => {return i === index ? {...value, room_steward:steward}:value}))}} className='student-dropdown-item ps-1'>{steward.user_name}</li>
                                                     ):(null)}
                                                     </div>
                                                 )
@@ -228,7 +223,7 @@ const ConfigCompForm = (props) => {
                             </div>
                         </div> 
                         <div className='d-flex p-2'>
-                            <button className='btn-border-none mt-3 m-1' onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:{name:''},room_steward:{name:''}}])}}>Add Room</button>
+                            <button className='btn-border-none mt-3 m-1' onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:{user_name:''},room_steward:{user_name:''}}])}}>Add Room</button>
                             <button className='btn-border-none ms-auto mt-3 ' onClick={() => {setActiveStep(1)}} >Configure Rooms</button>                            
                         </div> 
                     </>
@@ -247,8 +242,8 @@ const ConfigCompForm = (props) => {
                                 {room &&                                    
                                     <div className='row'>
                                         <p className='col-2'>{room.room_name}</p>
-                                        <p className='col-5'>Judge: {room.room_judge}</p>
-                                        <p className='col-5'>Steward: {room.room_steward}</p>
+                                        <p className='col-5'>Judge: {room.room_judge.user_name}</p>
+                                        <p className='col-5'>Steward: {room.room_steward.user_name}</p>
                                     </div>                                    
                                 }
                                 </div>
@@ -277,8 +272,8 @@ const ConfigCompForm = (props) => {
                                 {room &&                                    
                                     <div className='row'>
                                         <p className='col-2'>{room.room_name}</p>
-                                        <p className='col-5'>Judge: {room.room_judge}</p>
-                                        <p className='col-5'>Steward: {room.room_steward}</p>
+                                        <p className='col-5'>Judge: {room.room_judge.user_name}</p>
+                                        <p className='col-5'>Steward: {room.room_steward.user_name}</p>
                                     </div>                                    
                                 }
                                 </div>
@@ -304,8 +299,8 @@ const ConfigCompForm = (props) => {
                                 {room &&                                    
                                     <div className='row'>
                                         <p className='col-2'>{room.room_name}</p>
-                                        <p className='col-5'>Judge: {room.room_judge}</p>
-                                        <p className='col-5'>Steward: {room.room_steward}</p>
+                                        <p className='col-5'>Judge: {room.room_judge.user_name}</p>
+                                        <p className='col-5'>Steward: {room.room_steward.user_name}</p>
                                     </div>                                    
                                 }
                                 </div>
@@ -332,8 +327,8 @@ const ConfigCompForm = (props) => {
                                 {room &&                                    
                                     <div className='row'>
                                         <p className='col-2'>{room.room_name}</p>
-                                        <p className='col-5'>Judge: {room.room_judge}</p>
-                                        <p className='col-5'>Steward: {room.room_steward}</p>
+                                        <p className='col-5'>Judge: {room.room_judge.user_name}</p>
+                                        <p className='col-5'>Steward: {room.room_steward.user_name}</p>
                                     </div>                                    
                                 }
                                 </div>
@@ -357,8 +352,8 @@ const ConfigCompForm = (props) => {
                                 {room &&                                    
                                     <div className='row'>
                                         <p className='col-2'>{room.room_name}</p>
-                                        <p className='col-5'>Judge: {room.room_judge}</p>
-                                        <p className='col-5'>Steward: {room.room_steward}</p>
+                                        <p className='col-5'>Judge: {room.room_judge.user_name}</p>
+                                        <p className='col-5'>Steward: {room.room_steward.user_name}</p>
                                     </div>                                    
                                 }
                                 </div>

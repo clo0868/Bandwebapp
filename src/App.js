@@ -11,6 +11,7 @@ import ApproveUsers from './components/ApproveUsers';
 import AllUsers from './components/AllUsers'
 import Account from './components/Account'
 import AddChildren from './components/AddChildren';
+import Judge from './judge';
 
 function App() {
   let location = useLocation();
@@ -152,6 +153,11 @@ function App() {
         <Route index path="/addchildren" element={
           <ProtectedRoute>
             <AddChildren />
+          </ProtectedRoute>
+        } />
+        <Route index path="/judge" element={
+          <ProtectedRoute>
+            <Judge />
           </ProtectedRoute>
         } />
           <Route path="login" element={<Login />} />

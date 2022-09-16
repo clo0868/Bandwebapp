@@ -114,7 +114,7 @@ const Home = (props) => {
                                 </div> 
                                 <div className='row mt-3'>
                                     <div className='col text-start'>
-                                    {user && user.user_type === 4 && current_date > ent_open &&
+                                    {user && (user.user_type === 4 || user.user_type === 5) && current_date > ent_open &&
                                     <>
                                     <Button onClick={() => setEntviewopen(true)} variant='contained'>View Entries</Button>
                                     <Modal
@@ -138,7 +138,7 @@ const Home = (props) => {
                                     </div>
                                     <div className='col text-end'>
                                         {user && user.user_type === 0 && ent_open < current_date && ent_close > current_date &&
-                                        <>
+                                        <div>
                                         <Button onClick={() => setEnteropen(true)} variant='contained'>Enter Competition</Button>
                                         <Modal
                                             open={enteropen}
@@ -151,10 +151,10 @@ const Home = (props) => {
                                                 <EntryForm user={user} token={token} comp={comp}/>
                                             </Box>
                                         </Modal>     
-                                        </>                                             
+                                        </div>                                             
                                         } 
                                         {user && user.user_type === 2 && children && ent_open < current_date && ent_close > current_date &&
-                                        <>
+                                        <div>
                                         <Button onClick={() => setEnteropen(true)} variant='contained'>Enter Competition</Button>
                                         <Modal
                                             open={enteropen}
@@ -167,8 +167,13 @@ const Home = (props) => {
                                                 <EntryForm user={children ? children:user}  token={token} comp={comp}/>
                                             </Box>
                                         </Modal>     
-                                        </>                                             
+                                        </div>                                             
                                         } 
+                                        {user && user.user_type === 5 && comp_start_time < current_date &&
+                                        <div>
+                                            <Link className='text-decoration-none text-white' to={"/judge?compID="+comp.compID}><Button variant='contained'>Judge</Button></Link>
+                                        </div>
+                                        }
                                     </div>
                                 </div>                                               
                             </div>

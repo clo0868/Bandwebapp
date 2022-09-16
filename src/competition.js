@@ -145,6 +145,7 @@ const Competition = (props) => {
                             <div className='grid m-3  '>                    
                             {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
                                 <>
+                                
                                 <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEntviewopen(true)} className='comppagebtn btn btn-primary'>View Entries</button>
                                 <Modal
@@ -159,6 +160,7 @@ const Competition = (props) => {
                                     </Box>
                                 </Modal>     
                                 </div> 
+                                {user.user_type === 4 &&
                                 <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEntuserviewopen(true)} className='comppagebtn btn btn-primary'>View Entries By User</button>
                                 <Modal
@@ -174,6 +176,9 @@ const Competition = (props) => {
 
                                 </Modal>     
                                 </div>
+                                
+                                }
+                                
                                 </> 
                             ):null}
                             {user && user.user_type === 4 && ent_open < current_time &&
@@ -194,7 +199,7 @@ const Competition = (props) => {
                                 </div>
                             
                             }
-                            
+
                             {user && user.user_type === 0 && ent_open < current_time && ent_close > current_time &&
                             <>
                             <div className=' row m-2 d-flex justify-content-center'>
