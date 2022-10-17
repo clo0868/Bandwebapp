@@ -15,7 +15,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import axios from 'axios';
 const steps = ['Competition Details','Competition Entries', 'Create Competition Events'];
 
-const CompForm = () => {
+const CompForm = (props) => {
+  const old_comp = props.comp
   const token = sessionStorage.TOKEN
   const [eventGrade, setEventGrade] = useState({});
 
@@ -34,32 +35,36 @@ const CompForm = () => {
 },[])
 
 
-    const [compDateValue, setCompDateValue] = useState(new Date());
-    const [compname,setCompname] = useState('');
-    const [complocation, setComplocation] = useState('');
+    const [compDateValue, setCompDateValue] = useState(old_comp ? new Date(old_comp.comp_start_time) : new Date());
+    const [compname,setCompname] = useState(old_comp ? old_comp.comp_name : '');
+    const [complocation, setComplocation] = useState(old_comp ? old_comp.comp_location : '');
     const [activeStep, setActiveStep] = useState(0);
-    const [entStartDateValue, setEntStartDateValue] = useState(new Date());
-    const [entEndDateValue, setEntEndDateValue] = useState(new Date());
-    const [eventfields, setEventfields] = useState([{event:'',grade:''}]);
+    const [entStartDateValue, setEntStartDateValue] = useState(old_comp ? new Date(old_comp.ent_open_time) : new Date());
+    const [entEndDateValue, setEntEndDateValue] = useState(old_comp ? new Date(old_comp.ent_close_time) : new Date());
+    const [eventfields, setEventfields] = useState(old_comp ? JSON.parse(old_comp.comp_events) : [{event:'',grade:''}]);
     const [btnLoader, setBtnLoader] = useState(0);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    console.log(activeStep);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    if (activeStep === 4 ) {
+      setActiveStep((prevActiveStep) => prevActiveStep - 2);
+      setBtnLoader(0)
+    }else{
+      setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    }
+    
   };
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-  const handleSubmit = () => {
-    setBtnLoader(1)
-    const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields]
+  const handleReset = () => {  
+    const compID = old_comp.compID  
+    const form_data = [old_comp.comp_name,old_comp.comp_start_time,old_comp.comp_location,old_comp.ent_open_time,old_comp.ent_close_time,old_comp.comp_events,compID]
     axios({
       method: 'POST',
-      url: 'https://pipe-band-server.herokuapp.com/create_comp',
+      url: 'https://pipe-band-server.herokuapp.com/update_comp',
       headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -67,15 +72,67 @@ const CompForm = () => {
         form_data
       },
     }).then(res => {
-      setBtnLoader(2)
-      setActiveStep(4)
+      console.log(res.data);
+    setCompDateValue(new Date(old_comp.comp_start_time))
+    setComplocation(old_comp.comp_location)
+    setCompname(old_comp.comp_name)
+    setEntStartDateValue(new Date(old_comp.ent_open_time))
+    setEntEndDateValue(new Date(old_comp.ent_close_time))
+    setEventfields(JSON.parse(old_comp.comp_events))
+    setBtnLoader(0)
+    setActiveStep(0);
     }).catch(e => {
       e = new Error();
     })
   };
+  const handleSubmit = () => {
+    setBtnLoader(1)
+    const compID = old_comp.compID
+    const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields,compID]
+    if (old_comp) {
+      axios({
+        method: 'POST',
+        url: 'https://pipe-band-server.herokuapp.com/update_comp',
+        headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        data: { 
+          form_data
+        },
+      }).then(res => {
+        setBtnLoader(2)
+        setActiveStep(4)
+      }).catch(e => {
+        e = new Error();
+      })
+      
+    }else{
+      axios({
+        method: 'POST',
+        url: 'https://pipe-band-server.herokuapp.com/create_comp',
+        headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        data: { 
+          form_data
+        },
+      }).then(res => {
+        setBtnLoader(2)
+        setActiveStep(4)
+      }).catch(e => {
+        e = new Error();
+      })
+
+    }
+    
+  };
   return (
     <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep}>
+      
+      
+      {(activeStep === steps.length||activeStep === steps.length + 1) && 
+      <>
+        <Stepper activeStep={activeStep}>
         {steps.map((label) => {
           return (
             <Step key={label}>
@@ -84,13 +141,10 @@ const CompForm = () => {
           );
         })}
       </Stepper>
-      
-      {activeStep === steps.length||activeStep === 4 ? (
-        
         <React.Fragment>
           <div className='mt-3 text-center'>
           {activeStep === 4 &&
-                <h5 className='mb-2'> Competition Created Succesfully</h5>
+                <h5 className='mb-2'>{old_comp ? 'Competition Updated Succesfully' : 'Competition Created Succesfully'} </h5>
               }
             <div className='d-flex'>
               
@@ -135,140 +189,156 @@ const CompForm = () => {
               Back
             </button>
             <Box sx={{ flex: '1 1 auto' }} />
-            <button className='btn-border-none' onClick={handleReset}>Reset</button>
+            {old_comp  && activeStep === 4 &&
+            <button className='btn-border-none' onClick={() => {setActiveStep(5)}}>Reset</button>
+            }
             {btnLoader !== 1 ? (
-              <button onClick={() => {handleSubmit()}} disabled={btnLoader === 2} className='btn-border-none'>{btnLoader === 0 ? 'Create' : <i className="fas fa-check"></i> }</button>
+              <button onClick={() => {handleSubmit()}} disabled={btnLoader === 2} className='btn-border-none'>{btnLoader === 0 ? (old_comp ? 'Update' : 'Create') : <i className="fas fa-check"></i> }</button>
             ):(                        
               <button className='btn btn-outline-primary'><div className='loader-sm'></div></button>
             )}
 
           </Box>
         </React.Fragment>
-      ) : (
-        <React.Fragment>
+      </>
+      }
+             
+      {activeStep < steps.length && 
+      <>
+      <Stepper activeStep={activeStep}>
+        {steps.map((label) => {
+          return (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      <React.Fragment>
           <div>
             {activeStep === 0 &&
-                <div className='mt-3'>
-                    <TextField 
-                      required
-                      className='mt-3' 
-                      fullWidth 
-                      id="standard-basic" 
-                      label="Competition Name:" 
-                      variant="standard" 
-                      value={compname}
-                      onChange={(event) => {
-                      setCompname(event.target.value);
-                      }}
-                      />
-                    <div className='mt-5' >
-                      <LocalizationProvider  dateAdapter={AdapterDateFns}>
-                          <DateTimePicker
-                              required
-                              fullWidth
-                              renderInput={(props) => <TextField {...props} />}
-                              label="Competition Start Time"
-                              value={compDateValue}
-                              onChange={(newCompDateValue) => {
-                              setCompDateValue(newCompDateValue);
-                              }}
-                          />
-                      </LocalizationProvider>
-                    </div>
-                    <TextField 
-                      required
-                      className='mt-3' 
-                      fullWidth 
-                      id="standard-basic" 
-                      label="Competition Location:" 
-                      variant="standard" 
-                      value={complocation}
-                      onChange={(event) => {
-                      setComplocation(event.target.value);
-                      }}
-                      />
-                </div>              
+              <div className='mt-3'>
+                  <TextField 
+                    required
+                    className='mt-3' 
+                    fullWidth 
+                    id="standard-basic" 
+                    label="Competition Name:" 
+                    variant="standard" 
+                    value={compname}
+                    onChange={(event) => {
+                    setCompname(event.target.value);
+                    }}
+                    />
+                  <div className='mt-5' >
+                    <LocalizationProvider  dateAdapter={AdapterDateFns}>
+                        <DateTimePicker
+                            required
+                            fullWidth
+                            renderInput={(props) => <TextField {...props} />}
+                            label="Competition Start Time"
+                            value={compDateValue}
+                            onChange={(newCompDateValue) => {
+                            setCompDateValue(newCompDateValue);
+                            }}
+                        />
+                    </LocalizationProvider>
+                  </div>
+                  <TextField 
+                    required
+                    className='mt-3' 
+                    fullWidth 
+                    id="standard-basic" 
+                    label="Competition Location:" 
+                    variant="standard" 
+                    value={complocation}
+                    onChange={(event) => {
+                    setComplocation(event.target.value);
+                    }}
+                    />
+              </div>              
             }
             {activeStep === 1 &&
-                <div className='mt-3'>
-                  <div className='mb-4'>
+              <div className='mt-3'>
+                <div className='mb-4'>
+                  <LocalizationProvider  dateAdapter={AdapterDateFns}>
+                        <DateTimePicker
+                            required
+                            fullWidth
+                            renderInput={(props) => <TextField {...props} />}
+                            label="Entries Open"
+                            value={entStartDateValue}
+                            onChange={(newEntStartDateValue) => {
+                            setEntStartDateValue(newEntStartDateValue);
+                            }}
+                            maxDateTime={entEndDateValue}
+                        />
+                    </LocalizationProvider>
+                  </div>
+                  <div>
                     <LocalizationProvider  dateAdapter={AdapterDateFns}>
-                          <DateTimePicker
-                              required
-                              fullWidth
-                              renderInput={(props) => <TextField {...props} />}
-                              label="Entries Open"
-                              value={entStartDateValue}
-                              onChange={(newEntStartDateValue) => {
-                              setEntStartDateValue(newEntStartDateValue);
-                              }}
-                              maxDateTime={entEndDateValue}
-                          />
-                      </LocalizationProvider>
-                    </div>
-                    <div>
-                      <LocalizationProvider  dateAdapter={AdapterDateFns}>
-                      <DateTimePicker
-                          fullWidth
-                          required
-                          renderInput={(props) => <TextField {...props} />}
-                          label="Entries Close"
-                          value={entEndDateValue}
-                          onChange={(newEntEndDateValue) => {
-                          setEntEndDateValue(newEntEndDateValue);
-                          }}
-                          maxDateTime={compDateValue}
-                      />
-                  </LocalizationProvider>  
-                  </div>                
-                </div>            
+                    <DateTimePicker
+                        fullWidth
+                        required
+                        renderInput={(props) => <TextField {...props} />}
+                        label="Entries Close"
+                        value={entEndDateValue}
+                        onChange={(newEntEndDateValue) => {
+                        setEntEndDateValue(newEntEndDateValue);
+                        }}
+                        maxDateTime={compDateValue}
+                    />
+                </LocalizationProvider>  
+                </div>                
+              </div>            
             }
             {activeStep === 2 &&
-            <div>
-              <div className='mt-3 compevent'>
-                {eventfields.map((field,index) => {
-                  return(
-                    <div key={"nonce"+index} className='d-flex align-items-center'>
-                      <h5>Event {index+1}:</h5>
-                      <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
-                        <InputLabel id="demo-simple-select-label">Grade</InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={field.grade}
-                          label="Age"
-                          autoWidth
-                          onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, grade:event.target.value}:value}));}}
-                        >
-                          {eventGrade.grades.map((grade,index) => {
-                            return <MenuItem key={index} value={index+1}>{grade.grade_name}</MenuItem>
-                          })}
-                        </Select>
-                      </FormControl>
-                      <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
-                        <InputLabel id="demo-simple-select-label">Event</InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={field.event}
-                          label="Age"
-                          autoWidth
-                          onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, event:event.target.value}:value}));}}
-                        >
-                          {eventGrade.events.map((event,index) => {
-                            return <MenuItem key={index} value={index+1}>{event.event_name}</MenuItem>
-                          })}
-                        </Select>
-                      </FormControl>
-                      <button onClick={() => {setEventfields((values) => values.filter((_, i) => i !== index))}} className=' btn-border-none ms-auto me-2' size='small'>X</button>
+              <div>
+                <div className='mt-3 compevent'>
+                  {eventfields.map((field,index) => {
+                    return(
+                      <div key={"nonce"+index} className='d-flex align-items-center'>
+                        <h5>Event {index+1}:</h5>
+                        <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
+                          <InputLabel id="demo-simple-select-label">Grade</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={field.grade}
+                            label="Age"
+                            autoWidth
+                            onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, grade:event.target.value}:value}));}}
+                          >
+                            {eventGrade.grades.map((grade,index) => {
+                              return <MenuItem key={index} value={index+1}>{grade.grade_name}</MenuItem>
+                            })}
+                          </Select>
+                        </FormControl>
+                        <FormControl sx={{ m: 1, minWidth: 120 }} size='small'>
+                          <InputLabel id="demo-simple-select-label">Event</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={field.event}
+                            label="Age"
+                            autoWidth
+                            onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, event:event.target.value}:value}));}}
+                          >
+                            {eventGrade.events.map((event,index) => {
+                              return <MenuItem key={index} value={index+1}>{event.event_name}</MenuItem>
+                            })}
+                          </Select>
+                        </FormControl>
+                        <button onClick={() => {setEventfields((values) => values.filter((_, i) => i !== index))}} className=' btn-border-none ms-auto me-2' size='small'>X</button>
 
-                    </div>
-                  );
-                })}
-              </div>  
-              <button className='mt-3 btn-border-none' onClick={() => {setEventfields(prevEventfields => [...prevEventfields, {event:'',grade:''}])}}>+</button>
-            </div>
+                      </div>
+                    );
+                  })}
+                </div>  
+                <button className='mt-3 btn-border-none' onClick={() => {setEventfields(prevEventfields => [...prevEventfields, {event:'',grade:''}])}}>+</button>
+              </div>
             }
+            
 
           </div>
           <Box className='mt-2' sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
@@ -289,7 +359,24 @@ const CompForm = () => {
             </button>
           </Box>
         </React.Fragment>
-      )}
+      </>
+        
+      }
+      {activeStep === steps.length + 2 &&
+      <React.Fragment>
+            <div className='m-5 p-5'>
+                <h5>Are You Sure You Want to Revert These Changes?</h5>
+
+                <div className='d-flex flex-row justify-content-evenly mt-5'>
+                  <button onClick={() => {setActiveStep(4)}} className='btn btn-danger'>Back</button>
+                  <button onClick={() => {handleReset()}} className='btn btn-primary'>Confirm</button>
+                </div>
+
+                
+            </div>
+            
+      </React.Fragment>
+      }
     </Box>
   );
 }

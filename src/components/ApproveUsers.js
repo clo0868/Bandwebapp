@@ -96,8 +96,7 @@ const ApproveUsers = () => {
             return(
                 <div className='card m-2 p-2'>
                     <div ref={card_ref} className='ps-3 d-flex flex-row align-items-center'>
-                        <p>{user.first_name}</p>
-                        <p className='ms-1'>{user.last_name}</p>
+                        <p>{user.user_name}</p>
                         <button onClick={() => {handleApprove(user)}} className='ms-auto btn btn-sm btn-primary'>Approve</button>
                     </div>
                 </div>
@@ -126,9 +125,8 @@ const ApproveUsers = () => {
                 return(
                     <div key={index} className='card m-2 p-2'>
                         <div className='d-flex ps-3 flex-row'>
-                            <p>{user.first_name}</p>
+                            <p>{user.user_name}</p>
 
-                            <p className='ms-1'>{user.last_name}</p>
                         </div>
                     </div>
                 )

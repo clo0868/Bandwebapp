@@ -10,6 +10,7 @@ import EntriesDisplay from './components/EntriesDisplay.js';
 import EntriesByUserDisplay from './components/EntriesByUserDisplay.js';
 import {Link} from "react-router-dom";
 import DeleteComp from './components/DeleteComp.js';
+import CompForm from './components/CompForm.js';
 
 
 const Competition = (props) => {
@@ -25,6 +26,7 @@ const Competition = (props) => {
     const [entuserviewopen, setEntuserviewopen] = useState(false);
     const [children, setChildren] = useState({});
     const [comp, setComp] = useState({});
+    const [editCompOpen, setEditCompOpen] = useState(false);
 
     let navigate = useNavigate();
 
@@ -240,6 +242,29 @@ const Competition = (props) => {
                                 <div className='row m-2 d-flex justify-content-center'>
                                     <button className='comppagebtn btn btn-primary'><Link className=' text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
                                 </div>
+                            }
+                            {user && user.user_type === 5 && comp_start.toDateString() === new Date().toDateString() && 
+                                <div className='row m-2 d-flex justify-content-center'>
+                                    <Link className='text-decoration-none text-white' to={"/judge?compID="+comp.compID}><button className='comppagebtn w-100 btn btn-primary'>Judge</button></Link>
+
+                                </div>
+                            }
+                            {user && user.user_type === 4 &&
+                            <div className=' row m-2 d-flex justify-content-center'>
+                                <button onClick={() => setEditCompOpen(true)} className='comppagebtn btn btn-primary'>Edit Competition</button>
+                                <Modal
+                                    open={editCompOpen}
+                                    onClose={() => setEditCompOpen(false)}
+                                    aria-labelledby="modal-modal-title"
+                                    aria-describedby="modal-modal-description"
+                                >
+                                    <Box sx={compmodalstyle}>
+                                        <button onClick={() => setEditCompOpen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
+                                        <CompForm comp={comp} />
+                                    </Box>
+                                </Modal> 
+                            
+                            </div>
                             }
                             {user && (user.user_type === 1 || user.user_type === 4) &&
                                 <div className='row m-2 d-flex justify-content-center'>

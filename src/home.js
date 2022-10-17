@@ -98,6 +98,7 @@ const Home = (props) => {
                 const ent_close = new Date(comp.ent_close_time).getTime()
                 const current_date = new Date().getTime()
                 
+                
                 return(
                     <div key={index} className='row m-2 mt-3'>
                         <div className='card p-2 shadow-sm '>
@@ -169,7 +170,7 @@ const Home = (props) => {
                                         </Modal>     
                                         </div>                                             
                                         } 
-                                        {user && user.user_type === 5 && comp_start_time < current_date &&
+                                        {user && user.user_type === 5 && comp_start_time.toDateString() === new Date().toDateString() &&
                                         <div>
                                             <Link className='text-decoration-none text-white' to={"/judge?compID="+comp.compID}><Button variant='contained'>Judge</Button></Link>
                                         </div>
@@ -208,7 +209,7 @@ const Home = (props) => {
                                 <p>Contact an admin if this was a mistake</p>                             
                             </div>
                             }
-                            {user && user.user !== "User not approved!" && user.user_type === 4 && 
+                            {user && user.user_type === 4 && 
                             <div className='shadow-sm p-3 mt-1'>
                                 <Button onClick={() => setCompopen(true)} variant='contained'>Create New Competition</Button>
                                 <Modal
