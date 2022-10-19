@@ -21,6 +21,7 @@ const CompForm = (props) => {
   const [eventGrade, setEventGrade] = useState({});
 
   useEffect(() => {
+    //getting event and grades data 
     axios({
         method: 'POST',
         url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
@@ -45,11 +46,13 @@ const CompForm = (props) => {
     const [btnLoader, setBtnLoader] = useState(0);
 
   const handleNext = () => {
+    //set next step
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     console.log(activeStep);
   };
 
   const handleBack = () => {
+    //check if loader needs reseting but just going back a step 
     if (activeStep === 4 ) {
       setActiveStep((prevActiveStep) => prevActiveStep - 2);
       setBtnLoader(0)
@@ -60,6 +63,7 @@ const CompForm = (props) => {
   };
 
   const handleReset = () => {  
+    //resets data back to original by updating DB entry to old data 
     const compID = old_comp.compID  
     const form_data = [old_comp.comp_name,old_comp.comp_start_time,old_comp.comp_location,old_comp.ent_open_time,old_comp.ent_close_time,old_comp.comp_events,compID]
     axios({
@@ -86,10 +90,13 @@ const CompForm = (props) => {
     })
   };
   const handleSubmit = () => {
+    //creates competition : gets data from state 
     setBtnLoader(1)
-    const compID = old_comp.compID
-    const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields,compID]
+    
     if (old_comp) {
+      const compID = old_comp.compID
+      const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields,compID]
+      //if old comp exists send data to update api 
       axios({
         method: 'POST',
         url: 'https://pipe-band-server.herokuapp.com/update_comp',
@@ -107,6 +114,8 @@ const CompForm = (props) => {
       })
       
     }else{
+      const form_data = [compname,compDateValue,complocation,entStartDateValue,entEndDateValue,eventfields]
+      //if no old comp exists send data to create new comp api 
       axios({
         method: 'POST',
         url: 'https://pipe-band-server.herokuapp.com/create_comp',
@@ -130,10 +139,14 @@ const CompForm = (props) => {
     <Box sx={{ width: '100%' }}>
       
       
-      {(activeStep === steps.length||activeStep === steps.length + 1) && 
+      {
+      //confirmation and completion steps of the form 
+      (activeStep === steps.length||activeStep === steps.length + 1) && 
       <>
         <Stepper activeStep={activeStep}>
-        {steps.map((label) => {
+        {
+        //MUI stepper 
+        steps.map((label) => {
           return (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -143,7 +156,9 @@ const CompForm = (props) => {
       </Stepper>
         <React.Fragment>
           <div className='mt-3 text-center'>
-          {activeStep === 4 &&
+          {
+          //display message on api result 
+          activeStep === 4 &&
                 <h5 className='mb-2'>{old_comp ? 'Competition Updated Succesfully' : 'Competition Created Succesfully'} </h5>
               }
             <div className='d-flex'>
@@ -168,11 +183,12 @@ const CompForm = (props) => {
             <div className='compevent'>
               <h5>Events:</h5>
               {eventGrade && eventfields.map((event,index) => {
+
+                //check if all event fields were filled out properly 
                 if(event.grade === ''||event.event === ''){
                   return <p>Empty field please go back</p>
                 }
-                console.log(eventGrade.grades);
-                console.log(event.grade);
+                //display list of events selected 
                 return <p key={index}>Event {index+1}: {eventGrade.grades[event.grade-1].grade_name} grade {eventGrade.events[event.event-1].event_name}</p>
               })}
 
@@ -216,7 +232,9 @@ const CompForm = (props) => {
       </Stepper>
       <React.Fragment>
           <div>
-            {activeStep === 0 &&
+            {
+            //form section for name location and start time 
+            activeStep === 0 &&
               <div className='mt-3'>
                   <TextField 
                     required
@@ -258,7 +276,9 @@ const CompForm = (props) => {
                     />
               </div>              
             }
-            {activeStep === 1 &&
+            {
+            //form section for entry timespan 
+            activeStep === 1 &&
               <div className='mt-3'>
                 <div className='mb-4'>
                   <LocalizationProvider  dateAdapter={AdapterDateFns}>
@@ -292,10 +312,16 @@ const CompForm = (props) => {
                 </div>                
               </div>            
             }
-            {activeStep === 2 &&
+            {
+            //form section for selecting events 
+            activeStep === 2 &&
               <div>
                 <div className='mt-3 compevent'>
                   {eventfields.map((field,index) => {
+                    //mapping out all events 
+                    //initially this value is an emtpy event and grade 
+                    //two selects are used to select what grade and event each event will be 
+                    //buttons are to either add another event field or to remove an event 
                     return(
                       <div key={"nonce"+index} className='d-flex align-items-center'>
                         <h5>Event {index+1}:</h5>
@@ -307,7 +333,10 @@ const CompForm = (props) => {
                             value={field.grade}
                             label="Age"
                             autoWidth
-                            onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, grade:event.target.value}:value}));}}
+                            onChange={(event) => {
+                              //set current events grade value to the selected value
+                              setEventfields(values => values.map((value,i) => { return i === index ? {...value, grade:event.target.value}:value}));
+                            }}
                           >
                             {eventGrade.grades.map((grade,index) => {
                               return <MenuItem key={index} value={index+1}>{grade.grade_name}</MenuItem>
@@ -322,14 +351,23 @@ const CompForm = (props) => {
                             value={field.event}
                             label="Age"
                             autoWidth
-                            onChange={(event) => {setEventfields(values => values.map((value,i) => { return i === index ? {...value, event:event.target.value}:value}));}}
+                            onChange={(event) => {
+                              //set current events event value to the selected value
+                              setEventfields(values => values.map((value,i) => { return i === index ? {...value, event:event.target.value}:value}));
+                            }}
                           >
                             {eventGrade.events.map((event,index) => {
                               return <MenuItem key={index} value={index+1}>{event.event_name}</MenuItem>
                             })}
                           </Select>
                         </FormControl>
-                        <button onClick={() => {setEventfields((values) => values.filter((_, i) => i !== index))}} className=' btn-border-none ms-auto me-2' size='small'>X</button>
+                        <button onClick={() => {
+                          //remove current event from the array 
+                          setEventfields((values) => values.filter((_, i) => i !== index))
+                          }} 
+                          className=' btn-border-none ms-auto me-2' 
+                          size='small'
+                          >X</button>
 
                       </div>
                     );
@@ -341,6 +379,7 @@ const CompForm = (props) => {
             
 
           </div>
+          {/* back and next buttons to navigate through steps */}
           <Box className='mt-2' sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
             <button
               className='btn-border-none'
@@ -362,7 +401,9 @@ const CompForm = (props) => {
       </>
         
       }
-      {activeStep === steps.length + 2 &&
+      {
+      //confirm reset step
+      activeStep === steps.length + 2 &&
       <React.Fragment>
             <div className='m-5 p-5'>
                 <h5>Are You Sure You Want to Revert These Changes?</h5>

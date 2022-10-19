@@ -3,15 +3,19 @@ import axios from 'axios';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 const ConfigCompForm = (props) => {
-    console.log(props);
+    
+    //get props 
     const token = props.token
     const compID = props.comp.compID
+
     const [activeStep, setActiveStep] = useState(0);
     const [rooms, setRooms] = useState([{room_name:'',room_judge:{user_name:''},room_steward:{user_name:''}}]);
     const [comp, setComp] = useState();
     const [loading, setLoading] = useState(true);
     const [officialNames, setOfficialNames] = useState();
+
     useEffect(() => {
+        //official names and competition data apis 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/officials',
@@ -19,6 +23,8 @@ const ConfigCompForm = (props) => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
+            //filter judges and stewards where user is approved
+            //done so unapproved users may be needed to be accessed 
             var res_stew = res.data.steward.filter((v,i) => {
                 return v.user_approve === 1
             })
@@ -26,7 +32,6 @@ const ConfigCompForm = (props) => {
                 return v.user_approve === 1
             })
             setOfficialNames({steward:res_stew,judge:res_judge})
-            console.log(res.data);
           }).catch(e => {
             e = new Error();
           })
@@ -41,6 +46,9 @@ const ConfigCompForm = (props) => {
               },
           }).then(res => {
             setComp(res.data[0])
+
+            //check if rooms have already been configured 
+            //when rooms state is set page displays room data first 
             if (res.data[0].comp_rooms !== '0') {
                 setRooms(JSON.parse(res.data[0].comp_rooms))
             }
@@ -50,7 +58,9 @@ const ConfigCompForm = (props) => {
           })
           
     }, []);
-    function handleConfigCompForm(){        
+
+    function handleConfigCompForm(){ 
+        //on sumbit send data to configure rooms api        
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/config_rooms',
@@ -69,7 +79,7 @@ const ConfigCompForm = (props) => {
     }
 
     function handleEditRooms(){
-        //const comp_rooms = comp.comp_rooms
+        //removes plaintext rooms from competition data 
         setComp((prevComp) => {
             return{
                 ...prevComp,
@@ -78,6 +88,8 @@ const ConfigCompForm = (props) => {
         })
     }
     function handleResetRooms(){
+
+        //removes room data from db entry 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/reset_rooms',
@@ -93,9 +105,12 @@ const ConfigCompForm = (props) => {
             e = new Error();
           })
     }
+
     return (
         <div className='modal-size d-flex text-center flex-column justify-content-top max-height'>
-            {loading ? (
+            {
+                //display custom skeleton loading 
+            loading ? (
                 <>
                 <div>
                     <h5>Entries have closed</h5>
@@ -145,10 +160,14 @@ const ConfigCompForm = (props) => {
                         </div>
                         <div className='mt-3 p-2 compevent'>
                             <div>
-                                {officialNames && rooms.map((room,index) => {
+                                {
+                                //filter official names by removing names already selected to judge or steward 
+                                //this avoids users selecting the same user twice 
+                                officialNames && rooms.map((room,index) => {
                                     var judges = officialNames.judge.filter((judge) => {
+                                        //filter through judges and check if user matches 
                                         if (rooms.some((room) => {
-                                            
+                                            //
                                             return (room.room_judge.user_name).match(judge.user_name) !== null 
                                             
                                             
@@ -159,9 +178,9 @@ const ConfigCompForm = (props) => {
                                         }
                                     })
                                     var stewards = officialNames.steward.filter((steward) => {
+                                        //filter through stewards and check if the user matches 
                                         if (rooms.some((room) => {
-                                            
-                                            
+                                                                                       
                                             return (room.room_steward.user_name).match(steward.user_name) !== null
                                             
                                         })){
@@ -171,7 +190,7 @@ const ConfigCompForm = (props) => {
                                         }
                                     })
                                 return(
-                                    <div key={"nonce"+index} className='d-flex align-items-center'>
+                                    <div key={"key"+index} className='d-flex align-items-center'>
                                         
                                         <div className='form-floating'>
                                         <input id='RoomNameInput' className='m-1 form-control config-input' placeholder='  Room Name' value={room.room_name} onChange={(event) => {setRooms(values => values.map((value,i) => { return i === index ? {...value, room_name:event.target.value}:value}));}} type='text'></input>
@@ -184,12 +203,18 @@ const ConfigCompForm = (props) => {
                                             </div>
                                             <ul className="dropdown-menu student-dropdown" aria-labelledby={'judgeDropdown'+index}>
                                                 
-                                                {judges.map((judge,ind) => {      
-                                                    console.log(rooms);                                    
+                                                {judges.map((judge,ind) => { 
+                                                    //displays list of unselected judges 
+                                                    //user can select a name to autofil the form field      
                                                 return (
                                                     <div key={ind}>
                                                     {(judge.user_name.toLowerCase()).startsWith(room.room_judge.user_name.toLowerCase()) ? (
-                                                    <li onClick={() => {setRooms(values => values.map((value,i) => {return i === index ? {...value, room_judge:judge}:value}))}} className='student-dropdown-item ps-1'>{judge.user_name}</li>
+                                                    <li onClick={() => {
+                                                        //sets input value to selected name 
+                                                        setRooms(values => values.map((value,i) => {return i === index ? {...value, room_judge:judge}:value}))
+                                                    }} 
+                                                    className='student-dropdown-item ps-1'
+                                                    >{judge.user_name}</li>
                                                     ):(null)}
                                                     </div>
                                                 )
@@ -203,10 +228,17 @@ const ConfigCompForm = (props) => {
                                             </div>
                                             <ul className="dropdown-menu student-dropdown" aria-labelledby={'stewardDropdown'+index}>
                                                 {stewards.map((steward,ind) => {  
+                                                    //displays list of unselected stewards 
+                                                    //user can select a name to autofil the form field    
                                                 return (
                                                     <div key={ind}>
                                                     {(steward.user_name.toLowerCase()).startsWith(room.room_steward.user_name.toLowerCase()) ? (
-                                                    <li onClick={() => {setRooms(values => values.map((value,i) => {return i === index ? {...value, room_steward:steward}:value}))}} className='student-dropdown-item ps-1'>{steward.user_name}</li>
+                                                    <li onClick={() => {
+                                                        //sets input value to selected name 
+                                                        setRooms(values => values.map((value,i) => {return i === index ? {...value, room_steward:steward}:value}))
+                                                    }} 
+                                                    className='student-dropdown-item ps-1'
+                                                    >{steward.user_name}</li>
                                                     ):(null)}
                                                     </div>
                                                 )
@@ -215,7 +247,13 @@ const ConfigCompForm = (props) => {
                                         </div>                                        
                                         
                                         
-                                    <button onClick={() => {setRooms((values) => values.filter((_, i) => i !== index));}} className='btn-border-none ms-2' size='small'>X</button>
+                                    <button onClick={() => {
+                                        //removes a room from the competition 
+                                        setRooms((values) => values.filter((_, i) => i !== index));
+                                        }} 
+                                        className='btn-border-none ms-2' 
+                                        size='small'
+                                        >X</button>
 
                                     </div>
                                 );
@@ -223,7 +261,11 @@ const ConfigCompForm = (props) => {
                             </div>
                         </div> 
                         <div className='d-flex p-2'>
-                            <button className='btn-border-none mt-3 m-1' onClick={() => {setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:{user_name:''},room_steward:{user_name:''}}])}}>Add Room</button>
+                            <button className='btn-border-none mt-3 m-1' onClick={() => {
+                                //adds an extra room 
+                                setRooms(prevRooms => [...prevRooms, {room_name:'',room_judge:{user_name:''},room_steward:{user_name:''}}])
+                                }}
+                                >Add Room</button>
                             <button className='btn-border-none ms-auto mt-3 ' onClick={() => {setActiveStep(1)}} >Configure Rooms</button>                            
                         </div> 
                     </>
@@ -236,6 +278,7 @@ const ConfigCompForm = (props) => {
                         <p>Rooms have already been configured</p>
                     </div>
                     {JSON.parse(comp.comp_rooms).map((room,index) => { 
+                        //displays room data if rooms have already been configured 
                         return(
                             <div key={index}>
                                 <div className='grid text-start'>
@@ -265,7 +308,8 @@ const ConfigCompForm = (props) => {
                 
                 <>
                     <h5 className='mb-4'>Confirm These Rooms and Judges</h5>
-                    {rooms.map((room,index) => { 
+                    {rooms.map((room,index) => {
+                        //display room data for user to confirm  
                         return(
                             <div key={index}>
                                 <div className='grid text-start'>
@@ -293,6 +337,7 @@ const ConfigCompForm = (props) => {
                         <h5 className='mb-4'>Rooms have successfully been configuered as followed</h5>
                         <ul>
                         {rooms.map((room,index) => { 
+                            //success page to confirm configure worked 
                         return(
                             <div key={index}>
                                 <div className='grid text-start'>
@@ -314,13 +359,16 @@ const ConfigCompForm = (props) => {
                 {activeStep === 3 && 
                 <div className='text-center'>
                 <h5 className='mb-4'>Reset Rooms for {comp.comp_name}</h5>
-                {comp.comp_rooms === '0' && 
+                {
+                //user cant reset rooms if none exist 
+                comp.comp_rooms === '0' && 
                     <div>                        
                         <p>You have no rooms configured</p>            
                     </div>
                 
                 }
-                {JSON.parse(comp.comp_rooms).map((room,index) => { 
+                {JSON.parse(comp.comp_rooms).map((room,index) => {
+                    //displays room data so user can confirm they want to reset it  
                         return(
                             <div key={index}>
                                 <div className='grid text-start'>
@@ -337,7 +385,9 @@ const ConfigCompForm = (props) => {
                         )
                     })}
                 <button className=' btn-border-none mt-3'  onClick={() => {setActiveStep(0); }} >Back</button>
-                {comp.comp_rooms !== '0' &&
+                {
+                //only let the user reset if rooms exist 
+                comp.comp_rooms !== '0' &&
                     <button className='btn-border-none ms-3 mt-3' onClick={() => {handleResetRooms()}} >Confirm</button>
                 }
             </div>
@@ -345,7 +395,8 @@ const ConfigCompForm = (props) => {
             {activeStep === 4 && 
                 <div className='m-2'>
                 <h5 className='mb-4'>Rooms have been reset for {comp.comp_name}</h5>
-                {JSON.parse(comp.comp_rooms).map((room,index) => { 
+                {JSON.parse(comp.comp_rooms).map((room,index) => {
+                    //confirmation page to confirm rooms were succesfully reset  
                         return(
                             <div key={index}>
                                 <div className='grid text-start'>

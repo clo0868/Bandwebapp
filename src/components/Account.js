@@ -5,6 +5,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 
 const Account = () => {
+    //input references 
     const name_ref = useRef(null);
     const user_ref = useRef(null);
     const email_ref = useRef(null);
@@ -12,6 +13,9 @@ const Account = () => {
 
     let navigate = useNavigate();
     const token = sessionStorage.TOKEN
+
+    //a lot of the state varibale are double to store old variables and present ones
+    //could be done with an array
     const [children, setChildren] = useState([]);
     const [loading,setLoading] = useState(true)
     const [name, setName] = useState("");
@@ -37,6 +41,8 @@ const Account = () => {
     };
 
     useEffect(() => {
+      //api calls on mount 
+      //gets user data and autofills inputs 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/user',
@@ -59,6 +65,7 @@ const Account = () => {
                 e = new Error();
             
           })
+          //list of existing student names 
           axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/get_existing_names',
@@ -70,6 +77,8 @@ const Account = () => {
           })
     }, []);
     useEffect(() => {
+      //when username changes check if the username is already taken 
+      //adjust bootstrap validation accordingly 
         axios({
           method: 'POST',
           url: 'https://pipe-band-server.herokuapp.com/check_existing_user',
@@ -90,16 +99,18 @@ const Account = () => {
     
       },[username])
 
-    function unerror(index){          
+    function unerror(index){   
+            //removes error once clicked        
             const child_input = childRefs.current[index];
             child_input.className = " form-control";    
       }
-      function unerrorEmail(){          
+      function unerrorEmail(){ 
+        //removes bootstrap validation on click          
         const email_input = email_ref.current
         email_input.className =" form-control";    
   }
     function handleAccountUpdate(){            
-            // send the username and password to the server  
+            // send updated account details to api 
             setAccUpdateBtn(1)        
 
             axios({
@@ -118,15 +129,21 @@ const Account = () => {
 
       function handleChildrenUpdate(){
         setAccUpdateBtn(1)      
-        
+        //updates students linked to a parent account 
+
+        //find matching users for the students selected 
         const filter_names = names.filter((name) => {
           return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
         })
         const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
         const send_children = []
+
+        //add each student to an array to send 
         children.forEach((child) => {
             send_children.push(filter_names[merged_names.indexOf(child)])
         });
+
+        //send data to api 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/update_children',
@@ -146,12 +163,19 @@ const Account = () => {
 
       }
       function handleConfirmChildren(){
+        //checks to see if all student inputs are valid 
+
+
+        //if no children return nothing 
         if (children.length === 0 ) return null
 
+        //find all users selected by user 
         const filter_names = names.filter((name) => {
             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
         })
         const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
+
+        //check if all student inputs are valid 
         if(children.every((stud_name,index) => {
           const children_input = childRefs.current[index];
           if (merged_names.every((name) => name !== stud_name)) {
@@ -168,6 +192,8 @@ const Account = () => {
 
       }
       function handleConfirmAccount(){
+
+        //check if email is valid
         const email_input = email_ref.current; 
         if(email.slice(1,email.length-1).includes('@')){
             email_input.className = "form-control";

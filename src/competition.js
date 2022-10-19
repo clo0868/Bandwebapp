@@ -15,9 +15,12 @@ import CompForm from './components/CompForm.js';
 
 const Competition = (props) => {
     const token = sessionStorage.TOKEN
+    
+    //get competition data from get array 
     const { search } = useLocation();
     const get_array = new URLSearchParams(search)
     const compID = get_array.get('compID')
+
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState();
     const [enteropen, setEnteropen] = useState(false);
@@ -42,6 +45,7 @@ const Competition = (props) => {
       };
 
     useEffect(() => {
+        //api calls on mount 
         setLoading(true)
         axios({
             method: 'POST',
@@ -65,12 +69,14 @@ const Competition = (props) => {
                 Authorization: `Bearer ${token}`,
               },
           }).then(res => {
+            //check if user is a parent 
             setUser(res.data.user)
             if (res.data.children) {
                 setChildren(res.data.children)
             }
             
           }).catch(e => {
+            //check if user is approved 
             if(e.response.data && e.response.data.error === 'User not approved!'){
                 setUser({user:e.response.data.error})
                 console.log('Your Account has not been approved yet');
@@ -80,12 +86,13 @@ const Competition = (props) => {
           })
     },[])
     
-    
+    //gets relevant dates into proper form 
     const comp_start = new Date(comp.comp_start_time)
-    //const comp_start_time = comp_start.getTime()
     const ent_open = new Date(comp.ent_open_time).getTime()
     const ent_close = new Date(comp.ent_close_time).getTime()
     const current_time = new Date().getTime()
+
+    //shortens time from 00:00.00 to 00:00
     function shortenTime(time){
         if (time.length === 10) {return time.slice(0,4)+time.slice(7)}
         if (time.length === 11) {return time.slice(0,5)+time.slice(8)} 
@@ -110,7 +117,9 @@ const Competition = (props) => {
                                 <p>Contact an admin if this was a mistake</p>                             
                             </div>
                             }
-                        {loading ? (
+                        {
+                        //display loading skeletons if loading
+                        loading ? (
                             <div>
                                 <CompInfoSkeleton/>
                             </div>
@@ -145,7 +154,9 @@ const Competition = (props) => {
                             
 
                             <div className='grid m-3  '>                    
-                            {((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
+                            {
+                            //view entries for stewards and judges 
+                            ((user && user.user_type === 4 && ent_open < current_time)||(user && user.user_type === 5 && ent_open < current_time)) ? (
                                 <>
                                 
                                 <div className=' row m-2 d-flex justify-content-center'>
@@ -183,7 +194,9 @@ const Competition = (props) => {
                                 
                                 </> 
                             ):null}
-                            {user && user.user_type === 4 && ent_open < current_time &&
+                            {
+                            //configure competition for stewards 
+                            user && user.user_type === 4 && ent_open < current_time &&
                                 <div className=' row m-2 d-flex justify-content-center'>
                                     <button onClick={() => setConfigopen(true)} className='comppagebtn btn btn-primary'>Configure Competition</button>
                                     <Modal
@@ -202,7 +215,9 @@ const Competition = (props) => {
                             
                             }
 
-                            {user && user.user_type === 0 && ent_open < current_time && ent_close > current_time &&
+                            {
+                            //enter competiton for students 
+                            user && user.user_type === 0 && ent_open < current_time && ent_close > current_time &&
                             <>
                             <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEnteropen(true)} className='comppagebtn btn btn-primary'>Enter Competition</button>
@@ -220,7 +235,9 @@ const Competition = (props) => {
                             </div>  
                             </>                                             
                             } 
-                            {user && user.user_type === 2 && ent_open < current_time && ent_close > current_time &&
+                            {
+                            //enter competition for parents 
+                            user && user.user_type === 2 && ent_open < current_time && ent_close > current_time &&
                             <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEnteropen(true)} className='comppagebtn btn btn-primary'>Enter Competition</button>
                                 <Modal
@@ -237,19 +254,24 @@ const Competition = (props) => {
                             
                             </div>
                             }
-                            {user && user.user_type === 4 && ent_open < current_time &&
-                            
+                            {
+                            //link to schedule page for stewards 
+                            user && user.user_type === 4 && ent_open < current_time &&
                                 <div className='row m-2 d-flex justify-content-center'>
                                     <button className='comppagebtn btn btn-primary'><Link className=' text-decoration-none text-white' state={{compID:compID}} to='/scheduler'>Go to Scheduler</Link></button>
                                 </div>
                             }
-                            {user && user.user_type === 5 && comp_start.toDateString() === new Date().toDateString() && 
+                            {
+                            //link to judging page for judges 
+                            user && user.user_type === 5 && comp_start.toDateString() === new Date().toDateString() && 
                                 <div className='row m-2 d-flex justify-content-center'>
                                     <Link className='text-decoration-none text-white' to={"/judge?compID="+comp.compID}><button className='comppagebtn w-100 btn btn-primary'>Judge</button></Link>
 
                                 </div>
                             }
-                            {user && user.user_type === 4 &&
+                            {
+                            //edit competition for stewards 
+                            user && user.user_type === 4 &&
                             <div className=' row m-2 d-flex justify-content-center'>
                                 <button onClick={() => setEditCompOpen(true)} className='comppagebtn btn btn-primary'>Edit Competition</button>
                                 <Modal
@@ -266,7 +288,10 @@ const Competition = (props) => {
                             
                             </div>
                             }
-                            {user && (user.user_type === 1 || user.user_type === 4) &&
+                            
+                            {
+                            //delete competition for admins and stewards
+                            user && (user.user_type === 1 || user.user_type === 4) &&
                                 <div className='row m-2 d-flex justify-content-center'>
                                     <DeleteComp comp={comp} />
                                 </div>

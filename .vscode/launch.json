@@ -5,14 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            //"console": "integratedTerminal",
+            "console": "integratedTerminal",
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\server.js"
+            "program": "C:/xampp/htdocs/bandwebappserver/perm.js"
         }
     ]
 }
