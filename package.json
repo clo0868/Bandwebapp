@@ -29,7 +29,7 @@
     "heroku-prebuild": "npm install -g serve",
     "devstart": "react-scripts start",
     "start": "serve -s build",
-    "build": "react-scripts build",
+    "build": "react-scripts --openssl-legacy-provider build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
