@@ -3,7 +3,7 @@ import axios from 'axios';
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 const EntriesDisplay = (props) => {
-    var comp = props.comp
+    const comp = props.comp
     const token = props.token
     const compEventGrade = JSON.parse(comp.comp_events);
     const [entries,setEntries] = useState([]);
@@ -52,7 +52,9 @@ const EntriesDisplay = (props) => {
         ):(
             <div>
                 <div className="accordion" id="entriesAccordion">
-            {compEventGrade.map((field,index) => {
+            {
+                
+            compEventGrade.map((field,index) => {
                 var event_entries = entries.filter(value => value.gradeID === field.grade && value.eventID === field.event);
                 return(
                     <div key={index}>

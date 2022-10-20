@@ -24,7 +24,7 @@ const Home = (props) => {
     const [data,setData]= useState([])
     const [user, setUser] = useState()
     const [compopen, setCompopen] = useState(false);
-    const [entviewopen, setEntviewopen] = useState(false);
+    const [entviewopen, setEntviewopen] = useState([]);
     const [enteropen, setEnteropen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [children, setChildren] = useState();
@@ -79,6 +79,7 @@ const Home = (props) => {
                 },
             }).then(res => {
             setData(res.data)
+            setEntviewopen(Array.apply(null, Array(res.data.length)).map(i => i=false))
             //page has loaded 
             setLoading(false)
             }).catch(e => {
@@ -117,7 +118,7 @@ const Home = (props) => {
                 const ent_close = new Date(comp.ent_close_time).getTime()
                 const current_date = new Date().getTime()
                 
-                
+                console.log(comp);
                 return(
                     <div key={index} className='row m-2 mt-3'>
                         <div className='card p-2 shadow-sm '>
@@ -138,16 +139,17 @@ const Home = (props) => {
                                     //view entries button for stewards and judges 
                                     user && (user.user_type === 4 || user.user_type === 5) && current_date > ent_open &&
                                     <>
-                                    <Button onClick={() => setEntviewopen(true)} variant='contained'>View Entries</Button>
+                                    <Button onClick={() => setEntviewopen(values => values.map((value,i) => {return i === index ? true:value }))} variant='contained'>View Entries</Button>
                                     <Modal
-                                        open={entviewopen}
-                                        onClose={() => setEntviewopen(false)}
+                                        open={entviewopen[index]}
+                                        onClose={() => setEntviewopen(values => values.map((value,i) => {return i === index ? false:value }))}
+                                        
                                         aria-labelledby="modal-modal-title"
                                         aria-describedby="modal-modal-description"
                                     >
                                         <Box sx={compmodalstyle}>
-                                            <button onClick={() => setEntviewopen(false)} type="button" className="close-button btn-close" aria-label="Close"></button>
-                                            <EntriesDisplay token={token} comp={comp}/>
+                                            <button onClick={() => setEntviewopen(values => values.map((value,i) => {return i === index ? false:value }))} type="button" className="close-button btn-close" aria-label="Close"></button>
+                                            <EntriesDisplay token={token} comp={data[index]}/>
                                         </Box>
                                     </Modal>     
                                     </>                                             
