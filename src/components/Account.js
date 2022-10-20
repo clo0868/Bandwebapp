@@ -347,7 +347,7 @@ const Account = () => {
                                         
                                         const filter_names = names.filter((name) => {
                                         return !children.some((child) => {
-                                            return child === (name.first_name+' '+name.last_name)
+                                            return child === (name.name)
                                         })
                                         }).filter((name) => {
                                             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
@@ -375,8 +375,8 @@ const Account = () => {
                                             {filter_names.map((name,ind) => {
                                                 return (
                                                 <div key={ind}>
-                                                {((name.first_name+' '+name.last_name).toLowerCase().match(child.toLowerCase()) !== null) ? (
-                                                    <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? name.first_name+' '+name.last_name:value}))}} className='student-dropdown-item ps-1'>{name.first_name+' '+name.last_name}</li>
+                                                {((name.name).toLowerCase().match(child.toLowerCase()) !== null) ? (
+                                                    <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? name.name:value}))}} className='student-dropdown-item ps-1'>{name.name}</li>
                                                 ):(null)}
                                                 </div>
                                                 )

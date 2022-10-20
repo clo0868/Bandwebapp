@@ -117,7 +117,7 @@ const EntryForm = (props) => {
         return(
             <>
             <div className=' text-center m-3 pt-2'>
-                <h5 className='mb-4'>Enter Events for {user.first_name} {user.last_name}</h5>
+                <h5 className='mb-4'>Enter Events for {user.user_name}</h5>
                     <div className='grid entry-form'>
                     {compEventGrade.map((field,index) => {
                         return(
@@ -133,7 +133,7 @@ const EntryForm = (props) => {
     function AlreadyEntered(){
         return(
         <>
-            <h5 className='mb-4'>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has already entered these events:</h5>
+            <h5 className='mb-4'>{user.user_name} has already entered these events:</h5>
             <ul className=''>
             {existingEntry.map((entry,index) => { 
                 return(
@@ -161,7 +161,7 @@ const EntryForm = (props) => {
         return(
         <>
         <div className='text-center'>
-                <h5 className='mb-4'>Confirm Your Entries for {user.user}</h5>
+                <h5 className='mb-4'>Confirm Your Entries for {user.user_name}</h5>
                 {entryChecked.every((v) => (v === false)) && 
                     <div>                        
                         <p>You have not entered any events</p>            
@@ -194,7 +194,7 @@ const EntryForm = (props) => {
         return(
         <>
             <div className='m-2'>
-                <h5 className='mb-2'>{user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)} has succesfully entered these events</h5>
+                <h5 className='mb-2'>{user.user_name} has succesfully entered these events</h5>
                 {entryChecked.map((entry,index) => { 
                     return(
                         <div key={index}>
@@ -216,7 +216,7 @@ const EntryForm = (props) => {
         return(
         <>
         <div className='text-center'>
-                <h5 className='mb-4'>Remove Entries for {user.user}</h5>
+                <h5 className='mb-4'>Remove Entries for {user.user_name}</h5>
                 {existingEntry.length === 0 && 
                     <div>                        
                         <p>You have not entered any events</p>            
@@ -249,7 +249,7 @@ const EntryForm = (props) => {
         return(
         <>
         <div className='m-2'>
-            <h5 className='mb-4'> Deleted all events for {user.first_name.charAt(0).toUpperCase() + user.first_name.slice(1)} {user.last_name.charAt(0).toUpperCase() + user.last_name.slice(1)}</h5>
+            <h5 className='mb-4'> Deleted all events for {user.user_name}</h5>
             {existingEntry.map((entry,index) => { 
                 return(
                     <div key={index}>
@@ -281,7 +281,7 @@ const EntryForm = (props) => {
                     <select  onChange={({ target }) => {console.log(users[target.value],user); setUser(users[target.value])}} className="select-child form-select" aria-label="Default select example">
                     { users.map((child,index) => {
                         return(
-                            <option  key={index} value={index}>{child.first_name} {child.last_name}</option>
+                            <option  key={index} value={index}>{child.user_name}</option>
                         )
                     })}
                     
