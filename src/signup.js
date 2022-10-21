@@ -4,6 +4,8 @@ import { useNavigate,Link } from "react-router-dom";
 import axios from 'axios';
 
 const Signup = () => {
+
+  //setup refs for all inputs 
   const name_ref = useRef(null);
   const user_ref = useRef(null);
   const email_ref = useRef(null);
@@ -13,6 +15,8 @@ const Signup = () => {
 
 
   const navigate = useNavigate();
+
+  //state of all inputs 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -23,12 +27,15 @@ const Signup = () => {
 
 
   useEffect(() => {
+    //checks existing username when ever the user types
+    //should really have a debounce to limit api calls or do it locally 
     axios({
       method: 'POST',
       url: 'https://pipe-band-server.herokuapp.com/check_existing_user',
       data: { user: username},
     }).then(res => {
-      const user_input = user_ref.current; 
+      const user_input = user_ref.current;
+      //changes bootstrap if the username is already taken  
       if(username.length > 0 && res.data.length > 0){
         user_input.className = " form-control is-invalid";
       }else{
@@ -44,26 +51,32 @@ const Signup = () => {
 
   const handleSubmitSignup = async e => {
     e.preventDefault();
+
+    //get current refs 
     const pass_input = pass_ref.current; 
     const pass_confirm_input = pass_confirm_ref.current;
     
     
         
     if (password !== passwordConfirm) {
+      //if passwords dont match tell the user and reset the inputs 
       pass_input.className = " form-control is-invalid";
       pass_confirm_input.className = " form-control is-invalid";
       setPasswordConfirm("")
       setPassword("")
     }else{
+      //inputs are fine
       pass_input.className = " form-control";        
       pass_confirm_input.className = " form-control ";
       
-      // send the username and password to the server
+      // send users data to the server
       axios({
         method: 'POST',
         url: 'https://pipe-band-server.herokuapp.com/signup',
         data: { username:username,email:email, name:name, pass: password,type: accountType},
       }).then(res => {
+
+          //on success log user in by setting JWT and redirecting to home page 
           sessionStorage.setItem("TOKEN", res.data.token);
           navigate("/")
       }).catch(e => {
@@ -78,6 +91,7 @@ const Signup = () => {
   };
   function unerror(){
     
+    //when the user clicks on input remove any error CSS or bootstrap 
     const pass_confirm_input = pass_confirm_ref.current; 
     const pass_input = pass_ref.current; 
     pass_confirm_input.className = " form-control"; 
@@ -85,6 +99,8 @@ const Signup = () => {
 
   }
 
+
+  //displays HTML for signup form 
   return(
     <div className="container-fluid">
       <div className="d-flex justify-content-center">

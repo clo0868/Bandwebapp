@@ -9,8 +9,12 @@ const EntriesDisplay = (props) => {
     const [entries,setEntries] = useState([]);
     const [eventGrade, setEventGrade] = useState();
     const [loading, setLoading] = useState(true);
+
+
     useEffect(() => {
         setLoading(true)
+
+        //gets entry data for all entries in this competition 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/comp_entries',
@@ -25,6 +29,8 @@ const EntriesDisplay = (props) => {
           }).catch(e => {
             e = new Error();
           })
+
+          //gets all event and grade names from db 
           axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
@@ -38,11 +44,15 @@ const EntriesDisplay = (props) => {
             e = new Error();
         })
     },[])
+
+    //displays html for the page 
     return (
         <div className='text-center'>
             <h5>Current entries for {comp.comp_name}</h5>
             <div className=' mt-2 grid entry-form'>
-        {loading ? (
+        {
+        //shows skeletons when loading 
+        loading ? (
             <div>
                 
                 <Skeleton className='mb-2' width={600} height={52} count={8}/>
@@ -53,12 +63,18 @@ const EntriesDisplay = (props) => {
             <div>
                 <div className="accordion" id="entriesAccordion">
             {
-                
+            //maps out each event in the competition 
             compEventGrade.map((field,index) => {
+
+                //filter entries for the specific event 
                 var event_entries = entries.filter(value => value.gradeID === field.grade && value.eventID === field.event);
+
+                //displays html for the modal 
                 return(
                     <div key={index}>
-                        {eventGrade && 
+                        {
+                        //checks eventgrade is set 
+                        eventGrade && 
                         <div className="accordion-item mb-2">
                             <h2 className="accordion-header" id={"heading"+index}>
                             <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={"#collapse"+index} aria-expanded="false" aria-controls={"collapse"+index}>
@@ -68,13 +84,16 @@ const EntriesDisplay = (props) => {
                             <div id={"collapse"+index} className="accordion-collapse collapse" aria-labelledby={"heading"+index} data-bs-parent="#entriesAccordion">
                             <div className="accordion-body">
                                 {event_entries.map((entry,index) => {
+                                    //maps out every entry in the event and displays names 
                                     return(
                                         <div key={index} className='border-bottom text-start'>
                                             <p>{index+1}.  {entry.user_name}</p>
                                         </div>
                                     );
                                 })}
-                                {event_entries.length === 0 &&
+                                {
+                                //message for when no entries are made
+                                event_entries.length === 0 &&
                                     <div className='m-2'>
                                         <p>There are currently no entries in this event</p>
                                     </div>

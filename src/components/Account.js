@@ -208,6 +208,8 @@ const Account = () => {
 
       
       const ConfirmUpdateAccount = () => {
+        //HTML that displays when user has submitted account form
+        //has confirmation and back buttons 
         return (
           <div>
             <Modal
@@ -248,6 +250,10 @@ const Account = () => {
         );
       }
       const ConfirmUpdateChildren = () => {
+
+        //same as confirm account update 
+        //but for the students 
+        //confirm and back buttons but displays the students they have selected 
         return (
           <div>
             <Modal
@@ -290,7 +296,7 @@ const Account = () => {
         );
       }
       
-      
+    //displays HTML for the page
     return (
       
         <div className='container-fluid comp-container'>
@@ -304,8 +310,10 @@ const Account = () => {
                     <div className='col-8 text-center approve-users-body'>
                         <button onClick={() => navigate(-1)} className='btn account-back'><i className="fas fa-arrow-left"></i></button>
                         {loading ? (
+                          //nothing displays on loading 
+                          //although a skeleton may be useful here 
                             <>
-                            
+
                             </>
                         ):(
                             <>
@@ -344,14 +352,22 @@ const Account = () => {
                                     <h5 className='m-2'>Edit Students</h5>
                                     <div className="">
                                     {children.map((child,index) => {
-                                        
+                                        //area where parents can select the students linked to their account
+                                        // alot of variables are named children when it should be student.
+
+                                        //filters already selected students out of autocomplete list 
                                         const filter_names = names.filter((name) => {
                                         return !children.some((child) => {
+                                          //returns true if children have already been selected by the current user
                                             return child === (name.name)
                                         })
                                         }).filter((name) => {
+                                          //only returns true if the student has no linked parent account 
+                                          //or if there is a parent linked but its this user 
                                             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
                                         })
+
+                                        //HTML for the inputs 
                                         return(
                                         <div key={index}>
                                         <div  className=" mb-3 dropdown ">
@@ -360,11 +376,13 @@ const Account = () => {
                                             
 
                                             {children.length > 1 &&
+                                            //remove student button 
                                             <button onClick={() => {setChildren((values) => values.filter((_, i) => i !== index));}} className="btn btn-outline-primary" type="button" id="add-child">X</button>
 
                                             }
                                             
                                             {index === children.length-1 &&
+                                            //add another student button 
                                             <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} className="btn btn-outline-primary" type="button" id="add-child">Add Student</button>
                                             }
                                             <div className="invalid-feedback">
@@ -373,6 +391,8 @@ const Account = () => {
                                             </div>
                                             <ul className="dropdown-menu student-dropdown" aria-labelledby="studentDropdown">
                                             {filter_names.map((name,ind) => {
+                                              //dropdown menu for auto complete 
+                                              //displays students from the list of filtered names 
                                                 return (
                                                 <div key={ind}>
                                                 {((name.name).toLowerCase().match(child.toLowerCase()) !== null) ? (

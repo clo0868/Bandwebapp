@@ -9,6 +9,7 @@ const AllUsers = () => {
     
 
     useEffect(() => {
+        //returns list of all non admin users present in the database 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/non_admin_users',
@@ -25,7 +26,8 @@ const AllUsers = () => {
 
 
 
-
+    //displays HTML for the page
+    //shows 3 lists of all students parents and tutors 
     return (
         <div className='container-fluid comp-container'>
             <div className='grid'>
@@ -41,6 +43,7 @@ const AllUsers = () => {
                             <div className='col-4 border border-top-0'>
                                 <h5 className='border-bottom ms-2'>Students:</h5>
                                 {allUsers.filter((V) => {return V.user_type === 0}).map((user,index) => {
+                                    //displays list of all studnets 
                                     return(
                                         <>
                                             <p className='ms-2'>{index+1}. {user.user_name}</p>
@@ -54,6 +57,8 @@ const AllUsers = () => {
                             <div className='col-4 border border-top-0'>
                                 <h5 className='border-bottom ms-2'>Parents:</h5>
                                 {allUsers.filter((V) => {return V.user_type === 2}).map((user,index) => {
+                                    //displays list of all parents 
+                                    //sublists of all students linked to each parent 
                                     return(
                                         <>
                                             <p className='ms-2'>{index+1}. {user.user_name} </p>
@@ -77,6 +82,7 @@ const AllUsers = () => {
                             <div className='col-4 border border-top-0'>
                                 <h5 className='border-bottom ms-2'>Tutors:</h5>
                                 {allUsers.filter((V) => {return V.user_type === 3}).map((user,index) => {
+                                    //displays list of all tutors 
                                     return(
                                         <>
                                             <p className='ms-2'>{index+1}. {user.user_name}</p>

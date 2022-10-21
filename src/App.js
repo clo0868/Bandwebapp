@@ -20,6 +20,8 @@ function App() {
   const [searchParams, setSearchParams] = useSearchParams({query:''});
   const [notifs, setNotifs] = useState(0);
   useEffect(() => {
+    //get notifications if any
+    //do it any time the location changes or if the user logs in or out 
     axios({
       method: 'POST',
       url: 'https://pipe-band-server.herokuapp.com/approve_notif',
@@ -32,7 +34,10 @@ function App() {
         e = new Error();     
     })
   }, [token,location]);
+
+  
   useEffect(() => {
+    //get the user data when the user logs in 
     axios({
       method: 'POST',
       url: 'https://pipe-band-server.herokuapp.com/user',
@@ -42,13 +47,16 @@ function App() {
     }).then(res => {
       setUser(res.data)
     }).catch(e => {
+      //if the user isnt approved display the message
       if(e.response.data && e.response.data.error === 'User not approved!'){
         setUser({user:e.response.data.error})
 
       }else{
+        //if not user is unauthorized to view info so dont 
         if(e.response.status === 403){
           sessionStorage.removeItem('TOKEN')
         }else{
+          //display any other error messages 
           e = new Error();
         }
         
@@ -57,18 +65,25 @@ function App() {
       
     })
   },[token])
+
   function handleChange(event) {
+    //function to change URL anytime the user uses the search bar on the home page 
     event.preventDefault();
     let params = {query:event.target.value}
     setSearchParams(params);
   }
   
+  //HTML for navbar
+  //including routes for the rest of the site 
   return (
     <>
     <div className='navbar-sticky grid shadow-sm'>
         <ul className="list-unstyled row align-items-center text-center m-0 p-2 px-4">
           <li className='col-4'><Link className='link-dark text-decoration-none' to="/">PipeBand</Link></li>
-          {location.pathname === '/' ? (
+          {
+          //only show search bar on home page 
+          //if not still have empty column to seperate sections 
+          location.pathname === '/' ? (
           <li className='col-4 d-flex justify-content-center'>            
               <input className=" search-bar form-control ps-3 border rounded-pill" placeholder='Search:' type="text" onChange={handleChange} value={new URLSearchParams(searchParams).get('query')} />         
             
@@ -78,9 +93,15 @@ function App() {
           )
           }
           
-          {user ? 
+          {
+          //check if the user is logged in 
+          //if so display log out and other buttons 
+          //instead of log in and signup 
+          user ? 
           <li className="col-4">
-            {(user.user.user_type === 5 || user.user.user_type === 4) && 
+            {
+            //only displays this links if the user is a steward or judge 
+            (user.user.user_type === 5 || user.user.user_type === 4) && 
               <>
                   <Link className='link-dark me-5' to='/users'>
                     <i className="fas fa-user-friends"></i>
@@ -88,7 +109,9 @@ function App() {
 
                   <Link className='relative link-dark me-5' to="/approve">              
                     <i className="fas fa-user-check"></i>
-                    {notifs.length > 0 &&
+                    {
+                    //show notification icon if there are any 
+                    notifs.length > 0 &&
                       <span className='account-notification'>{notifs.length}</span>
                     }
                     
@@ -119,7 +142,17 @@ function App() {
         
       </div>
       <Routes>
+        {/* 
+        routes for the page 
+        any routes requiring login are wrapped in the protected route tag 
+        this checks for valid token before loading page 
+        login and signup arent as they cant be logged in to see these pages 
+        the rest are.
+
+        for future use the admin only pages can be wrapped in another admin route tag
+        but for now its done seperatly on each page as it requires a sperate api call to the server 
         
+        */}
         <Route index path="/" element={
           <ProtectedRoute>
             <Home/>

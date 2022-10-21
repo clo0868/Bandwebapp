@@ -4,6 +4,9 @@ import 'react-loading-skeleton/dist/skeleton.css'
 const HomeSkeletonCard = (props) => {
     var n = props.num
     const keys = [...Array(n).keys()];
+
+    //generic card skeletons for home page card 
+    //takes in a number of variable 
     return (
       <div>
         {keys.map((i) => (

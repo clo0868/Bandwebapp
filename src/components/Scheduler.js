@@ -11,8 +11,12 @@ const Scheduler = () => {
     const [loading, setLoading] = useState(false);
     const [comp, setComp] = useState();
     const [userList, setUserList] = useState([]);
+
+
     function createSchedule(){
         setLoading(true)
+        //creates schedule for a given competition 
+        //uses scheduling algorithm 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/create_schedule',
@@ -24,13 +28,14 @@ const Scheduler = () => {
             },
         }).then(res => {
             setSchedule(res.data)
-            
+            setLoading(false)
         }).catch(e => {
             e = new Error();
         })
     }
     useEffect(() => {
         setLoading(true)
+        //gets data for all users entered in the competition 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/comp_users',
@@ -45,6 +50,8 @@ const Scheduler = () => {
         }).catch(e => {
             e = new Error();
         })
+
+        //gets events and grades from db 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
@@ -56,6 +63,8 @@ const Scheduler = () => {
         }).catch(e => {
             e = new Error();
         })
+
+        //gets the competition data 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/comp_data',
@@ -73,12 +82,13 @@ const Scheduler = () => {
           })
     }, []);
 
+    //function to shorten time from 00:00.00 to 00:00
     function shortenTime(time){
         if (time.length === 10) {return time.slice(0,4)+time.slice(8)}
         if (time.length === 11) {return time.slice(0,5)+time.slice(9)}        
-        //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(0,4)} 
-        //{(new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*start_time)).toLocaleTimeString().slice(8)}
     }
+
+    //displays Html for the page 
     return (
         <div className='container-fluid'>
                 <div className='grid'>
@@ -95,7 +105,9 @@ const Scheduler = () => {
                                         
                                     </div>
                                     <div>
-                                        {Reflect.ownKeys(schedule).length === 0 && 
+                                        {
+                                        // button to create new schedule only shows if no schedule is in the db 
+                                        Reflect.ownKeys(schedule).length === 0 && comp && comp.comp_rooms !== '0' &&
                                         <button className='btn btn-primary' onClick={() => {createSchedule()}}>Create New Schedule</button>
                                         }
 
@@ -106,7 +118,9 @@ const Scheduler = () => {
                                 
 
                                 <div className='mt-5 sch-grid'> 
-                                {loading ? (
+                                {
+                                //displays loading when a new schedule is being created 
+                                loading ? (
                                     <div className='d-flex flex-column justify-content-center align-items-center'>
                                         <div className='loader'>
 
@@ -116,7 +130,10 @@ const Scheduler = () => {
                                     
                                 ):(            
                                     <>
-                                    {Reflect.ownKeys(schedule).length === 0 && userList.length > 0 && eventGrade && comp && comp.comp_schedule !== '0' &&
+                                    {
+                                    //shows when no schedule is present and all data has loaded
+                                    //so only schedule in the db is present  
+                                    Reflect.ownKeys(schedule).length === 0 && userList.length > 0 && eventGrade && comp && comp.comp_schedule !== '0' && comp.comp_rooms !== '0' &&
                                     
                                         <>       
 
@@ -125,11 +142,14 @@ const Scheduler = () => {
                                             <div className='grid text-center '>
                                                 <div className='row mx-2'>
                                                     
-                                                    {JSON.parse(comp.comp_schedule).map((room,room_index) => {
-                                                        //const schedule = JSON.parse(comp.comp_schedule)
-                                                        const room_data = JSON.parse(comp.comp_rooms)[room_index]  
-                                                        console.log(room_data);  
+                                                    {
+                                                       
+                                                    //parse the schedule as its stored as plaintext in the db 
+                                                    JSON.parse(comp.comp_schedule).map((room,room_index) => {
                                                         console.log(comp);
+                                                        //parse room data for this room 
+                                                        const room_data = JSON.parse(comp.comp_rooms)[room_index]
+                                                        
                                                         return(
                                                             <div key={room_index} className='col-3 p-0 mb-5'>
                                                                 <div>
@@ -137,13 +157,13 @@ const Scheduler = () => {
                                                                     <p>Judge: {room_data.room_judge.user_name} </p>
                                                                     <p>Steward: {room_data.room_steward.user_name} </p>
                                                                 </div>
-                                                                
+                                                                {
 
-                                                            
-                                                                    
-                                                                {room.return_room.map((event,event_index) => {
-                                                                    //const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
+                                                                //displays each event individually 
+                                                                room.return_room.map((event,event_index) => {
 
+                                                                    //displays html 
+                                                                    const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
                                                                     return(
                                                                         <>
                                                                         <table className='table border-start border-end table-striped m-0' key={event_index}>
@@ -155,13 +175,17 @@ const Scheduler = () => {
                                                                             </thead>
                                                                             <tbody>
                                                                                 {event.return_event.map((entry,entry_index) => {
+                                                                                    //displays each individual entry 
                                                                                     var entry_user = {}
                                                                                     userList.forEach((user) => {
                                                                                         if (user.userID === entry.entry.userID) {
+                                                                                            //userIDs match so name can be found 
                                                                                             entry_user = user
                                                                                         }
                                                                                         return null
                                                                                     })
+
+                                                                                    //displays user card 
                                                                                     return(
                                                                                         <tr key={entry_index}>
                                                                                             <th scope="row">{shortenTime((new Date(new Date(comp.comp_start_time).getTime()+60000*entry.play_time)).toLocaleTimeString())}</th>
@@ -190,16 +214,24 @@ const Scheduler = () => {
                                     }
                                        
                             
-                                    {eventGrade && Reflect.ownKeys(schedule).length > 0 &&
+                                    {
+                                    //similar code displays when schedule is from the server algorithm instead of the stored value 
+                                    //happens when a new schedule is made or no schedule had been made yet
+                                    eventGrade && Reflect.ownKeys(schedule).length > 0 &&
                                         <>
                                             <h1>{schedule.comp_data.comp_name}</h1>
                                             <h5>{new Date(schedule.comp_data.comp_start_time).toLocaleTimeString()} {new Date(schedule.comp_data.comp_start_time).toDateString()}</h5>
                                             <div className='grid text-center '>
                                                 <div className='row'>
                                                     
-                                                    {schedule.sch_res.map((room,room_index) => {
-                                                        console.log(room);
+                                                    {
+                                                    //displays schedule 
+                                                    schedule.sch_res.map((room,room_index) => {
+
+                                                        //parse room data for the given room 
                                                         const room_data = JSON.parse(schedule.comp_data.comp_rooms)[room_index]    
+
+                                                        //display html 
                                                         return(
                                                             <div key={room_index} className='col-3 p-0'>
                                                                 <div>
@@ -211,9 +243,12 @@ const Scheduler = () => {
 
                                                             
                                                                     
-                                                                {room.return_room.map((event,event_index) => {
+                                                                {
+                                                                //displays event data individually 
+                                                                room.return_room.map((event,event_index) => {
                                                                     const start_time = (room.return_room.slice(0,event_index).reduce((t,v) => {return t+v.time},0))+room.delay
-
+                                                                    
+                                                                    //display event html 
                                                                     return(
                                                                         <>
                                                                         <table className='table border-start border-end table-striped mx-2' key={event_index}>
@@ -224,14 +259,18 @@ const Scheduler = () => {
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                {event.return_event.map((entry,entry_index) => {
+                                                                                {
+                                                                                //returns each individual entry 
+                                                                                event.return_event.map((entry,entry_index) => {
                                                                                     var entry_user = {}
                                                                                     schedule.user_data.forEach((user) => {
+                                                                                        //matches user data 
                                                                                         if (user.userID === entry.entry.userID) {
                                                                                             entry_user = user
                                                                                         }
                                                                                         return null
                                                                                     })
+                                                                                    //returns entry html 
                                                                                     return(
                                                                                         <tr key={entry_index}>
                                                                                             <th scope="row">{shortenTime((new Date(new Date(schedule.comp_data.comp_start_time).getTime()+60000*entry.play_time)).toLocaleTimeString())}</th>
@@ -257,6 +296,21 @@ const Scheduler = () => {
                                             </div>
                                             
                                         </>
+                                    }
+                                    {
+                                        //display message if rooms havent been configured yet 
+                                    Reflect.ownKeys(schedule).length === 0 && userList.length > 0 && eventGrade && comp && comp.comp_schedule !== '0' && comp.comp_rooms === '0' &&
+                                    <>
+                                    <h5>Rooms have not been Configured</h5>
+                                    <p>Configure the room to be able to create schedules</p>
+                                    </>
+                                    }
+                                    {
+                                    //display message if first schedule hasnt been made yet
+                                    Reflect.ownKeys(schedule).length === 0 && userList.length > 0 && eventGrade && comp && comp.comp_schedule === '0' && comp.comp_rooms !== '0' &&
+                                    <>
+                                    <h5>No current schedule</h5>
+                                    </>
                                     }
                                     
                                 

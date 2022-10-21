@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 
 
 const DeleteComp = (props) => {
+    //delete comp modal 
     const token = sessionStorage.TOKEN
     const compmodalstyle = {
         position: 'absolute',
@@ -21,7 +22,9 @@ const DeleteComp = (props) => {
     const navigate = useNavigate();
     const comp = props.comp
     const [deleteCompOpen, setDeleteCompOpen] = useState(false);
+
     function deleteComp(compID){
+        //once the user confirms delete the competition 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/delete_comp',
@@ -38,6 +41,7 @@ const DeleteComp = (props) => {
           })
     }
 
+    //just a confirm modal so users dont accidentally delete competitions 
     return (
         <>
             <button className='comppagebtn btn btn-primary' onClick={() => {setDeleteCompOpen(true)}}>Delete Competiton</button>

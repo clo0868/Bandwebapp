@@ -7,8 +7,11 @@ const EntryForm = (props) => {
     var comp = props.comp
     const token = props.token
     const users = Array.of(props.user).flat()
-    console.log(users);
+
+    //all comp events 
     const compEventGrade = JSON.parse(comp.comp_events);
+
+
     const [user, setUser] = useState(users[0]);
     const [eventGrade, setEventGrade] = useState();
     const [entryChecked, setEntryChecked] = useState(Array.apply(null, Array(compEventGrade.length)).map(i => i=false));
@@ -16,6 +19,7 @@ const EntryForm = (props) => {
     const [loading, setLoading] = useState(true);
     const [existingEntry, setExistingEntry] = useState([]);
     useEffect(() => {
+        //gets event and grade name as well as checks for existing user entries 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/event_grade_name',
@@ -45,6 +49,7 @@ const EntryForm = (props) => {
         })
     },[user,])
     function handleSubmitEntryForm(){
+        //send entries to api
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/create_entries',
@@ -65,6 +70,7 @@ const EntryForm = (props) => {
 
     }
     function handleEditEntry(){
+        //loads entries into entry checked array and removes previous entries from state 
         const eventIndexes = existingEntry.map((entry,index) => compEventGrade.findIndex((event,index) => event.event === entry.eventID && event.grade === entry.gradeID))
         eventIndexes.map((index) => {
             setEntryChecked(values => values.map((value,i) => {return i === index ? !value:value }));
@@ -73,6 +79,9 @@ const EntryForm = (props) => {
         setExistingEntry([])
     }
     function handleDeleteEntry(){
+
+        //create entries api will delete users entries first 
+        //if no more entries are specified it will end 
         axios({
             method: 'POST',
             url: 'https://pipe-band-server.herokuapp.com/create_entries',
@@ -94,9 +103,13 @@ const EntryForm = (props) => {
 
 
     function EntryInput(){
+        //actual entry form 
+
         function Checkbox(props){
+            //check box component 
             const field = props.field
             const index = props.index
+            //displays html for a checkbox 
             return(
                 <div key={index} className="form-check row m-1 border">
                     <div className=' d-flex align-items-center p-2'>
@@ -114,12 +127,14 @@ const EntryForm = (props) => {
             )
 
         }
+        //displays html for outer modal 
         return(
             <>
             <div className=' text-center m-3 pt-2'>
                 <h5 className='mb-4'>Enter Events for {user.user_name}</h5>
                     <div className='grid entry-form'>
                     {compEventGrade.map((field,index) => {
+                        //list of checkboxes for every event
                         return(
                             <Checkbox key={index} field={field} index={index} />
                         );
@@ -131,11 +146,14 @@ const EntryForm = (props) => {
         )
     }
     function AlreadyEntered(){
+        //displays when user clicks to enter but they have already entered 
+        //user can then edit or delete entries if they want to 
         return(
         <>
             <h5 className='mb-4'>{user.user_name} has already entered these events:</h5>
             <ul className=''>
-            {existingEntry.map((entry,index) => { 
+            {existingEntry.map((entry,index) => {
+                //list of entries they have already entered 
                 return(
                     <div key={index}>
                         {eventGrade &&
@@ -158,17 +176,21 @@ const EntryForm = (props) => {
 
     }
     function ConfirmEntries(){
+        //confirm page for entries 
         return(
         <>
         <div className='text-center'>
                 <h5 className='mb-4'>Confirm Your Entries for {user.user_name}</h5>
-                {entryChecked.every((v) => (v === false)) && 
+                {
+                //cant enter if there are no entries selected 
+                entryChecked.every((v) => (v === false)) && 
                     <div>                        
                         <p>You have not entered any events</p>            
                     </div>
                 
                 }
                 {entryChecked.map((entry,index) => { 
+                    //list of entries 
                     return(
                         <div key={index}>
                             <ul>
@@ -182,7 +204,9 @@ const EntryForm = (props) => {
                     )
                 })}
                 <button className='btn-border-none mt-3' onClick={() => {setActiveStep(0)}} >Back</button>
-                {entryChecked.some((v) => (v === true)) &&
+                {
+                // cant enter if there are no entries 
+                entryChecked.some((v) => (v === true)) &&
                     <button className='btn-border-none ms-3 mt-3' onClick={() => {handleSubmitEntryForm()}} >Confirm</button>
                 }
             </div>
@@ -191,11 +215,13 @@ const EntryForm = (props) => {
         )
     }
     function EntriesSuccess(){
+        //success page after entering 
         return(
         <>
             <div className='m-2'>
                 <h5 className='mb-2'>{user.user_name} has succesfully entered these events</h5>
                 {entryChecked.map((entry,index) => { 
+                    //list of entries 
                     return(
                         <div key={index}>
                             <ul>
@@ -213,17 +239,21 @@ const EntryForm = (props) => {
         )
     }
     function DeleteEntries(){
+        //page where user confirms they want to remove their entries 
         return(
         <>
         <div className='text-center'>
                 <h5 className='mb-4'>Remove Entries for {user.user_name}</h5>
-                {existingEntry.length === 0 && 
+                {
+                    //cant delete entries if there are none 
+                existingEntry.length === 0 && 
                     <div>                        
                         <p>You have not entered any events</p>            
                     </div>
                 
                 }
                 {existingEntry.map((entry,index) => { 
+                    //shows list of entries to delete 
                     return(
                         <div key={index}>
                             <ul>
@@ -237,7 +267,9 @@ const EntryForm = (props) => {
                     )
                 })}
                 <button className=' btn-border-none mt-3' onClick={() => {setActiveStep(0)}} >Back</button>
-                {existingEntry.length > 0 &&
+                {
+                //cant delete entries if there are none 
+                existingEntry.length > 0 &&
                     <button className='btn-border-none ms-3 mt-3'onClick={() => {handleDeleteEntry()}} >Confirm</button>
                 }
             </div>
@@ -246,11 +278,14 @@ const EntryForm = (props) => {
         )
     }
     function DeleteEntriesSuccess(){
+        //succes page after a user had removed their entries 
         return(
         <>
         <div className='m-2'>
             <h5 className='mb-4'> Deleted all events for {user.user_name}</h5>
-            {existingEntry.map((entry,index) => { 
+            {
+            //list of entries deleted 
+            existingEntry.map((entry,index) => { 
                 return(
                     <div key={index}>
                         <ul>
@@ -268,16 +303,23 @@ const EntryForm = (props) => {
         </>
         )
     }
+    
+    //displays html for the page 
     return ( 
         <div className='modal-size d-flex justify-content-center max-height '>
-        {loading ? (
+        {
+        //display skeletons on loading 
+        loading ? (
             <div className='text-center p-3'>
                 <Skeleton className='mb-2' width={590} height={56} count={8}/>
             </div>
 
         ):(
             <div className='text-center d-flex flex-column justify-content-center p-4 '>
-                {users.length > 1 && activeStep === 0 &&
+                {
+                //displays user name or who is being entered
+                //only show once data has loaded and when the form is opened 
+                users.length > 1 && activeStep === 0 &&
                     <select  onChange={({ target }) => {console.log(users[target.value],user); setUser(users[target.value])}} className="select-child form-select" aria-label="Default select example">
                     { users.map((child,index) => {
                         return(
@@ -288,7 +330,10 @@ const EntryForm = (props) => {
                     </select>
 
                 }
-                
+            {/*
+             All the steps of the entry form 
+            Names are self descriptive 
+            */}   
             {activeStep === 0 && existingEntry.length === 0 &&
                 <EntryInput/>
             }

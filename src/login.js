@@ -7,7 +7,9 @@ import axios from "axios";
 
 const Login = () => {
   let navigate = useNavigate();
+
   useEffect(() => {
+    //if the user is logged in redirect to home page 
     if(sessionStorage.getItem("TOKEN")){
       navigate("/")
     }
@@ -19,9 +21,12 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   async function loginUser(user) {
+
+    //get input refs 
     const user_input = user_ref.current; 
     const pass_input = pass_ref.current; 
 
+    //send info to server 
     return axios({
         method: 'POST',
         url: 'https://pipe-band-server.herokuapp.com/login',
@@ -30,11 +35,18 @@ const Login = () => {
           pass:user.password,
         },
       }).then(res => {
+        //no error so user was logged in succesfully
         user_input.className = " form-control"; 
         pass_input.className = " form-control";
+
+        //set JWT in browser session storage 
         sessionStorage.setItem("TOKEN", res.data.token);
+
+        //redirect to home page 
         navigate("/")
       }).catch(e => {
+        //returned error then input found no match
+        //form is invalid so changes in bootstrap 
         user_input.className = " form-control is-invalid";
         pass_input.className = " form-control is-invalid";
         setPassword("")
@@ -42,6 +54,7 @@ const Login = () => {
    }
 
   const handleSubmit = async e => {
+    //used beacause async is a pain 
     e.preventDefault();
     loginUser({
       username,
@@ -50,12 +63,16 @@ const Login = () => {
   }
 
   function unerror(){
+    //remove errors when inputs are selected 
     const user_input = user_ref.current; 
     const pass_input = pass_ref.current; 
     user_input.className = " form-control"; 
     pass_input.className = " form-control";
   }
 
+
+                          
+  //displays HTML for login page 
   return (
     <div className="container-fluid">
       <div className="d-flex justify-content-center">

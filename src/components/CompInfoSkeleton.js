@@ -3,6 +3,7 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
 const CompInfoSkeleton = () => {
+    //skeleton for the competitions page 
     return (
         <div className='container-fluid border-bottom border-3'>
             <div className='grid m-3'>
