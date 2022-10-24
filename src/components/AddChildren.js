@@ -158,8 +158,8 @@ const AddChildren = () => {
                           //displays dropdown list of filtered names to autocomplete form 
                         return (
                             <div key={ind}>
-                            {((student.user_name).toLowerCase().match(child) !== null) ? (
-                            <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? student:value}))}} className='student-dropdown-item ps-1'>{student.user_name}</li>
+                            {((student.user_name).toLowerCase().match(child.user_name) !== null) ? (
+                            <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? {...value,user_name:student}:value}))}} className='student-dropdown-item ps-1'>{student.user_name}</li>
                             ):(null)}
                             </div>
                         )

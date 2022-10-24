@@ -382,7 +382,7 @@ const Account = () => {
                                             
                                             {index === children.length-1 &&
                                             //add another student button 
-                                            <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} className="btn btn-outline-primary" type="button" id="add-child">Add Student</button>
+                                            <button onClick={() => {setChildren(prevChilds => [...prevChilds,{user_name:''}])}} className="btn btn-outline-primary" type="button" id="add-child">Add Student</button>
                                             }
                                             <div className="invalid-feedback">
                                                 This Student Does Not Exist. Please Select An Existing Student.
@@ -396,7 +396,7 @@ const Account = () => {
                                               //displays students from the list of filtered names 
                                                 return (
                                                 <div key={ind}>
-                                                {((name.user_name).toLowerCase().match(child.user_name.toLowerCase()) !== null) ? (
+                                                {((child) && ((name.user_name).toLowerCase().match(child.user_name.toLowerCase()) !== null)) ? (
                                                     <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? name:value}))}} className='student-dropdown-item ps-1'>{name.user_name}</li>
                                                 ):(null)}
                                                 </div>
