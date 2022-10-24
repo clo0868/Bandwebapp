@@ -57,7 +57,8 @@ const Account = () => {
             setAccountType(res.data.user.user_type)
             if (res.data.children) {
                 setPrevChildren(res.data.children)
-                setChildren(res.data.children.map(name => Object.values(name).slice(1,3).join(" ")))
+                console.log(res.data.children);
+                setChildren(res.data.children)
             }
             setLoading(false)
           }).catch(e => {
@@ -135,13 +136,7 @@ const Account = () => {
         const filter_names = names.filter((name) => {
           return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
         })
-        const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
-        const send_children = []
-
-        //add each student to an array to send 
-        children.forEach((child) => {
-            send_children.push(filter_names[merged_names.indexOf(child)])
-        });
+        
 
         //send data to api 
         axios({
@@ -151,7 +146,7 @@ const Account = () => {
                 Authorization: `Bearer ${token}`,
               },
             data:{
-                children:send_children
+                children:children
             },
           }).then(res => {  
             setAccUpdateBtn(2)      
@@ -173,12 +168,13 @@ const Account = () => {
         const filter_names = names.filter((name) => {
             return name.parent === 0 || prevChildren.some((child) => {return child.userID === name.userID})
         })
-        const merged_names = filter_names.map(name => Object.values(name).slice(1,3).join(" "))
+       
 
         //check if all student inputs are valid 
-        if(children.every((stud_name,index) => {
+        if(children.every((stud,index) => {
           const children_input = childRefs.current[index];
-          if (merged_names.every((name) => name !== stud_name)) {
+          console.log(stud);
+          if (filter_names.every((name) => name.user_name !== stud.user_name)) {
             children_input.className = " form-control is-invalid";
             return false
           }else{
@@ -268,10 +264,11 @@ const Account = () => {
                       <h5>Confirm These Changes</h5>
                       <div className='grid text-start p-4'>
                         {children.map((child,index) => {
+                          console.log(child);
                           return(
                             
                               <div key={index} className='row'>
-                                <p>{index+1}. {child}</p>
+                                <p>{index+1}. {child.user_name}</p>
                               </div>
                             
                           )
@@ -351,15 +348,17 @@ const Account = () => {
                                 <div className='form-control text-center m-2 p-2'>
                                     <h5 className='m-2'>Edit Students</h5>
                                     <div className="">
-                                    {children.map((child,index) => {
+                                    {
+                                    
+                                    children.map((child,index) => {
+                                      console.log(children);
                                         //area where parents can select the students linked to their account
                                         // alot of variables are named children when it should be student.
-
                                         //filters already selected students out of autocomplete list 
                                         const filter_names = names.filter((name) => {
                                         return !children.some((child) => {
                                           //returns true if children have already been selected by the current user
-                                            return child === (name.name)
+                                            return child.user_name === (name.user_name)
                                         })
                                         }).filter((name) => {
                                           //only returns true if the student has no linked parent account 
@@ -372,7 +371,7 @@ const Account = () => {
                                         <div key={index}>
                                         <div  className=" mb-3 dropdown ">
                                             <div id="studentDropdown" className='input-group' data-bs-toggle="dropdown" aria-expanded="false">  
-                                            <input id={'student'+index} type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? event.target.value:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
+                                            <input id={'student'+index} type="text" ref={(element) => childRefs.current[index] = element } onSelect={() => {unerror(index)}} className='form-control' value={child.user_name} onChange={(event) => setChildren(values => values.map((value,i) => { return i === index ? {...value ,user_name:event.target.value}:value}))} aria-describedby="add-child" placeholder="Students Name"  required/>
                                             
 
                                             {children.length > 1 &&
@@ -391,12 +390,14 @@ const Account = () => {
                                             </div>
                                             <ul className="dropdown-menu student-dropdown" aria-labelledby="studentDropdown">
                                             {filter_names.map((name,ind) => {
+                                              console.log(name);
+                                              console.log(child);
                                               //dropdown menu for auto complete 
                                               //displays students from the list of filtered names 
                                                 return (
                                                 <div key={ind}>
-                                                {((name.name).toLowerCase().match(child.toLowerCase()) !== null) ? (
-                                                    <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? name.name:value}))}} className='student-dropdown-item ps-1'>{name.name}</li>
+                                                {((name.user_name).toLowerCase().match(child.user_name.toLowerCase()) !== null) ? (
+                                                    <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? name:value}))}} className='student-dropdown-item ps-1'>{name.user_name}</li>
                                                 ):(null)}
                                                 </div>
                                                 )
