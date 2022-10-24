@@ -142,7 +142,7 @@ const AddChildren = () => {
                     {
                     //add another student button 
                     index === children.length-1 &&
-                        <button onClick={() => {setChildren(prevChilds => [...prevChilds,''])}} id="studentDropdown" data-bs-toggle="dropdown" className="btn btn-outline-primary" type="button">Add Student</button>
+                        <button onClick={() => {setChildren(prevChilds => [...prevChilds,{user_name:''}])}} id="studentDropdown" data-bs-toggle="dropdown" className="btn btn-outline-primary" type="button">Add Student</button>
                     }
                     <div className="invalid-feedback">
                         This Student Does Not Exist. Please Select An Existing Student.
@@ -155,7 +155,7 @@ const AddChildren = () => {
                         return (
                             <div key={ind}>
                             {((student.user_name).toLowerCase().match(child.user_name) !== null) ? (
-                            <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? {...value,user_name:student}:value}))}} className='student-dropdown-item ps-1'>{student.user_name}</li>
+                            <li onClick={() => {setChildren(values => values.map((value,i) => { return i === index ? {...value,user_name:student.user_name}:value}))}} className='student-dropdown-item ps-1'>{student.user_name}</li>
                             ):(null)}
                             </div>
                         )
