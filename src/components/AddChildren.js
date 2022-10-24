@@ -59,11 +59,7 @@ const AddChildren = () => {
 
           //if all inputs are valid
           //format the data to send to server
-            const send_children = []
-            children.forEach((child) => {
-                send_children.push(filter_names[names.indexOf(child)])
-                console.log(send_children);
-            });
+            
             
             //send students data to server 
             axios({
@@ -73,7 +69,7 @@ const AddChildren = () => {
                     Authorization: `Bearer ${token}`,
                   },
                 data:{
-                    children:send_children
+                    children:children
                 },
               }).then(res => { 
                 //on complete send user to home page  
